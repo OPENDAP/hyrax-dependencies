@@ -114,9 +114,9 @@ proj_dist=$(proj).tar.gz
 # gdal_dist=$(gdal).tar.gz
 
 # The new version. jhrg 8/24/16
-gdal2=gdal-2.1.1
+# gdal2=gdal-2.1.1
 # gdal2=gdal-2.3.3
-# gdal2=gdal-2.4.0
+gdal2=gdal-2.4.0
 gdal2_dist=$(gdal2).tar.xz
 
 gridfields=gridfields-1.0.5
@@ -366,7 +366,8 @@ $(gdal2_src)-stamp:
 
 gdal2-configure-stamp:  $(gdal2_src)-stamp
 	(cd $(gdal2_src) && ./configure $(CONFIGURE_FLAGS) --with-pic	\
-	--prefix=$(gdal2_prefix) --with-openjpeg=$(openjpeg_prefix))
+	 --prefix=$(gdal2_prefix) --with-openjpeg=$(openjpeg_prefix) \
+	 --without-netcdf --without-hdf5)
 	echo timestamp > gdal2-configure-stamp
 
 gdal2-compile-stamp: gdal2-configure-stamp
@@ -384,6 +385,7 @@ gdal2-clean:
 
 gdal2-really-clean: gdal2-clean
 	-rm $(gdal2_src)-stamp
+	-(cd  $(gdal2_src) && $(MAKE) $(MFLAGS) uninstall)
 	-rm -rf $(gdal2_src)
 
 .PHONY: gdal2
