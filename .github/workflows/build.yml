@@ -24,25 +24,24 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Run commands using the runners shell
-      - name: make-for-actions
+      # Run commands using the runner's shell
+      - name: make static libraries
         run: make -j8 for-static-rpm
-      - name: build ubuntu tar ball
-        run: tar -czf $prefix/hyrax-deps-ubuntu.tar.gz -C $prefix/deps .
-      - name: upload to S3
-        run: aws s3 cp
-        uses: actions/upload-artifact@v2
-        with:
-          path: ${{ github.workspace }}/build/hyrax-deps-ubuntu.tar.gz
-          name: hyrax-deps-ubuntu.tar.gz
+#      - name: build ubuntu tar ball
+#        run: tar -czf $prefix/hyrax-deps-ubuntu.tar.gz -C $prefix/deps .
+#      - name: upload to S3
+#        uses: actions/upload-artifact@v2
+#        with:
+#          path: ${{ github.workspace }}/build/hyrax-deps-ubuntu.tar.gz
+#          name: hyrax-deps-ubuntu.tar.gz
 
   # Build on OSX just to check that changes work in our dev environments
   osx-build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: make-for-actions
-        run: make -j8 for-actions
+      - name: make static libraries
+        run: make -j8 for-static-rpm
 
   # For info on the docker commands: https://www.petefreitag.com/item/903.cfm
   # and https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
@@ -64,7 +63,11 @@ jobs:
           ls -lR $prefix
           tar -czf $SOURCE_DIR/hyrax-deps-centos7.tar.gz -C $prefix/deps .
       - name: synch to S3
-        run: aws s3 sync --follow-symlinks --delete $SOURCE_DIR s3://$AWS_S3_BUCKET
+        # run: aws s3 sync --follow-symlinks --delete $SOURCE_DIR s3://$AWS_S3_BUCKET
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete
+          # --acl public-read
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET_TRAVIS_HYRAX_DEPENDENCIES }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_TRAVIS_HYRAX_DEPENDENCIES }}
