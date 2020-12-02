@@ -60,14 +60,14 @@ jobs:
         run: |
           pwd
           make -j8 for-static-rpm
-          mkdir -p $prefix/artifacts
+          mkdir -p $SOURCE_DIR
           ls -lR $prefix
-          tar -czf $prefix/artifacts/hyrax-deps-centos7.tar.gz -C $prefix/deps .
+          tar -czf $SOURCE_DIR/hyrax-deps-centos7.tar.gz -C $prefix/deps .
       - name: synch to S3
         run: aws s3 sync --follow-symlinks --delete $SOURCE_DIR s3://$AWS_S3_BUCKET
-          env:
-            AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET_TRAVIS_HYRAX_DEPENDENCIES }}
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_TRAVIS_HYRAX_DEPENDENCIES }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECREY_KEY_TRAVIS_HYRAX_DEPENDENCIES }}
-            AWS_REGION: 'us-east-1'               # optional: defaults to us-east-1
-            SOURCE_DIR: '$prefix/artifacts/'      # optional: defaults to entire repository
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET_TRAVIS_HYRAX_DEPENDENCIES }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_TRAVIS_HYRAX_DEPENDENCIES }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECREY_KEY_TRAVIS_HYRAX_DEPENDENCIES }}
+          AWS_REGION: 'us-east-1'               # optional: defaults to us-east-1
+          SOURCE_DIR: '$prefix/artifacts/'      # optional: defaults to entire repository
