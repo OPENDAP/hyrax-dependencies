@@ -47,7 +47,7 @@ site-deps =
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 fits sqlite3 proj gdal4 icu stare list-built
+netcdf4 sqlite3 proj gdal4 icu stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
