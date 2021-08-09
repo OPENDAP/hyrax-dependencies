@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.28
+VERSION = 1.30
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -25,7 +25,7 @@ VERSION = 1.28
 # site-specific. Use the Makefile variable 'site-deps.' If
 # the file does not exist, no error is generated.
 site-deps = 
--include ../hyrax-deps-site.mk
+-include ../hyrax-site.mk
 
 # These options speed up the builds jhrg 12/08/20
 # but defining this here breaks the static builds. jhrg 12/09/20
@@ -180,7 +180,7 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 hdf5=hdf5-1.10.5
 hdf5_dist=$(hdf5).tar.bz2
 
-netcdf4=netcdf-c-4.7.4
+netcdf4=netcdf-c-4.8.0
 netcdf4_dist=$(netcdf4).tar.gz
 
 # fits=cfitsio
@@ -192,7 +192,8 @@ icu=icu-3.6
 icu_dist=icu4c-3_6-src.tgz
 
 # stare=STARE-0.16.2-beta
-stare=STARE-0.16.3
+# stare=STARE-0.16.3
+stare=STARE-1.1.0
 stare_dist=$(stare).tar.bz2
 
 # NB The environment variable $prefix is assumed to be set.
