@@ -63,6 +63,11 @@ hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 
+# Removed lots of stuff because for Docker builds, we can use any decent
+# yum/rpm repo (e.g. EPEL). jhrg 8/18/21
+.PHONY: $(docker_deps)
+docker_deps = $(site-deps) gridfields hdfeos stare list-built
+
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
@@ -110,6 +115,9 @@ for-travis: prefix-set
 
 for-actions: prefix-set
 	for d in $(actions_build); do $(MAKE) $(MFLAGS) $$d; done
+
+for-docker: prefix-set
+	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
 
 clean: $(deps_clean)
 
@@ -511,7 +519,7 @@ $(hdf4_src)-stamp:
 
 hdf4-configure-stamp:  $(hdf4_src)-stamp
 	(cd $(hdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) CFLAGS=-w \
-	--disable-fortran --enable-production --disable-netcdf		\
+	--disable-fortran --enable-production --disable-netcdf --disable-hdf4-xdr \
 	--with-pic --with-jpeg=$(jpeg_prefix) --prefix=$(hdf4_prefix))
 	echo timestamp > hdf4-configure-stamp
 
@@ -549,11 +557,31 @@ $(hdfeos_src)-stamp:
 	tar -xzf downloads/$(hdfeos_dist) -C $(src)
 	echo timestamp > $(hdfeos_src)-stamp
 
+# hdfeos-configure-stamp:  $(hdfeos_src)-stamp
+# 	(cd $(hdfeos_src) && ./configure CC=$(hdf4_prefix)/bin/h4cc	\
+# 	$(CONFIGURE_FLAGS) $(defaults) --disable-fortran --enable-production	\
+# 	--with-pic --enable-install-include --with-hdf4=$(hdf4_prefix)	\
+# 	--prefix=$(hdfeos_prefix))
+# 	echo timestamp > hdfeos-configure-stamp
+
+# FIXME Hackery
 hdfeos-configure-stamp:  $(hdfeos_src)-stamp
-	(cd $(hdfeos_src) && ./configure CC=$(hdf4_prefix)/bin/h4cc	\
-	$(CONFIGURE_FLAGS) $(defaults) --disable-fortran --enable-production	\
-	--with-pic --enable-install-include --with-hdf4=$(hdf4_prefix)	\
-	--prefix=$(hdfeos_prefix))
+	(if test -f $(hdf4_prefix)/bin/h4cc; \
+	then \
+		cd $(hdfeos_src) \
+		&& CC=$(hdf4_prefix)/bin/h4cc \
+		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
+			--disable-fortran --enable-production	\
+			--with-pic --enable-install-include \
+			--with-hdf4=$(hdf4_prefix) --prefix=$(hdfeos_prefix); \
+	else \
+		cd $(hdfeos_src) \
+		&& CPPFLAGS=-I/usr/include/hdf \
+		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
+			--disable-fortran --enable-production	\
+			--with-pic --enable-install-include \
+			--prefix=$(hdfeos_prefix); \
+	fi)
 	echo timestamp > hdfeos-configure-stamp
 
 hdfeos-compile-stamp: hdfeos-configure-stamp
