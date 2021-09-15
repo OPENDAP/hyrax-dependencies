@@ -1,3 +1,675 @@
+2021-08-20  ndp-opendap  <ndp@opendap.org>
+
+	Dropping --disable-hdf4-xdr from hdf4 configure params
+
+2021-08-19  James Gallagher  <jgallagher@opendap.org>
+
+	Adeed to hdfeos configure target support for hdf4 from rpm (#44)
+
+2021-08-09  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #43 from OPENDAP/new-netcdf-stare
+	Updates to dependencies
+
+2021-08-06  The-Robot-Travis  <npotter@opendap.org>
+
+	Updates to dependencies
+
+2021-03-15  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #42 from captainkirk99/ejh_fits
+	removed fits from make all target
+
+2021-03-15  Edward Hartnett  <Edward.Hartnett@noaa.gov>
+
+	removed fits from make all target
+
+2021-03-05  James Gallagher  <jgallagher@opendap.org>
+
+	Gdal321 (#40)
+	* Various hacking to get fits to build correctly. All for naught.
+
+	But maybe useful in the future.
+
+	* Removed fits from the linux deps. This should fix the CI/CD builds.
+
+	This is a stopgap measure. How to repair cfitsio?
+
+2021-03-04  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #39 from OPENDAP/gdal321
+	Bumped up the gdal version and twiddled the version.
+
+	Added --with-pic=yes to sqlite3's build
+
+	Merge branch 'gdal319' of https://github.com/opendap/hyrax-dependencies into gdal321
+
+	Added $(CONFIGURE_FLAGS) to the gdal4 target
+
+2021-03-03  James Gallagher  <jgallagher@opendap.org>
+
+	Bump up the docker container version to 1.4
+	Also added libpng-devel to the packages loaded using the
+	build-rpm.sh script.
+
+	Bumped up the gdal version and twiddled the version.
+	This will require a new docker container for the C7 build on
+	Travis since it now need libpng's devel package to build gdal.
+
+2021-03-02  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed syntax error in the code that removed cfits shared object libraries.
+
+2021-03-01  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #38 from OPENDAP/static-build
+	Static build
+
+	Merge branch 'static-build' of https://github.com/opendap/hyrax-dependencies into static-build
+
+	Mods to fix the static build.
+
+	Mods to fix teh static build.
+
+	Merge pull request #37 from OPENDAP/gdal314
+	Gdal314
+
+	Removed GDAL 3.1.4 in favor of GDAL 3.2.1
+
+2021-02-24  James Gallagher  <jgallagher@opendap.org>
+
+	Bumped up the GDAL version to 3.2.1 and the tar-dist version to 1.28
+
+2021-02-09  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed the Makefile
+
+	Merge branch 'master' into gdal314
+
+2021-02-08  James Gallagher  <jgallagher@opendap.org>
+
+	More fixes: cfits fixed and a fix for building on the M1 chip
+	On the M1, cmake installed using brew will build for the intel x86_64
+	leading to libraries that won't work. I switched to building cmake
+	using the hyrax-deps-site.mk include file. There is no error if that
+	file does not exist.
+
+2021-02-05  James Gallagher  <jgallagher@opendap.org>
+
+	Shut off the PNG library - we don't use it and it's not building on the M1
+
+2021-02-05  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Corrected gdal4-configure-stamp
+
+	gdal: Added -fPIC to proj-configure-stamp and --with-cfitsio=no to gdal4-configure-stamp
+
+2021-02-04  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Change -DBUILD_SHARED_LIBS value in openjpeg-configure-stamp.
+
+2021-02-03  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed broken -L path in gdal4 configure
+
+	Trim away unused tar.gz, etc., distributions
+
+2021-02-02  James Gallagher  <jgallagher@opendap.org>
+
+	Added to gdal4 configure CPPFLAGS=-I$(proj_prefix)/include
+	This seems to fix a compile-time issue on OSX
+
+	Removed old STARE code
+
+	Merge branch 'gdal314' into my-gdal314-hacks
+
+	Merge branch 'gdal314' of https://github.com/opendap/hyrax-dependencies into gdal314
+
+	Minor edits to the build for openjpeg 2.4.0
+
+2021-01-29  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Added openjpeg 2.4.0.
+
+2021-01-27  James Gallagher  <jgallagher@opendap.org>
+
+	Added rules for list-built-clean and really-clean to quite errors
+
+2021-01-25  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Added libproj-dev in Ubuntu docker.
+
+2021-01-24  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Corrected dockers for centos and ubuntu.
+
+2021-01-21  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Added dynamic link to libopenjp2.so
+
+2021-01-20  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Use openjpeg 2.3.1
+
+2021-01-06  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Restored src folder.
+
+	gdal314: Corrected sqlite3-clean in Makefile.
+
+	gdal314: Corrected gdal4-configure-stamp in Makefile.
+
+2020-12-30  ndp-opendap  <ndp@opendap.org>
+
+	Fixed dist target in Makfile
+
+	Updated version for distribution
+
+2020-12-22  James Gallagher  <jgallagher@opendap.org>
+
+	Use the context syntax for env vars in the artifact's path parameter.
+
+2020-12-22  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Added --enable-driver-grib to configure.
+
+2020-12-22  James Gallagher  <jgallagher@opendap.org>
+
+	Changed artifact path [skip ci]
+
+	Better names for the separate action files. Artifact for Ubuntu.
+	[skip ci]
+
+2020-12-21  James Gallagher  <jgallagher@opendap.org>
+
+	Syntax fix for github actions
+	[skip ci]
+
+	Merge branch 'actions-test'
+
+	Remove old multi-job action file
+
+	Remove unused action, add new single-job action files
+
+	Tidy up - remove unneeded actions; add better names.
+	Really, we probably don't the artifact for the centos 7 build
+	but it's a good place to experiement with them.
+
+	Merge branch 'actions-test' of https://github.com/opendap/hyrax-dependencies into actions-test
+
+2020-12-18  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal314: Updated GDAL to version 3.1.4
+
+2020-12-15  James Gallagher  <jgallagher@opendap.org>
+
+	Updated actions to test zip-file artifacts
+
+2020-12-10  James Gallagher  <jgallagher@opendap.org>
+
+	Drop the LXD container - attempt to fix the 'no more space' issue
+
+	Try language minimal to get more space
+	This change is an attempt to address the no space on device
+	issue.
+
+2020-12-09  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed the static build
+
+	Corrected tar decompression flag on linux
+
+	Removed cruft; added STARE 0.16.3
+
+	Merge pull request #35 from OPENDAP/stare-update
+	Updated the version of STARE we use
+
+	Corrected STARE library tar compression extension
+
+	Commentary
+
+	Updated the version of STARE we use
+
+	Merge pull request #34 from OPENDAP/revert-cfitsio
+	Dropped back to the older version of cfitsio given build fails on ubuntu
+
+2020-12-09  jgallagher59701  <jgallagher@opendap.org>
+
+	Dropped back to the older version of cfitsio given build fails on ubuntu  Please enter the commit message for your changes. Lines starting
+
+2020-12-09  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #33 from OPENDAP/streamline-build
+	Faster build
+
+	Rolled back to GDAL2
+
+2020-12-08  James Gallagher  <jgallagher@opendap.org>
+
+	Build sqlite3 for proj; disable sqlite3 in gdal (issue with C7)
+
+2020-12-08  jgallagher59701  <jgallagher@opendap.org>
+
+	Added sqlite3 - WIP
+
+2020-12-08  James Gallagher  <jgallagher@opendap.org>
+
+	Updated docker container version to 1.3
+
+	Added libsqlite3x-devel to the CentOS 7 Docker container.
+
+	Now includes list of built packages
+
+	Fix syntax error in travis.yml
+
+	Faster build
+
+2020-12-07  jgallagher59701  <jgallaher@opendap.org>
+
+	Build gdal faster: disable most drivers and dependency tracking
+	Added configure options to speed up the builds: --disable-dependency
+	-tracking and --enable-silent-rules (which are not really silent_
+
+2020-12-06  James Gallagher  <jgallagher@opendap.org>
+
+	Comentary edits in Makefile
+	[skip ci]
+
+	Added some more commentary in the Makefile
+	[skip ci]
+
+	Merge pull request #32 from OPENDAP/gdal-test314
+	gdal-test314: Corrected tar option.
+
+2020-12-05  James Gallagher  <jgallagher@opendap.org>
+
+	The Makefile now uses a site include to deal with the gdal issues.
+
+	Merge branch 'master' into gdal-test314
+
+2020-12-04  James Gallagher  <jgallagher@opendap.org>
+
+	Added proj dependency for gdal4
+
+2020-12-04  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal-test314: Added --with-proj= to gdal4 configure.
+
+	gdal-test314: Corrected tar option.
+
+2020-12-04  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #31 from OPENDAP/gdal-test314
+	Gdal test314
+
+2020-12-03  James Gallagher  <jgallagher@opendap.org>
+
+	Removed gdal-test314 from the github actions
+	Github actions are an experiemental hack
+
+2020-12-02  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed an actions syntax error
+
+	Change to the gh actions
+	[skip ci]
+
+	Merge remote-tracking branch 'origin/actions-test' into gdal-test314
+
+2020-12-02  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal-test314. Updated cfitsio.
+
+2020-12-01  Slav Korolev  <slav.korolev@nasa.gov>
+
+	gdal-test314.Use gdal-3.1.4.
+
+2020-11-30  Slav Korolev  <slav.korolev@nasa.gov>
+
+	Added gdal 3.1.4
+
+2020-11-29  James Gallagher  <jgallagher@opendap.org>
+
+	Remove env var from 'with' part of a 'uses' action
+
+	Added workflow_dispatch: event
+
+	Fixed Ubuntu deps tar ball build
+
+	Switched action to build static libraries
+
+	Clean up and make this a replacement for the Tavis build.
+
+2020-11-26  James Gallagher  <jgallagher@opendap.org>
+
+	Now with named artifacts
+
+	Upload an artifact
+
+	Test install of container build
+
+	Added in-container build
+
+2020-11-25  James Gallagher  <jgallagher@opendap.org>
+
+	Hack. just build the docker stuff for now
+
+	Are commands running inside the container?
+
+	run the docker container build
+
+	Added comment/reference for docker commands in GH Actions
+	[skip ci]
+
+	Added some docker stuff for testing.
+
+	Now a complete build for both ubuntu and macos
+
+	No centos, switched to macos
+
+	Added a second job
+
+	Added a new github action that runs a test build
+
+2020-11-09  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #29 from OPENDAP/openjpeg-fix
+	Dropped openjpeg 2.3 in favor of 2.1
+
+2020-11-06  James Gallagher  <jgallagher@opendap.org>
+
+	Dropped openjpeg 2.3 in favor of 2.1
+	This works with gdal 2.1. Maybe bump up to gdal 2.3 and openjpeg 2.3
+	in the near future?
+
+2020-11-05  James Gallagher  <jgallagher@opendap.org>
+
+	Dropped back to xenial to get the log length down
+	Was failing the build due to the log length
+
+	New version number
+
+	Merge branch 'travis-focal'
+
+	Fixed the static and travis targets
+
+	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies
+
+	Merge branch 'travis-focal'
+
+	Turn off the github workflow
+	[skip-ci]
+
+	Rolled back to gdal-2
+
+	Switched to Ubuntu focal for the travis build
+
+2020-11-04  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #27 from OPENDAP/gdal3-osx-10.15
+	gdal3 osx 10.15
+
+	Merge pull request #26 from OPENDAP/jgallagher59701-patch-1
+	Update main.yml
+
+2020-11-02  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #25 from OPENDAP/gdal3-osx-10.15
+	Edits for OSX 10.15 and gdal3.
+
+	Update main.yml
+	Added a build matrix for GitHub actions.
+	[skip-ci]
+
+	Edits for OSX 10.15 and gdal3.
+
+	Merge pull request #23 from OPENDAP/stare-build-fix-2
+	Stare build fix 2
+
+2020-10-30  James Gallagher  <jgallagher@opendap.org>
+
+	Started adding support for
+
+	Fixed the builds on OSX 10.13. This should work on 10.15
+
+2020-10-29  James Gallagher  <jgallagher@opendap.org>
+
+	Test Makefile - builds gdal3 and not openjpeg
+	Also has a targer for proj6 but I don't have the proj6
+	tar in downloads yet.
+
+2020-10-28  James Gallagher  <jgallagher@opendap.org>
+
+	Update main.yml
+	Fix prefix
+
+	Update main.yml
+
+	Update main.yml
+	Moved prefix to inside 'jobs'
+
+	Update main.yml
+	Added prefix env var
+
+	Create main.yml
+	Initial github actions file to build the deps
+
+	Merge pull request #24 from OPENDAP/remove-c6
+	Removed CentOS 6 package support
+
+2020-10-27  James Gallagher  <jgallagher@opendap.org>
+
+	Removed CentOS 6 package support
+
+2020-10-22  James Gallagher  <jgallagher@opendap.org>
+
+	More edits to the Makefile - gdal does not build on OSX 10.15
+
+	Added the newest version of openjpeg
+
+	Build deps that work for Hyrax and STAREmaster
+	This may not work on OSX 10.15.x without edits to some of the
+	gdal-dep jpeg code.
+
+2020-10-20  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed STARE library build issue
+	Used -j with tar; should have used -z
+
+	Bumped up the revision on the tar ball
+
+	Updated HDFEOS2 to 2.20 for STAREmaster
+
+	Revert "Updated HDFEOS to 2.20"
+	This reverts commit 3f4799f5a4bf910d6e83aa29be9227905a314027.
+
+	Updated HDFEOS to 2.20
+
+2020-10-14  James Gallagher  <jgallagher@opendap.org>
+
+	Added STARE 0.16.2-beta. Need for STAREmaster
+
+2020-10-13  James Gallagher  <jgallagher@opendap.org>
+
+	New versions of various deps
+
+2020-05-15  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #22 from OPENDAP/stare-build-fix
+	STARE now builds by default. Do nothing and it builds.
+
+	Merge branch 'stare-build-fix' of https://github.com/opendap/hyrax-dependencies into stare-build-fix
+
+	Fixed error with Makefile 'ifeq'
+	When testing an env var, it needs to be wrapped in double quotes
+	like: ifeq ("$(BUILD_STARE)", "no")
+
+	STARE now builds by default. Do nothing and it builds.
+	Suppress STARE with BUILD_STARE=no
+
+	STARE no builds by default. Do nothing and it builds. Suppress with BUILD_STARE=no
+
+2020-05-12  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed STARE 0.14.1 tar (the case of one letter in a file's name was changed)
+	This doesn't matter on OSX, but does on Linux
+
+	STARE 0.14.1 in Makefile
+
+	Updated STARE 0.14.1 tar ball
+
+2020-05-11  James Gallagher  <jgallagher@opendap.org>
+
+	Removed old STARE library dists
+
+	Updated stare 0.14.1
+
+	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies
+
+	Bumped up to STARE 0.14.1
+
+2020-05-09  James Gallagher  <jgallagher@opendap.org>
+
+	STARE 0.14
+
+2020-04-21  ndp-opendap  <ndp@opendap.org>
+
+	Dropping older versions of the hdf5 library
+
+2020-01-09  ndp-opendap  <ndp@opendap.org>
+
+	updating aws keys for travis
+
+	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies
+
+	updating aws keys for travis
+
+2020-01-02  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #21 from OPENDAP/hk-571
+	HK-571, add HDF4 version 2.14 since this version fixes a memory leaki…
+
+2020-01-02  Kent Yang  <myang6@hdfgroup.org>
+
+	HK-571, add HDF4 version 2.14 since this version fixes a memory leaking issue and the issue affects one test of the HDF4 default option.
+
+2019-12-19  James Gallagher  <jgallagher@opendap.org>
+
+	Shuffle STARE versions
+
+	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies
+
+	Added STARE-0.10.1
+
+2019-12-18  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #20 from OPENDAP/hk-548
+	hk-548, add the netcdf 4.7.3. This will fix the filenetCDF-4 memory l…
+
+	Modified stare 0.10.0 - two fixes - TemporalGeneral.h and NameEncoding.h
+
+	Added STARE 0.10.0
+
+2019-12-17  Muqun Yang  <myang6@hdfgroup.org>
+
+	hk-548, add the netcdf 4.7.3. This will fix the filenetCDF-4 memory leaking caused by netcdf 4.4.1. Also update Makefile to use netcdf 4.7.3. Tested at CentOS 7 with BES.
+
+2019-12-03  James Gallagher  <jgallagher@opendap.org>
+
+	Only run 'travis' test on branch travis
+
+	Chnaged how keys are handled in the S3 deploy block
+
+	Fix up the travis build
+
+	Merge branch 'travis' of https://github.com/opendap/hyrax-dependencies into travis
+
+	Added travis branch for testing
+
+2019-12-02  James Gallagher  <jgallagher@opendap.org>
+
+	New key and tavis stage
+
+	New key
+
+2019-11-28  James Gallagher  <jgallagher@opendap.org>
+
+	New key
+
+	Another travis.yml fix
+
+	Travis.yml syntax fix, again
+
+	Travis.yml syntax fix
+
+	Fix travis test
+
+	Test keys
+
+2019-11-27  James Gallagher  <jgallagher@opendap.org>
+
+	Another try at the AWS Key
+
+	Fixed AWS keys
+
+	Modified travis.yml with new key info
+
+2019-10-28  James Gallagher  <jgallagher@opendap.org>
+
+	Merge pull request #19 from OPENDAP/stare-in-travis
+	Added the Stare library to the 'static' and 'travis' builds
+
+	Hacked travis.yml to pass the BUILD_STARE env var to docker.
+	This will trigger the build of the STARE library, allowing us to
+	build it selectively on CentOS 7 but not on C6.
+
+	Updated these to work with the conditional STARE build in Makefile
+
+	Merge branch 'stare-in-travis' of https://github.com/opendap/hyrax-dependencies into stare-in-travis
+
+	Updates to enable selective build of the STARE library
+
+2019-10-25  jgallagher59701  <jgallagher@opendap.org>
+
+	Add stare 0.6.4 whcih fixes a broken header
+	math.h --> cmath
+
+2019-10-23  James Gallagher  <jgallagher@opendap.org>
+
+	Merge branch 'stare-in-travis' of https://github.com/opendap/hyrax-dependencies into stare-in-travis
+
+	Added the Stare library to the 'static' and 'travis' builds
+
+	Added teh Stare library to the 'static' and 'travis' builds
+
+2019-08-27  Kodi Neumiller  <kneumiller@mtech.edu>
+
+	Merge pull request #18 from OPENDAP/stare_fix
+	Updated to STARE version - 0.6.3. Added some fixes for the CMake when trying to build with SWIG
+
+	Modified CMakeLists.txt for olders versions of cmake
+	    Older versions of cmake that don't have the two policies used in the
+	    if(SWIG_FOUND) section are now supported (i.e., the build doesn't
+	    break). However, the python bindiings don't build for those versions
+	    of cmake, even is swig is present.
+
+2019-08-26  Kodi Neumiller  <kneumiller@mtech.edu>
+
+	Updated to STARE version - 0.6.2. STARE now builds without looking for Boost.
+
+2019-07-31  Kodi Neumiller  <kneumiller@mtech.edu>
+
+	Merge pull request #17 from OPENDAP/stare_fix
+	Updated the STARE version.
+
+	Updated the STARE version. New version updated some of the headers and changed some code interaction.
+
+2019-07-03  James Gallagher  <jgallagher@opendap.org>
+
+	Bumped the version number; added NEWS and ChangeLog.
+	The version number is not used for the CI build but is used humans.
+	[skip ci]
+
 2019-06-28  Kodi Neumiller  <kneumiller@mtech.edu>
 
 	Merge pull request #16 from OPENDAP/stare_fix
@@ -7,10 +679,12 @@
 
 	Made a new dist with the original STARE repo (along with the erfa changes I added to the STARE build).
 
-2019-05-23  James Gallagher  <jgallagher@opendap.org>
+2019-05-24  James Gallagher  <jgallagher@opendap.org>
 
 	Merge pull request #14 from OPENDAP/hdf-1.10
 	Hdf 1.10
+
+2019-05-23  James Gallagher  <jgallagher@opendap.org>
 
 	Oddly, 'stare' wound up back on the static build targets. Removed.
 
@@ -27,11 +701,11 @@
 	build on all our platforms because C++-11 support is not present on
 	CentOS 6.
 
-2019-05-22  James Gallagher  <jgallagher@opendap.org>
-
 	Another try - remove 3.x cmake dependency
 
 	New version of STARE
+
+2019-05-22  James Gallagher  <jgallagher@opendap.org>
 
 	Build using the new STARE 0.2.0 that may work with cmake 2.8
 
@@ -236,6 +910,7 @@
 	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies.git
 	Conflicts:
 		docker/Dockerfile
+
 	[skip ci]
 
 	fixes to the Dockerfile
@@ -248,9 +923,9 @@
 
 	Fixed container tag (1 --> 1.0)
 
-2018-10-19  James Gallagher  <jgallagher@opendap.org>
-
 	Use the container tag (don't rely on the 'latest' tag)
+
+2018-10-19  James Gallagher  <jgallagher@opendap.org>
 
 	Edit /home to /root in the build-for-rpm.sh script.
 	There's much coupling between the docker file, Travis and the script...
@@ -292,9 +967,9 @@
 
 	Shell syntax fix in the travis yml before_deploy block
 
-2018-10-14  James Gallagher  <jgallagher@opendap.org>
-
 	Correct shell syntax in before_deploy block
+
+2018-10-14  James Gallagher  <jgallagher@opendap.org>
 
 	Fix for before_deploy: it is run after every job stage/script
 
@@ -368,10 +1043,10 @@
 
 	travis testing
 
-2018-02-22  James Gallagher  <jgallagher@opendap.org>
-
 	Merge pull request #1 from OPENDAP/travis
 	Travis
+
+2018-02-22  James Gallagher  <jgallagher@opendap.org>
 
 	Syntax fix for travis.yml
 
@@ -405,7 +1080,7 @@
 	This for inclusion in the 'combined' github repo for a more streamlined
 	hyrax build
 
-2017-12-06  James Gallagher  <jgallagher@opendap.org>
+2017-12-07  James Gallagher  <jgallagher@opendap.org>
 
 	Merge branch 'master' of https://github.com/opendap/hyrax-dependencies
 
