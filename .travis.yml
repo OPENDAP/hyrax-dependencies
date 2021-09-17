@@ -43,11 +43,11 @@ addons:
 env:
   global:
   - prefix=$HOME/install
-  # AWS_ACCESS_KEY_ID (user: travis-hyrax-dependencies)
-  - secure: "KDHpyQLB4nARPv/k4wUjgl6OD3jLMRifRwX58YFESvbU4IGB1pKS6sV0h4p5grdBBLikLYF7S61a2HhZ3b0zYADWzNEsDNwS3HDlhqVGVv53uanUy+6yTR7igkclh8zqw1dxzM9rbHtxB9TPIhq+gI0KpXXfMf+eP26SEuaiAWs="
+  # AWS_ACCESS_KEY_ID
   # AWS_SECRET_ACCESS_KEY 
-  - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
-
+  - secure: "WbvrcPxtjKd/6IpB5BCvMZozzLi+3T1Ss3CAf5yNJ5AnLnn5jRg5b2zKSUZ9GYcxwOrENya5/n/DW1tzC+RiwEoNWT58WfaIMZkhe7REV2gQucXzOJuJ/TCTn5fqJPSKZp/LSy7279RYeTrLryCf7t80MIy6wA4umcKudIbcbb4="
+  - secure: "EGY/wXvadpaH39MWnCF47wx6XIZkirDYVdgzzx6q9wIxFjtagK/siPX8Ngd4YH1Z3iJo9L/dUpq1toVWQ5vFERIcZH9e6tkQ/j6UA0TkfpkbwfZaBgbsZe0cX93egToVzNj4shL/H6fK4detdPioqm/u5dHozjr0sNG4s9548RA="
+  
 stages:
   - name: build
     if: branch = master
