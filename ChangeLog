@@ -1,3 +1,10 @@
+## hyrax-dependencies-1.30, hyrax-1.16.5
+
+## hyrax-dependencies-1.29, hyrax-1.16.4
+2021-09-15  dh-opendap  <dholloway@opendap.org>
+
+	Updated as of 2021-09-15
+	
 2021-08-20  ndp-opendap  <ndp@opendap.org>
 
 	Dropping --disable-hdf4-xdr from hdf4 configure params
@@ -75,6 +82,8 @@
 	Gdal314
 
 	Removed GDAL 3.1.4 in favor of GDAL 3.2.1
+
+## Version 1.28
 
 2021-02-24  James Gallagher  <jgallagher@opendap.org>
 

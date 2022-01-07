@@ -1,6 +1,20 @@
-Version 1.21
+# Version-1.30, Hyrax-1.16.4
 
-This version includes HDF5 1.10.5 and a pre-release version of the
-STARE library.
+  Tagged for Hyrax-1.16.5
+
+# Version-1.29, Hyrax-1.16.4
+
+  Tagged for Hyrax-1.16.4
+  
+  Prodution rules changes to support C7 etc.
+
+# Version-1.28
+
+  Updated GDAL to 3.2.1
+
+# Version-1.21
+
+  This version includes HDF5 1.10.5 and a pre-release version of the
+  STARE library.
 
 Started a NEWS and ChangeLog
