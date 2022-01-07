@@ -26,7 +26,9 @@ jobs:
             ls -la
       - run:
           name: "compile and install"
-          command: "make -j16"
+          command: |
+            make -j16
+            make list-built
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
