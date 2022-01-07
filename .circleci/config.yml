@@ -19,26 +19,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Say hello"
+          name: "prefix, second way"
           command: |
-            echo "Hello, World!"
-            echo "The first step in the build job"
-
-      - run:
-          name: "Code listing"
-          command: |
-            echo "code listing:"
-            ls -la
-
-      - run:
-          name: "HOME"
-          command: |
-            echo "$HOME"
-
+            export prefix=${HOME}/build
+            echo "prefix: $prefix"
       - run:
           name: "compile and install"
           command: |
-            make -j16
+            make for-travis -j16
             make list-built
 
 # Invoke jobs via workflows
