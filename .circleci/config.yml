@@ -24,6 +24,9 @@ jobs:
           command: |
             echo "code listing:"
             ls -la
+      - run:
+          name: "compile and install"
+          command: "make -j16"
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
