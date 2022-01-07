@@ -12,7 +12,7 @@ jobs:
       - image: cimg/base:stable
 
     environment:
-      prefix: $HOME/build
+      prefix: /tmp/build
 
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
@@ -23,11 +23,18 @@ jobs:
           command: |
             echo "Hello, World!"
             echo "The first step in the build job"
+
       - run:
           name: "Code listing"
           command: |
             echo "code listing:"
             ls -la
+
+      - run:
+          name: "HOME"
+          command: |
+            echo "$HOME"
+
       - run:
           name: "compile and install"
           command: |
