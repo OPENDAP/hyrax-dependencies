@@ -39,6 +39,7 @@ addons:
     - libcurl4-openssl-dev
     - libcppunit-dev
     - libicu-dev
+    - libsqlite3-dev
 
 env:
   global:
@@ -49,17 +50,32 @@ env:
   - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
 
 stages:
-  - name: build
+  - name: build-ubuntu
     if: branch = master
 
 jobs:
   include:
-  - stage: build
+  - stage: build-ubuntu
     script:
     - export DEPS_BUILD=binary
-    - make -j7 for-travis
+    - make -j7 ci-part-1
 
-  - stage: build
+  - stage: build-ubuntu
+    script:
+      - export DEPS_BUILD=binary
+      - make -j7 ci-part-2
+
+  - stage: build-ubuntu
+    script:
+      - export DEPS_BUILD=binary
+      - make -j7 ci-part-3
+
+  - stage: build-ubuntu
+    script:
+      - export DEPS_BUILD=binary
+      - make -j7 ci-part-4
+
+  - stage: build-centos7
     script: 
     - export DEPS_BUILD=centos7
     - mkdir -p $HOME/centos7/install

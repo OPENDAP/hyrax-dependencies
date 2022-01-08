@@ -68,21 +68,6 @@ hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 ci_deps = $(site-deps) stare gridfields hdf5 netcdf4  \
 jpeg hdf4 hdfeos proj openjpeg gdal4 list-built
 
-# Dependencies:
-# stare: none
-# gridfields: none
-
-# hdf5: none
-# netcdf4: hdf5
-
-# jpeg: none
-# hdf4: jpeg
-# hdfeos: hdf4, jpeg
-
-# proj: none
-# openjepg: none
-# gdal: sqlite3 proj openjpeg
-
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
 .PHONY: $(docker_deps)
@@ -139,8 +124,42 @@ for-actions: prefix-set
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
 
-for-ci: prefix-set
+for-ci-serial: prefix-set
 	for d in $(ci_deps); do $(MAKE) $(MFLAGS) $$d; done
+
+# Dependencies:
+# stare: none
+# gridfields: none
+for-ci: prefix-set ci-part-1 ci-part-2 ci-part-3 ci-part-4
+
+ci-part-1:
+	$(MAKE) $(MFLAGS) gridfields
+	$(MAKE) $(MFLAGS) stare
+
+ci-part-2:
+	$(MAKE) $(MFLAGS) hdf5
+	$(MAKE) $(MFLAGS) netcdf4
+
+ci-part-3:
+	$(MAKE) $(MFLAGS) jpeg
+	$(MAKE) $(MFLAGS) hdf4
+	$(MAKE) $(MFLAGS) hdfeos
+
+ci-part-4:
+	$(MAKE) $(MFLAGS) proj
+	$(MAKE) $(MFLAGS) openjpeg
+	$(MAKE) $(MFLAGS) gdal4
+
+# hdf5: none
+# netcdf4: hdf5
+
+# jpeg: none
+# hdf4: jpeg
+# hdfeos: hdf4, jpeg
+
+# proj: none
+# openjepg: none
+# gdal: sqlite3 proj openjpeg
 
 clean: $(deps_clean)
 
