@@ -57,11 +57,18 @@ netcdf4 sqlite3 proj gdal4 icu stare list-built
 #
 # Removed cmake which breaks CentOS 6 builds and can be gotten from
 # RPMs for both C6 and C7. jhrg 10/10/18
+#
+# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
 hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 
-# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
+# Try this for the CI builds using Ubuntu 20. jhrg 1/8/22
+.PHONY: $(ci_deps)
+ci_deps = $(site-deps) stare gridfields hdf5 netcdf4  \
+jpeg hdf4 hdfeos proj openjpeg gdal4 list-built
+
+# Removed: bison sqlite3
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -118,6 +125,9 @@ for-actions: prefix-set
 
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
+
+for-ci: prefix-set
+	for d in $(ci_deps); do $(MAKE) $(MFLAGS) $$d; done
 
 clean: $(deps_clean)
 
