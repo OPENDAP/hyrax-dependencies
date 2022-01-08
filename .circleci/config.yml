@@ -14,6 +14,7 @@ jobs:
     environment:
       prefix: /tmp/build
 
+    resource_class: 2xlarge
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
@@ -28,7 +29,6 @@ jobs:
             export PATH=$prefix/bin:$prefix/deps/bin:$PATH
             echo "prefix: $prefix"
             make for-travis -j16
-            make list-built
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
