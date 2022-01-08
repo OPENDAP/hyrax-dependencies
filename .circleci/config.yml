@@ -19,14 +19,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "prefix, second way"
+          name: "Add packages"
           command: |
-            sudo apt-get update && sudo apt-get install -y yacc
-            export prefix=${HOME}/build
-            echo "prefix: $prefix"
+            sudo apt-get update && sudo apt-get install -y bison flex
       - run:
           name: "compile and install"
           command: |
+            export PATH=$prefix/bin:$prefix/deps/bin:$PATH
+            echo "prefix: $prefix"
             make for-travis -j16
             make list-built
 
