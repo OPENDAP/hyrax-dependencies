@@ -22,7 +22,7 @@ jobs:
       - run:
           name: "Add packages"
           command: |
-            sudo apt-get update && sudo apt-get install -y bison flex
+            sudo apt-get update && sudo apt-get install -y bison flex sqlite3
       - run:
           name: "compile and install"
           command: |

@@ -68,7 +68,20 @@ hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 ci_deps = $(site-deps) stare gridfields hdf5 netcdf4  \
 jpeg hdf4 hdfeos proj openjpeg gdal4 list-built
 
-# Removed: bison sqlite3
+# Dependencies:
+# stare: none
+# gridfields: none
+
+# hdf5: none
+# netcdf4: hdf5
+
+# jpeg: none
+# hdf4: jpeg
+# hdfeos: hdf4, jpeg
+
+# proj: none
+# openjepg: none
+# gdal: sqlite3 proj openjpeg
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
