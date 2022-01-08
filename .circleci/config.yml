@@ -20,9 +20,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Add packages"
-          command: |
-            sudo apt-get update && sudo apt-get install -y bison flex sqlite3
+          name: "Add packages: bison flex sqlite3"
+          command: sudo apt-get update && sudo apt-get install -y bison flex sqlite3
       - run:
           name: "compile and install"
           command: |
