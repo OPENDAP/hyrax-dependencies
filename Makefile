@@ -474,10 +474,12 @@ gdal4-configure-stamp: $(gdal4_src)-stamp
 	(cd $(gdal4_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal4_prefix) --with-pic \
-	--disable-driver-plscenes --disable-driver-elastic --with-proj=$(proj_prefix) \
+	--disable-all-optional-drivers --enable-driver-grib --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
+
+# --disable-driver-plscenes --disable-driver-elastic
 
 # I replaced this with the above. It now builds GRIB but not JPEG2000.
 # we can drop the openjpeg build until this issue is resolved.
