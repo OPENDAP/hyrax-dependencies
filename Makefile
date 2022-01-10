@@ -469,7 +469,10 @@ $(gdal4_src)-stamp:
 	tar -xzf downloads/$(gdal4_dist) -C $(src)
 	echo timestamp > $(gdal4_src)-stamp
 
-# I disabled sqlite3 because it was failing on CentOS7. 
+# I disabled sqlite3 because it was failing on CentOS7.
+# NB: The sqlite3 library is used for the proj library tests, so it is
+# included for that _but_ we do not build the sqlite3 _driver_ for gdal
+# (hence the '--without-sqlite3' option). jhrg 12/29/21
 gdal4-configure-stamp: $(gdal4_src)-stamp
 	(cd $(gdal4_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
