@@ -124,13 +124,24 @@ for-actions: prefix-set
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
 
-for-ci-serial: prefix-set
-	for d in $(ci_deps); do $(MAKE) $(MFLAGS) $$d; done
-
 # Dependencies:
 # stare: none
 # gridfields: none
-for-ci: prefix-set ci-part-1 ci-part-2 ci-part-3 ci-part-4
+
+# hdf5: none
+# netcdf4: hdf5
+
+# jpeg: none
+# hdf4: jpeg
+# hdfeos: hdf4, jpeg
+
+# proj: none
+# openjepg: none
+# gdal: sqlite3 proj openjpeg
+
+# to build static versions of these packages, export CONFIGURE_FLAGS using:
+# export CONFIGURE_FLAGS="--disable-shared"
+# and then run the four parts.
 
 ci-part-1:
 	$(MAKE) $(MFLAGS) gridfields
@@ -149,17 +160,6 @@ ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
 	$(MAKE) $(MFLAGS) gdal4
-
-# hdf5: none
-# netcdf4: hdf5
-
-# jpeg: none
-# hdf4: jpeg
-# hdfeos: hdf4, jpeg
-
-# proj: none
-# openjepg: none
-# gdal: sqlite3 proj openjpeg
 
 clean: $(deps_clean)
 

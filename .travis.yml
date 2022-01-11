@@ -50,36 +50,26 @@ env:
   - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
 
 stages:
-  - name: build-ubuntu
+  - name: build
     if: branch = master
 
 jobs:
   include:
-  - stage: build-ubuntu
+  - stage: build
     script:
-    - export DEPS_BUILD=binary
     - make -j7 ci-part-1
+    - make -j7 ci-part-2
+    - make -j7 ci-part-3
+    - export UBUNTU_BUILD_1=done
 
-  - stage: build-ubuntu
-    script:
-      - export DEPS_BUILD=binary
-      - make -j7 ci-part-2
-
-  - stage: build-ubuntu
-    script:
-      - export DEPS_BUILD=binary
-      - make -j7 ci-part-3
-
-  - stage: build-ubuntu
-    script:
-      - export DEPS_BUILD=binary
+   - stage: build
+     script:
       - make -j7 ci-part-4
+      - export UBUNTU_BUILD_2=done
 
-  - stage: build-centos7
-    script: 
-    - export DEPS_BUILD=centos7
-    - mkdir -p $HOME/centos7/install
-    - df -h
+  - stage: build
+    script:
+    - test -d $HOME/centos7/install || mkdir -p $HOME/centos7/install
     # Note that for CentOS7, we build the dependencies so that STARE is included (but not for C6 or Debian)
     # The Makefile checks the value of the env var $BUILD_STARE. jhrg 10/28/19
     # I changed the sense of this so STARE is built by default since this was causing problems for developer
@@ -88,12 +78,13 @@ jobs:
     # Bumped up the docker container to for the CentOS 7 build to 1.4
     - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
              opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm.sh
+    - export CENTOS7_BUILD=done
 
 # before_deploy will be run once for every job stage/script that completes
 before_deploy:
 - mkdir -p $TRAVIS_BUILD_DIR/package
-- if test "x$DEPS_BUILD" = "xbinary"; then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install; fi
-- if test "x$DEPS_BUILD" = "xcentos7"; then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install; fi
+- if test "x$UBUNTU_BUILD_1" = "xdone" -a "x$UBUNTU_BUILD_2" = "xdone"; then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install; fi
+- if test "x$CENTOS7_BUILD" = "xdone"; then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install; fi
 
 deploy:
   provider: s3
