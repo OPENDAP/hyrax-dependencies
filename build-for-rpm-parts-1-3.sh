@@ -12,12 +12,6 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
-# printenv
-
-# Hack - update this container and remove this or switch to the vanilla
-# CentOS 7 container and use the Docker file. jhrg 3/3/21
-# yum -y install libpng-devel
-
 export CONFIGURE_FLAGS="--disable-shared"
 
 cd /root/hyrax-dependencies
@@ -25,5 +19,3 @@ cd /root/hyrax-dependencies
 make -j7 ci-part-1
 make -j7 ci-part-2
 make -j7 ci-part-3
-
-# (cd /root/hyrax-dependencies && make -j4 for-static-rpm)

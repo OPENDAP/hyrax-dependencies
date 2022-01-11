@@ -12,6 +12,8 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
+yum -y install sqlite3-devel
+
 export CONFIGURE_FLAGS="--disable-shared"
 
 cd /root/hyrax-dependencies
