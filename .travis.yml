@@ -80,7 +80,7 @@ jobs:
       #
       # Hacked to run three of the four parts in a sub-shell. jhrg 1/11/22
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-               opendap/centos7_hyrax_builder:1.4 (export CONFIGURE_FLAGS="--disable-shared"; make -j7 ci-part-1; make -j7 ci-part-2; make -j7 ci-part-3)
+               opendap/centos7_hyrax_builder:1.4 (cd /root/hyrax-dependencies; export CONFIGURE_FLAGS="--disable-shared"; make -j7 ci-part-1; make -j7 ci-part-2; make -j7 ci-part-3)
       - export CENTOS7_BUILD_1=done
 
   - stage: build
@@ -95,7 +95,7 @@ jobs:
       #
       # Hacked to run three of the four parts in a sub-shell. jhrg 1/11/22
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-        opendap/centos7_hyrax_builder:1.4 (export CONFIGURE_FLAGS="--disable-shared"; make -j7 ci-part-4)
+        opendap/centos7_hyrax_builder:1.4 (cd /root/hyrax-dependencies; export CONFIGURE_FLAGS="--disable-shared"; make -j7 ci-part-4)
       - export CENTOS7_BUILD_2=done
 
 # before_deploy will be run once for every job stage/script that completes
