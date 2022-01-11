@@ -27,7 +27,10 @@ jobs:
           command: |
             export PATH=$prefix/bin:$prefix/deps/bin:$PATH
             echo "prefix: $prefix"
-            make for-ci -j8
+            make -j7 ci-part-1
+            make -j7 ci-part-2
+            make -j7 ci-part-3
+            make -j7 ci-part-4
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
