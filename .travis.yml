@@ -57,8 +57,6 @@ before_install:
 stages:
   - name: build
     if: branch = master
-  - name: assemble
-    if: branch = master
 
 jobs:
   include:
@@ -98,15 +96,23 @@ jobs:
           opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-part-4.sh
       - export CENTOS7_BUILD_2=done
 
-  - stage: assemble
-    script:
-      - mkdir -p $TRAVIS_BUILD_DIR/package
-      - if test "x$UBUNTU_BUILD_1" = "xdone" -a "x$UBUNTU_BUILD_2" = "xdone"
-        then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
-        fi
-      - if test "x$CENTOS7_BUILD_1" = "xdone" -a "x$CENTOS7_BUILD_2" = "xdone"
-        then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install
-        fi
+# The before_deploy and deploy parts are run after every 'build' script completes. This section
+# checks environment variables that are flags from the build stages and then sets other environment
+# variables that serve as flags for the 'deploy' section. This enables 'before_deploy' to build
+# tar balls with all the software and then the 'deploy' section to copy those when they are complete.
+before_deploy:
+  - mkdir -p $TRAVIS_BUILD_DIR/package
+  - if test "x$UBUNTU_BUILD_1" = "xdone" -a "x$UBUNTU_BUILD_2" = "xdone";
+    then 
+      tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
+      export ARTIFACT=ubuntu;
+    fi
+  - if test "x$CENTOS7_BUILD_1" = "xdone" -a "x$CENTOS7_BUILD_2" = "xdone";
+    then 
+      tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
+      export ARTIFACT=centos7;
+    fi
+  - ls -l $TRAVIS_BUILD_DIR/package
 
 deploy:
   provider: s3
@@ -116,3 +122,4 @@ deploy:
   local_dir: $TRAVIS_BUILD_DIR/package
   on:
     branch: master
+    condition: $ARTIFACT =~ ^ubuntu|centos7$
