@@ -57,6 +57,8 @@ before_install:
 stages:
   - name: build
     if: branch = master
+  - name: assemble
+    if: branch = master
 
 jobs:
   include:
@@ -83,31 +85,28 @@ jobs:
       #
       # Bumped up the docker container to for the CentOS 7 build to 1.4
       #
-      # Hacked to run three of the four parts in a sub-shell. jhrg 1/11/22
+      # Hacked to run three of the four parts. jhrg 1/11/22
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-               opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-3.sh
+          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-3.sh
       - export CENTOS7_BUILD_1=done
 
   - stage: build
     script:
       - mkdir -p $HOME/centos7/install
-      # Note that for CentOS7, we build the dependencies so that STARE is included (but not for C6 or Debian)
-      # The Makefile checks the value of the env var $BUILD_STARE. jhrg 10/28/19
-      # I changed the sense of this so STARE is built by default since this was causing problems for developer
-      # builds. jhrg 5/15/20
-      #
-      # Bumped up the docker container to for the CentOS 7 build to 1.4
-      #
-      # Hacked to run three of the four parts in a sub-shell. jhrg 1/11/22
+      # Hacked to run part four. jhrg 1/11/22
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-        opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-part-4.sh
+          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-part-4.sh
       - export CENTOS7_BUILD_2=done
 
-# before_deploy will be run once for every job stage/script that completes
-before_deploy:
-  - mkdir -p $TRAVIS_BUILD_DIR/package
-  - if test "x$UBUNTU_BUILD_1" = "xdone" -a "x$UBUNTU_BUILD_2" = "xdone"; then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install; fi
-  - if test "x$CENTOS7_BUILD_1" = "xdone" -a "x$CENTOS7_BUILD_2" = "xdone"; then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install; fi
+  - stage: assemble
+    script:
+      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - if test "x$UBUNTU_BUILD_1" = "xdone" -a "x$UBUNTU_BUILD_2" = "xdone"
+        then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
+        fi
+      - if test "x$CENTOS7_BUILD_1" = "xdone" -a "x$CENTOS7_BUILD_2" = "xdone"
+        then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install
+        fi
 
 deploy:
   provider: s3
