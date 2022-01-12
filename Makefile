@@ -57,11 +57,16 @@ netcdf4 sqlite3 proj gdal4 icu stare list-built
 #
 # Removed cmake which breaks CentOS 6 builds and can be gotten from
 # RPMs for both C6 and C7. jhrg 10/10/18
+#
+# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
 hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 
-# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
+# Try this for the CI builds using Ubuntu 20. jhrg 1/8/22
+.PHONY: $(ci_deps)
+ci_deps = $(site-deps) stare gridfields hdf5 netcdf4  \
+jpeg hdf4 hdfeos proj openjpeg gdal4 list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -118,6 +123,43 @@ for-actions: prefix-set
 
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
+
+# Dependencies:
+# stare: none
+# gridfields: none
+
+# hdf5: none
+# netcdf4: hdf5
+
+# jpeg: none
+# hdf4: jpeg
+# hdfeos: hdf4, jpeg
+
+# proj: none
+# openjepg: none
+# gdal: sqlite3 proj openjpeg
+
+# to build static versions of these packages, export CONFIGURE_FLAGS using:
+# export CONFIGURE_FLAGS="--disable-shared"
+# and then run the four parts.
+
+ci-part-1:
+	$(MAKE) $(MFLAGS) gridfields
+	$(MAKE) $(MFLAGS) stare
+
+ci-part-2:
+	$(MAKE) $(MFLAGS) hdf5
+	$(MAKE) $(MFLAGS) netcdf4
+
+ci-part-3:
+	$(MAKE) $(MFLAGS) jpeg
+	$(MAKE) $(MFLAGS) hdf4
+	$(MAKE) $(MFLAGS) hdfeos
+
+ci-part-4:
+	$(MAKE) $(MFLAGS) proj
+	$(MAKE) $(MFLAGS) openjpeg
+	$(MAKE) $(MFLAGS) gdal4
 
 clean: $(deps_clean)
 
@@ -427,15 +469,20 @@ $(gdal4_src)-stamp:
 	tar -xzf downloads/$(gdal4_dist) -C $(src)
 	echo timestamp > $(gdal4_src)-stamp
 
-# I disabled sqlite3 because it was failing on CentOS7. 
+# I disabled sqlite3 because it was failing on CentOS7.
+# NB: The sqlite3 library is used for the proj library tests, so it is
+# included for that _but_ we do not build the sqlite3 _driver_ for gdal
+# (hence the '--without-sqlite3' option). jhrg 12/29/21
 gdal4-configure-stamp: $(gdal4_src)-stamp
 	(cd $(gdal4_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal4_prefix) --with-pic \
-	--disable-driver-plscenes --disable-driver-elastic --with-proj=$(proj_prefix) \
+	--disable-all-optional-drivers --enable-driver-grib --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
+
+# --disable-driver-plscenes --disable-driver-elastic
 
 # I replaced this with the above. It now builds GRIB but not JPEG2000.
 # we can drop the openjpeg build until this issue is resolved.
