@@ -64,19 +64,19 @@ jobs:
   - stage: build
     script:
       - make -j16 ci-part-1
-      - make -j16 ci-part-2
-      - make -j16 ci-part-3
-      - make -j16 ci-part-4
-      -
+      #- make -j16 ci-part-2
+      #- make -j16 ci-part-3
+      #- make -j16 ci-part-4
+      - export ARTIFACT=ubuntu
 
   - stage: build
     script:
       # mkdir returns true if the directory already exists
       - mkdir -p $HOME/centos7/install
       # Hacked to run three of the four parts. jhrg 1/11/22
-      - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-4.sh
-      - export ARTIFACT=centos7
+      #- docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
+      #    opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-4.sh
+      #- export ARTIFACT=centos7
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages and then sets other environment
