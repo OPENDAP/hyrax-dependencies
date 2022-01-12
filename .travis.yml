@@ -67,31 +67,16 @@ jobs:
       - make -j16 ci-part-2
       - make -j16 ci-part-3
       - make -j16 ci-part-4
-      - export ARTIFACT=ubuntu
+      -
 
-  - stage: build-no
+  - stage: build
     script:
       # mkdir returns true if the directory already exists
       - mkdir -p $HOME/centos7/install
-      # Note that for CentOS7, we build the dependencies so that STARE is included (but not for C6 or Debian)
-      # The Makefile checks the value of the env var $BUILD_STARE. jhrg 10/28/19
-      # I changed the sense of this so STARE is built by default since this was causing problems for developer
-      # builds. jhrg 5/15/20
-      #
-      # Bumped up the docker container to for the CentOS 7 build to 1.4
-      #
       # Hacked to run three of the four parts. jhrg 1/11/22
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-3.sh
-      - export CENTOS7_BUILD_1=done
-
-  - stage: build-no
-    script:
-      - mkdir -p $HOME/centos7/install
-      # Hacked to run part four. jhrg 1/11/22
-      - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-part-4.sh
-      - export CENTOS7_BUILD_2=done
+          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-4.sh
+      - export ARTIFACT=centos7
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages and then sets other environment
@@ -100,15 +85,11 @@ jobs:
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
-    then 
-      tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
+    then tar -C $HOME -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
-  - if test "x$CENTOS7_BUILD_1" = "xdone" -a "x$CENTOS7_BUILD_2" = "xdone";
-    then 
-      tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
-      export ARTIFACT=centos7;
+  - if test -n $ARTIFACT -a $ARTIFACT = centos7;
+    then tar -C $HOME/centos7/ -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
     fi
-  - ls -l $TRAVIS_BUILD_DIR/package
 
 deploy:
   provider: s3
@@ -116,6 +97,8 @@ deploy:
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   bucket: opendap.travis.build
   local_dir: $TRAVIS_BUILD_DIR/package
+  # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do
+  skip_cleanup: true
   on:
     branch: master
     condition: $ARTIFACT =~ ^ubuntu|centos7$

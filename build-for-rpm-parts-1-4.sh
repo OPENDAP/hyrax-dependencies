@@ -16,6 +16,7 @@ export CONFIGURE_FLAGS="--disable-shared"
 
 cd /root/hyrax-dependencies
 
-make -j7 ci-part-1
-make -j7 ci-part-2
-make -j7 ci-part-3
+make -j16 ci-part-1
+make -j16 ci-part-2
+make -j16 ci-part-3
+make -j16 ci-part-4
