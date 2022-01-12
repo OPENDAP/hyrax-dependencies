@@ -12,7 +12,8 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
-yum -y install sqlite-libs sqlite-devel
+yum -y install sqlite-devel
+# for Centos8, we may need 'sqlite-libs,' too.
 
 export CONFIGURE_FLAGS="--disable-shared"
 
