@@ -53,6 +53,7 @@ env:
     - secure: "Ney6w+mu5WNkBkiRv9W3rAfx10nBQkdRkhmxIfuuidO8eCrpF4E6KfcRUQcuaZJr6J2LANQx7MQ9bquEE7+hzn8s6Mi7Yd1KLKKCQ+ZN9J2wsvU5CdY8WeizF9iQwtQaKZq1xMcSiOxgNpHiqJ20oGTP4yKVYqGjG32+SPzVAYo="
 
 before_install:
+  # added because without this the docker pulls were failing for repeated builds
   - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
 
 stages:
@@ -64,24 +65,23 @@ jobs:
   - stage: build
     script:
       - make -j16 ci-part-1
-      #- make -j16 ci-part-2
-      #- make -j16 ci-part-3
-      #- make -j16 ci-part-4
+      - make -j16 ci-part-2
+      - make -j16 ci-part-3
+      - make -j16 ci-part-4
       - export ARTIFACT=ubuntu
 
   - stage: build
     script:
-      # mkdir returns true if the directory already exists
+      # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'
       - mkdir -p $HOME/centos7/install
-      # Hacked to run three of the four parts. jhrg 1/11/22
-      #- docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-      #    opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-rpm-parts-1-4.sh
-      #- export ARTIFACT=centos7
+      # build-for-centos7.sh add sqlite-devel to the c7 image to build proj, a dep of gdal
+      - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
+          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
+      - export ARTIFACT=centos7
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
-# checks environment variables that are flags from the build stages and then sets other environment
-# variables that serve as flags for the 'deploy' section. This enables 'before_deploy' to build
-# tar balls with all the software and then the 'deploy' section to copy those when they are complete.
+# checks environment variables that are flags from the build stages. Note that the 'condition'
+# in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
@@ -97,7 +97,7 @@ deploy:
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   bucket: opendap.travis.build
   local_dir: $TRAVIS_BUILD_DIR/package
-  # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do
+  # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
   skip_cleanup: true
   on:
     branch: master
