@@ -21,7 +21,7 @@ dist: xenial          # or bionic | xenial | trusty | precise with xenial as def
 vm:
   size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
 
-language: minimal
+language: shell
 
 compiler: gcc
 
@@ -114,7 +114,6 @@ deploy:
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   bucket: opendap.travis.build
-  skip_cleanup: true
   local_dir: $TRAVIS_BUILD_DIR/package
   on:
     branch: master
