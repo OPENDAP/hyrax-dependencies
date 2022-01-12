@@ -63,11 +63,6 @@ netcdf4 sqlite3 proj gdal4 icu stare list-built
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
 hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
 
-# Try this for the CI builds using Ubuntu 20. jhrg 1/8/22
-.PHONY: $(ci_deps)
-ci_deps = $(site-deps) stare gridfields hdf5 netcdf4  \
-jpeg hdf4 hdfeos proj openjpeg gdal4 list-built
-
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
 .PHONY: $(docker_deps)
@@ -99,7 +94,7 @@ list-built-clean:
 .PHONY: list-built-really-clean
 list-built-really-clean:
 
-# Build everything but ICU, as static. Whwen the BES is built and
+# Build everything but ICU, as static. When the BES is built and
 # linked against these, the resulting modules will not need their
 # dependencies installed since they will be statically linked to them.
 #
@@ -107,6 +102,7 @@ list-built-really-clean:
 # I want to avoid statically linking with that. Also, this does
 # not yet work - netcdf4 and hdf5 need to have their builds 
 # tweaked still. jhrg 4/7/15
+#
 # Done. This now works. Don't forget CONFIGURE_FLAGS. jhrg 5/6/15
 # CONFIGURE_FLAGS now set by this target - no need to remember to do
 # it. jhrg 11/29/17.
@@ -118,9 +114,6 @@ for-static-rpm: prefix-set
 for-travis: prefix-set
 	for d in $(linux_deps); do $(MAKE) $(MFLAGS) $$d; done
 
-for-actions: prefix-set
-	for d in $(actions_build); do $(MAKE) $(MFLAGS) $$d; done
-
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
 
@@ -128,12 +121,12 @@ for-docker: prefix-set
 # stare: none
 # gridfields: none
 
-# hdf5: none
-# netcdf4: hdf5
-
 # jpeg: none
 # hdf4: jpeg
 # hdfeos: hdf4, jpeg
+
+# hdf5: none
+# netcdf4: hdf5 AND this must follow hdf4 because the hdf4 build installs then deletes ncdump and ncgen
 
 # proj: none
 # openjepg: none
@@ -147,14 +140,17 @@ ci-part-1:
 	$(MAKE) $(MFLAGS) gridfields
 	$(MAKE) $(MFLAGS) stare
 
+# Note that the actions in part-2 must come before part-3 because the hdf4 build
+# builds installs and then deletes the installed versions of ncdump and ncgen. That
+# will remove the versions built by the netcdf4 library. jhrg 1/12/22
 ci-part-2:
-	$(MAKE) $(MFLAGS) hdf5
-	$(MAKE) $(MFLAGS) netcdf4
-
-ci-part-3:
 	$(MAKE) $(MFLAGS) jpeg
 	$(MAKE) $(MFLAGS) hdf4
 	$(MAKE) $(MFLAGS) hdfeos
+
+ci-part-3:
+	$(MAKE) $(MFLAGS) hdf5
+	$(MAKE) $(MFLAGS) netcdf4
 
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj

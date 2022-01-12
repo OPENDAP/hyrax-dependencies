@@ -68,6 +68,7 @@ jobs:
       - make -j16 ci-part-2
       - make -j16 ci-part-3
       - make -j16 ci-part-4
+      - make list-built
       - export ARTIFACT=ubuntu
 
   - stage: build
