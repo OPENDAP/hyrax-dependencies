@@ -12,6 +12,11 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
+export prefix=$HOME/install
+export CPPFLAGS=-I/usr/include/tirpc
+export LDADD=-ltirpc
+
+
 printenv
 
 # Hack - update this container and remove this or switch to the vanilla
