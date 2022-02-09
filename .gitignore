@@ -1,7 +1,9 @@
 #
 *~
 *-stamp
-.project
-.cproject
 *.DS_Store
+
+/.project
+/.cproject
 /.settings/
+/.idea/
