@@ -210,13 +210,14 @@ gdal3=gdal-3.1.3
 gdal3_dist=$(gdal3).tar.gz
 
 # gdal4=gdal-3.1.4
-gdal4=gdal-3.2.1
+# gdal4=gdal-3.2.1
+gdal4=gdal-3.4.1
 gdal4_dist=$(gdal4).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
 
-hdf4=hdf-4.2.14
+hdf4=hdf-4.2.15
 hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
