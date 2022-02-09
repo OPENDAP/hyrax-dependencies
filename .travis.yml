@@ -77,8 +77,15 @@ jobs:
       - mkdir -p $HOME/centos7/install
       # build-for-centos7.sh add sqlite-devel to the c7 image to build proj, a dep of gdal
       - docker run --volume $HOME/centos7/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
+        opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
       - export ARTIFACT=centos7
+
+  - stage: build
+    script:
+      - mkdir -p $HOME/centos-stream8/install
+      - docker run --volume $HOME/centos-stream8/install:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
+        opendap/centos-stream8_hyrax_builder:1.0 /root/hyrax-dependencies/build-for-centos-stream8.sh
+      - export ARTIFACT=centos-stream8
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages. Note that the 'condition'
@@ -91,6 +98,9 @@ before_deploy:
   - if test -n $ARTIFACT -a $ARTIFACT = centos7;
     then tar -C $HOME/centos7/ -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
     fi
+  - if test -n $ARTIFACT -a $ARTIFACT = centos-stream8;
+    then tar -C $HOME/centos-stream8/ -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos-stream8-static.tar.gz install;
+    fi
 
 deploy:
   provider: s3
@@ -102,4 +112,4 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-    condition: $ARTIFACT =~ ^ubuntu|centos7$
+    condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
