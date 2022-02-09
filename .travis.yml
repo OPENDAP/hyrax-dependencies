@@ -42,7 +42,6 @@ addons:
 
 env:
   global:
-    # Not actually used - prefix=$HOME/install
     # AWS_ACCESS_KEY_ID (user: travis-hyrax-dependencies)
     - secure: "KDHpyQLB4nARPv/k4wUjgl6OD3jLMRifRwX58YFESvbU4IGB1pKS6sV0h4p5grdBBLikLYF7S61a2HhZ3b0zYADWzNEsDNwS3HDlhqVGVv53uanUy+6yTR7igkclh8zqw1dxzM9rbHtxB9TPIhq+gI0KpXXfMf+eP26SEuaiAWs="
     # AWS_SECRET_ACCESS_KEY
@@ -85,7 +84,6 @@ jobs:
       - docker run --volume $install_dir:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
           opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
       - export ARTIFACT=centos7
-      - ls -lR $install_dir
 
   - stage: build
     script:
@@ -95,7 +93,6 @@ jobs:
           --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/centos-stream8_hyrax_builder:1.0 
           /root/hyrax-dependencies/build-for-centos-stream8.sh
       - export ARTIFACT=centos-stream8
-      - ls -lR $install_dir
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages. Note that the 'condition'
