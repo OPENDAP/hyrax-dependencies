@@ -203,15 +203,7 @@ sqlite3_dist=$(sqlite3).tar.gz
 proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
-gdal2=gdal-2.1.1
-gdal2_dist=$(gdal2).tar.xz
-
-gdal3=gdal-3.1.3
-gdal3_dist=$(gdal3).tar.gz
-
-# gdal4=gdal-3.1.4
-# gdal4=gdal-3.2.1
-gdal4=gdal-3.4.1
+gdal4=gdal-3.2.1
 gdal4_dist=$(gdal4).tar.gz
 
 gridfields=gridfields-1.0.5
