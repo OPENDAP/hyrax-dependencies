@@ -62,7 +62,7 @@ stages:
 
 jobs:
   include:
-  - stage: build
+  - stage: dont-build
     script:
       - make -j16 ci-part-1
       - make -j16 ci-part-2
@@ -76,7 +76,7 @@ jobs:
     # NB: The hyrax-dependencies Makefile requires that $prefix be set to the place where the
     # packages should be installed. That is done above in the env: section. $prefix ix $HOME/install
     # and $HOME is '/root'.
-  - stage: build
+  - stage: dont-build
     script:
       - install_dir=$HOME/centos7/install
       - mkdir -p $install_dir
