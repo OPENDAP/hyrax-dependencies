@@ -65,6 +65,7 @@ jobs:
   include:
   - stage: build
     script:
+      - export prefix=$HOME/install
       - make -j16 ci-part-1
       - make -j16 ci-part-2
       - make -j16 ci-part-3
@@ -72,11 +73,13 @@ jobs:
       - make list-built
       - export ARTIFACT=ubuntu
 
-    # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'
-    # build-for-centos7.sh adds sqlite-devel to the c7 image to build proj, a dependency of gdal
+    # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
+
+    # build-for-centos7.sh adds sqlite-devel to the c7 image to build proj, a dependency of gdal.
+
     # NB: The hyrax-dependencies Makefile requires that $prefix be set to the place where the
     # packages should be installed. The CentOS7 docker image has that already set, the CentOS
-    # Stream8 container deoes not so it is injected using --env.
+    # Stream8 container does not so it is injected using --env.
   - stage: build
     script:
       - install_dir=$HOME/centos7/install
