@@ -469,7 +469,7 @@ gdal4-configure-stamp: $(gdal4_src)-stamp
 	--disable-all-optional-drivers --enable-driver-grib --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio)
+	--without-sqlite3 --without-pg --without-cfitsio --without-png)
 
 # --disable-driver-plscenes --disable-driver-elastic
 
