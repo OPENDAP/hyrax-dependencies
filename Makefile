@@ -462,6 +462,10 @@ $(gdal4_src)-stamp:
 # NB: The sqlite3 library is used for the proj library tests, so it is
 # included for that _but_ we do not build the sqlite3 _driver_ for gdal
 # (hence the '--without-sqlite3' option). jhrg 12/29/21
+#
+# To build the grib driver, you must build the png driver - using
+# --without-png causes the grib driver to not be built without a warning.
+# jhrg 3/23/22
 gdal4-configure-stamp: $(gdal4_src)-stamp
 	(cd $(gdal4_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
@@ -469,7 +473,7 @@ gdal4-configure-stamp: $(gdal4_src)-stamp
 	--disable-all-optional-drivers --enable-driver-grib --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio --without-png)
+	--without-sqlite3 --without-pg --without-cfitsio)
 
 # --disable-driver-plscenes --disable-driver-elastic
 
