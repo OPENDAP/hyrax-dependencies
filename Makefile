@@ -475,27 +475,6 @@ gdal4-configure-stamp: $(gdal4_src)-stamp
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
 
-# --disable-driver-plscenes --disable-driver-elastic
-
-# I replaced this with the above. It now builds GRIB but not JPEG2000.
-# we can drop the openjpeg build until this issue is resolved.
-# jhrg 3/3/21
-# 
-# I disabled sqlite3 because it was failing on CentOS7. jhrg 12/08/20
-# gdal4-configure-stamp:  $(gdal4_src)-stamp
-# 	(cd $(gdal4_src) && \
-# 	PKG_CONFIG=$(openjpeg_prefix)/lib/pkgconfig \
-# 	CPPFLAGS=-I$(proj_prefix)/include \
-# 	OPENJPEG_CFLAGS="-I$(openjpeg_prefix)/include/openjpeg-2.4" \
-# 	OPENJPEG_LIBS="-L$(openjpeg_prefix)/lib -lopenjp2" \
-# 	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(gdal4_prefix) --with-pic \
-# 	--with-openjpeg --with-proj=$(proj_prefix) \
-# 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
-# 	 --enable-driver-grib --disable-all-optional-drivers \
-# 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-# 	--without-png --without-sqlite3 --without-pg --without-cfitsio)
-# 	echo timestamp > gdal4-configure-stamp
-
 gdal4-compile-stamp: gdal4-configure-stamp
 	(cd $(gdal4_src) && $(MAKE) $(MFLAGS))
 	echo timestamp > gdal4-compile-stamp
