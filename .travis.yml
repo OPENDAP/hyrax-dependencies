@@ -64,6 +64,7 @@ stages:
 jobs:
   include:
   - stage: build
+    name: "ubuntu-xenial"
     script:
       - export prefix=$HOME/install
       - make -j16 ci-part-1
@@ -105,13 +106,13 @@ jobs:
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
-    then tar -C $HOME -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
+    then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = centos7;
-    then tar -C $HOME/centos7/ -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
+    then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = centos-stream8;
-    then tar -C $HOME/centos-stream8/ -czf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos-stream8-static.tar.gz install;
+    then tar -C $HOME/centos-stream8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos-stream8-static.tar.gz install;
     fi
 
 deploy:

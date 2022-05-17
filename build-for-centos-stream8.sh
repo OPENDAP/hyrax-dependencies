@@ -13,7 +13,7 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
-yum -y update
+dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
 # RPM build we have packages that others can install. jhrg 2/8/22
