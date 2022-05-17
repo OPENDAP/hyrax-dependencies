@@ -81,6 +81,7 @@ jobs:
     # packages should be installed. The CentOS7 docker image has that already set, the CentOS
     # Stream8 container does not so it is injected using --env.
   - stage: build
+    name: "CentOS-7"
     script:
       - install_dir=$HOME/centos7/install
       - mkdir -p $install_dir
@@ -89,6 +90,7 @@ jobs:
       - export ARTIFACT=centos7
 
   - stage: build
+    name: "CentOS-Stream8"
     script:
       - install_dir=$HOME/centos-stream8/install
       - mkdir -p $install_dir
