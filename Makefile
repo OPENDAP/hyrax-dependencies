@@ -78,9 +78,17 @@ all: prefix-set
 prefix-set:
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
-	@if grep '8\.' /etc/redhat-release && echo $CPPFLAGS | grep tirpc; \
-	then echo "RHEL 8 or variant found, CPPFLAGS set"; \
-	else echo "The env var 'CPPFLAGS' must point to the tirpc headersE"; exit 1; fi
+
+.PHONY: rhel8
+rhel8:
+	@if test -f /etc/redhat-release; then \
+	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	    else \
+	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        exit 1; \
+            fi; \
+	fi
 
 .PHONY: list-built
 list-built:
