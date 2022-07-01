@@ -1,8 +1,98 @@
+## -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+## hyrax-dependencies-1.40, hyrax-1.16.6
+##
+##
+##    Updated for Hyrax-1.16.6 on 2022-07-08
+##
+
+2022-06-12  James Gallagher  <jgallagher@opendap.org>
+
+	Rhel 8 fix (#50)
+	Add support for RHEL8 - you must install the package tirpc-devel
+
+2022-05-17  ndp-opendap  <ndp@opendap.org>
+
+	Switch C8 build from yum to dnf. Named stages. Added verbose to creation of tarballs.
+
+	 Added names to stages
+
+2022-03-23  James Gallagher  <jgallagher@opendap.org>
+
+	Removed old comment
+
+	Put png back into the build to get the grib driver to build
+
+2022-03-22  James Gallagher  <jgallagher@opendap.org>
+
+	Removed libpng from the gdal build - this fixes issues on OSX (#49)
+	These issues appear to be M1-releated, but I'm not sure.
+
+2022-02-09  James Gallagher  <jgallagher@opendap.org>
+
+	Fix for the Ubuntu binaries - prefix must be set.
+
+	Final edits to master incorporating the new CentOS Stream8 binaries.
+
+	Cs8 fixes (#48)
+	Attempt to diagnose the failed centos-stream8 deps build
+	Don't spend money on parts of the build we don't care about
+	Inject prefix for Centos-Stream8; suppress native build
+
+2022-02-08  James Gallagher  <jgallagher@opendap.org>
+
+	Added .travis.yml and builder script for CS8 (#47)
+	Added .travis.yml and builder script for CS8
+	Added hdf-4.2.15.tar.gz
+	Removed old stuff - cut down on size
+	Fixed the gdal version - I had 3.4.x set for testing but will break tests
+
+2022-01-12  James Gallagher  <jgallagher@opendap.org>
+
+	build fix for ncdump
+	That the actions in part-2 must come before part-3 because the hdf4 build
+	builds installs and then deletes the installed versions of ncdump and ncgen. That
+	will remove the versions built by the netcdf4 library.
+
+	artifacts
+
+	trim the build way down to test artifacts
+
+	artifacts
+
+	artifacts
+
+	Another try at getting the tar balls to build
+
+	Fix for the deployment - cannot use before_deploy with the parallel builds
+
+	fixed the branch name in the deploy block
+
+	Circleci project setup (#46)
+	Added .circleci/config.yml, shut off the github actions builds and refactored the travis build
+	* I refactored the build to run in four ‘parts’ that can each be run independently. Given the time GDAL takes, it just so happens that running that part takes about as long as the other three together.
+	* Then I changed how we build gdal so we don’t build a bunch of drivers we don’t use. Since GDAL takes us most of the build time, there’s a pretty big win there.
+	* By paying more money, we’re able to access more powerful machines (e.g, x-large VMs instead of mediums) so we improve build times that way as well.
+	* I fixed some lingering issues with our travis yml
+
+2022-01-07  ndp-opendap  <ndp@opendap.org>
+
+	Updating release files for Hyrax-1.16.5
+
+	Updating release files for Hyrax-1.16.5
+
+
+## -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 ## hyrax-dependencies-1.30, hyrax-1.16.5
+##
+##
+##    Updated for Hyrax-1.16.5 on 2022-01-07
 
-    Updated for Hyrax-1.16.5 on 2022-01-07
 
+## -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 ## hyrax-dependencies-1.29, hyrax-1.16.4
+##
+##    Updated for Hyrax-1.16.4
+
 2021-09-15  dh-opendap  <dholloway@opendap.org>
 
 	Updated as of 2021-09-15

@@ -1,3 +1,10 @@
+# Version-1.40, Hyrax-1.16.6
+
+  Tagged for Hyrax-1.16.6
+
+  - Added support for RHEL8, (requires tirpc etc.)
+  - Builds on Cs8 
+
 # Version-1.30, Hyrax-1.16.4
 
   Tagged for Hyrax-1.16.5
