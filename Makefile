@@ -485,6 +485,7 @@ gdal4-configure-stamp: $(gdal4_src)-stamp
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
+	echo timestamp > gdal4-configure-stamp
 
 gdal4-compile-stamp: gdal4-configure-stamp
 	(cd $(gdal4_src) && $(MAKE) $(MFLAGS))
