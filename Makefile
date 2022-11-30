@@ -473,10 +473,13 @@ $(gdal36_src)-stamp:
 	tar -xzf downloads/$(gdal36_dist) -C $(src)
 	echo timestamp > $(gdal36_src)-stamp
 
+# Set build options here (a few) and (most) in gdal36-config.cmake.
+# jhrg 11/30/22
 gdal36-configure-stamp: $(gdal36_src)-stamp
 	(cd $(gdal36_src) \
 	 && mkdir build && cd build \
-	 && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+	 && cmake -DCMAKE_PREFIX_PATH:PATH=$(prefix)/deps/proj-6 \
+	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
 	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
 	 -C ../../../gdal-config.cmake ..)
 	echo timestamp > gdal36-configure-stamp
