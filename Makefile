@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.40
+VERSION = 1.41
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -47,7 +47,7 @@ site-deps =
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal4 icu stare list-built
+netcdf4 sqlite3 proj gdal36 icu stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -61,7 +61,7 @@ netcdf4 sqlite3 proj gdal4 icu stare list-built
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
+hdfeos hdf5 netcdf4 sqlite3 proj gdal36 stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -166,7 +166,7 @@ ci-part-3:
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
-	$(MAKE) $(MFLAGS) gdal4
+	$(MAKE) $(MFLAGS) gdal36
 
 clean: $(deps_clean)
 
@@ -209,13 +209,15 @@ sqlite3_dist=$(sqlite3).tar.gz
 # default. It will break the HDFEOS code in the hdf4 handler. jhrg
 # 4/24/2019
 #
-# Needed by GDAL3, build and install in a special directory under
+# Needed by GDAL, build and installed in a special directory under
 # $prefix and use it only with gdal3. jhrg 10/30/20
 proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
-gdal4=gdal-3.2.1
-gdal4_dist=$(gdal4).tar.gz
+# gdal4=gdal-3.2.1
+# gdal4_dist=$(gdal4).tar.gz
+gdal36=gdal-3.6.0
+gdal36_dist=$(gdal36).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -461,7 +463,45 @@ proj-really-clean: proj-clean
 .PHONY: proj
 proj: proj-install-stamp
 
-# GDAL4
+# GDAL
+# Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
+# cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
+gdal36_src=$(src)/$(gdal36)
+gdal36_prefix=$(prefix)/deps
+
+$(gdal36_src)-stamp:
+	tar -xzf downloads/$(gdal36_dist) -C $(src)
+	echo timestamp > $(gdal36_src)-stamp
+
+gdal36-configure-stamp: $(gdal36_src)-stamp
+	(cd $(gdal36_src) \
+	 && mkdir build && cd build \
+	 && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
+	 -C ../../../gdal-config.cmake ..)
+	echo timestamp > gdal36-configure-stamp
+
+gdal36-compile-stamp: gdal36-configure-stamp
+	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
+	echo timestamp > gdal36-compile-stamp
+
+gdal36-install-stamp: gdal36-compile-stamp
+	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	echo timestamp > gdal36-install-stamp
+
+gdal36-clean:
+	-rm gdal36-*-stamp
+	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
+
+gdal36-really-clean: gdal36-clean
+	-rm $(gdal36_src)-stamp
+	-rm -rf $(gdal36_src)
+
+.PHONY: gdal36
+gdal36: gdal36-install-stamp
+
+# The old 'gdal4' rules follow... Keep until we are comfortable with
+# the new build.
 gdal4_src=$(src)/$(gdal4)
 gdal4_prefix=$(prefix)/deps
 
