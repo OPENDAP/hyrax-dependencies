@@ -210,8 +210,8 @@ sqlite3_dist=$(sqlite3).tar.gz
 # 4/24/2019
 #
 # Needed by GDAL, build and installed in a special directory under
-# $prefix and use it only with gdal3. jhrg 10/30/20
-proj=proj-6.3.2
+# $prefix and use it only with GDAL. jhrg 10/30/20
+proj=proj-9.1.0
 proj_dist=$(proj).tar.gz
 
 # gdal4=gdal-3.2.1
@@ -431,30 +431,28 @@ sqlite3: sqlite3-install-stamp
 # hdf4 handler will have to be modifed to use a special set of de-
 # pendencies. jhrg 10/29/20
 proj_src=$(src)/$(proj)
-proj_prefix=$(prefix)/deps/proj-6
+proj_prefix=$(prefix)/deps/proj
 
 $(proj_src)-stamp:
 	tar -xzf downloads/$(proj_dist) -C $(src)
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
-	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
-	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
-	--disable-shared)
+	(cd $(proj_src) && mkdir build && cd build \
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF ..)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS))
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > proj-install-stamp
 
 proj-clean:
 	-rm proj-*-stamp
-	-(cd  $(proj_src) && $(MAKE) $(MFLAGS) uninstall clean)
+	-(cd  $(proj_src)/build && $(MAKE) $(MFLAGS) uninstall clean)
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp	
@@ -478,9 +476,12 @@ $(gdal36_src)-stamp:
 gdal36-configure-stamp: $(gdal36_src)-stamp
 	(cd $(gdal36_src) \
 	 && mkdir build && cd build \
-	 && cmake -DCMAKE_PREFIX_PATH:PATH=$(prefix)/deps/proj-6 \
+	 && cmake \
+	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
+	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+	 -DBUILD_SHARED_LIBS:bool=OFF \
 	 -C ../../../gdal-config.cmake ..)
 	echo timestamp > gdal36-configure-stamp
 
@@ -631,14 +632,6 @@ $(hdfeos_src)-stamp:
 	tar -xzf downloads/$(hdfeos_dist) -C $(src)
 	echo timestamp > $(hdfeos_src)-stamp
 
-# hdfeos-configure-stamp:  $(hdfeos_src)-stamp
-# 	(cd $(hdfeos_src) && ./configure CC=$(hdf4_prefix)/bin/h4cc	\
-# 	$(CONFIGURE_FLAGS) $(defaults) --disable-fortran --enable-production	\
-# 	--with-pic --enable-install-include --with-hdf4=$(hdf4_prefix)	\
-# 	--prefix=$(hdfeos_prefix))
-# 	echo timestamp > hdfeos-configure-stamp
-
-# FIXME Hackery
 hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	(if test -f $(hdf4_prefix)/bin/h4cc; \
 	then \
