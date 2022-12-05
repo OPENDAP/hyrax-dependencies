@@ -19,8 +19,10 @@ export CONFIGURE_FLAGS="--disable-shared"
 
 cd /root/hyrax-dependencies
 
-# Build cmake because C7 comes with 2.x but proj needs 3.9+
+# Build cmake and sqlite3 because C7 comes with versions that are too old
 make -j16 cmake
+make -j16 sqlite3
+
 make -j16 ci-part-1
 make -j16 ci-part-2
 make -j16 ci-part-3
