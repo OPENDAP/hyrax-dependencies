@@ -308,7 +308,7 @@ $(cmake_src)-stamp:
 	echo timestamp > $(cmake_src)-stamp
 
 cmake-configure-stamp:  $(cmake_src)-stamp
-	(cd $(cmake_src) && ./configure $(defaults) --prefix=$(cmake_prefix))
+	(cd $(cmake_src) && ./configure --prefix=$(cmake_prefix))
 	echo timestamp > cmake-configure-stamp
 
 cmake-compile-stamp: cmake-configure-stamp
