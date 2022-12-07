@@ -81,7 +81,7 @@ jobs:
     # NB: The hyrax-dependencies Makefile requires that $prefix be set to the place where the
     # packages should be installed. The CentOS7 docker image has that already set, the CentOS
     # Stream8 container does not so it is injected using --env.
-  - stage: build
+  - stage: never
     name: "CentOS-7"
     script:
       - install_dir=$HOME/centos7/install
@@ -90,7 +90,7 @@ jobs:
           opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
       - export ARTIFACT=centos7
 
-  - stage: never
+  - stage: build
     name: "CentOS-Stream8"
     script:
       - install_dir=$HOME/centos-stream8/install
