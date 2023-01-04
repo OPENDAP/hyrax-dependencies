@@ -63,7 +63,7 @@ stages:
 
 jobs:
   include:
-  - stage: never
+  - stage: build
     name: "ubuntu-xenial"
     script:
       - export prefix=$HOME/install
@@ -81,7 +81,7 @@ jobs:
     # NB: The hyrax-dependencies Makefile requires that $prefix be set to the place where the
     # packages should be installed. The CentOS7 docker image has that already set, the CentOS
     # Stream8 container does not so it is injected using --env.
-  - stage: never
+  - stage: build
     name: "CentOS-7"
     script:
       - install_dir=$HOME/centos7/install
