@@ -437,7 +437,7 @@ $(proj_src)-stamp:
 
 proj-configure-stamp: $(proj_src)-stamp
 	(cd $(proj_src) && mkdir build && cd build \
-	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF ..)
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF -DENABLE_TIFF=OFF ..)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
