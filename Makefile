@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.41
+VERSION = 1.42
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -214,9 +214,7 @@ sqlite3_dist=$(sqlite3).tar.gz
 proj=proj-9.1.0
 proj_dist=$(proj).tar.gz
 
-# gdal4=gdal-3.2.1
-# gdal4_dist=$(gdal4).tar.gz
-gdal36=gdal-3.6.0
+gdal36=gdal-3.6.1
 gdal36_dist=$(gdal36).tar.gz
 
 gridfields=gridfields-1.0.5
@@ -232,7 +230,7 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 hdf5=hdf5-1.10.5
 hdf5_dist=$(hdf5).tar.bz2
 
-netcdf4=netcdf-c-4.8.0
+netcdf4=netcdf-c-4.9.0
 netcdf4_dist=$(netcdf4).tar.gz
 
 # fits=cfitsio
