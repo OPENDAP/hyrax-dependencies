@@ -1,0 +1,40 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  build:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: cimg/base:stable
+
+    environment:
+      prefix: /tmp/build
+
+    # resource_class: xlarge
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Add packages: bison flex sqlite3"
+          command: sudo apt-get update && sudo apt-get install -y bison flex sqlite3
+      - run:
+          name: "compile and install"
+          command: |
+            export PATH=$prefix/bin:$prefix/deps/bin:$PATH
+            echo "prefix: $prefix"
+            make -j7 ci-part-1
+            make -j7 ci-part-2
+            make -j7 ci-part-3
+            make -j7 ci-part-4
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+#workflows:
+#  say-hello-workflow:
+#    jobs:
+#      - say-hello

@@ -75,21 +75,6 @@ jobs:
       - export ARTIFACT=ubuntu
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-
-    # build-for-centos7.sh adds sqlite-devel to the c7 image to build proj, a dependency of gdal.
-
-    # NB: The hyrax-dependencies Makefile requires that $prefix be set to the place where the
-    # packages should be installed. The CentOS7 docker image has that already set, the CentOS
-    # Stream8 container does not so it is injected using --env.
-  - stage: build
-    name: "CentOS-7"
-    script:
-      - install_dir=$HOME/centos7/install
-      - mkdir -p $install_dir
-      - docker run --volume $install_dir:/root/install --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
-          opendap/centos7_hyrax_builder:1.4 /root/hyrax-dependencies/build-for-centos7.sh
-      - export ARTIFACT=centos7
-
   - stage: build
     name: "CentOS-Stream8"
     script:
@@ -107,9 +92,6 @@ before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
-    fi
-  - if test -n $ARTIFACT -a $ARTIFACT = centos7;
-    then tar -C $HOME/centos7/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos7-static.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = centos-stream8;
     then tar -C $HOME/centos-stream8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos-stream8-static.tar.gz install;

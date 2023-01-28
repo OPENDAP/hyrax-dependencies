@@ -5,7 +5,7 @@
 # (or the CentOS7 or CentOS-Stream8 version).
 #
 # Modified to take an optional parameter that denotes the version of the C++
-# compiler to use. Since C6 lacks a C++-11 compiler, this can be used to supress
+# compiler to use. Since C6 lacks a C++-11 compiler, this can be used to suppress
 # building some of the dependencies. jhrg 10/28/19
 # Removed that for C7 anc CS8. jhrg 2/8/22
 
