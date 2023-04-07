@@ -220,7 +220,7 @@ gdal36_dist=$(gdal36).tar.gz
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
 
-hdf4=hdf-4.2.15
+hdf4=hdf-4.2.16
 hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
@@ -593,7 +593,8 @@ $(hdf4_src)-stamp:
 hdf4-configure-stamp:  $(hdf4_src)-stamp
 	(cd $(hdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) CFLAGS=-w \
 	--disable-fortran --enable-production --disable-netcdf \
-	--with-pic --with-jpeg=$(jpeg_prefix) --prefix=$(hdf4_prefix))
+	--with-pic --with-jpeg=$(jpeg_prefix) --enable-hdf4-xdr \
+	--prefix=$(hdf4_prefix))
 	echo timestamp > hdf4-configure-stamp
 
 hdf4-compile-stamp: hdf4-configure-stamp
