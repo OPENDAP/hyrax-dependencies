@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.40
+VERSION = 1.42
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -47,7 +47,7 @@ site-deps =
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal4 icu stare list-built
+netcdf4 sqlite3 proj gdal36 icu stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -61,7 +61,7 @@ netcdf4 sqlite3 proj gdal4 icu stare list-built
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 sqlite3 proj gdal4 stare list-built
+hdfeos hdf5 netcdf4 sqlite3 proj gdal36 stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -166,7 +166,7 @@ ci-part-3:
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
-	$(MAKE) $(MFLAGS) gdal4
+	$(MAKE) $(MFLAGS) gdal36
 
 clean: $(deps_clean)
 
@@ -209,18 +209,18 @@ sqlite3_dist=$(sqlite3).tar.gz
 # default. It will break the HDFEOS code in the hdf4 handler. jhrg
 # 4/24/2019
 #
-# Needed by GDAL3, build and install in a special directory under
-# $prefix and use it only with gdal3. jhrg 10/30/20
-proj=proj-6.3.2
+# Needed by GDAL, build and installed in a special directory under
+# $prefix and use it only with GDAL. jhrg 10/30/20
+proj=proj-9.1.0
 proj_dist=$(proj).tar.gz
 
-gdal4=gdal-3.2.1
-gdal4_dist=$(gdal4).tar.gz
+gdal36=gdal-3.6.1
+gdal36_dist=$(gdal36).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
 
-hdf4=hdf-4.2.15
+hdf4=hdf-4.2.16
 hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
@@ -230,7 +230,7 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 hdf5=hdf5-1.10.5
 hdf5_dist=$(hdf5).tar.bz2
 
-netcdf4=netcdf-c-4.8.0
+netcdf4=netcdf-c-4.9.0
 netcdf4_dist=$(netcdf4).tar.gz
 
 # fits=cfitsio
@@ -306,7 +306,7 @@ $(cmake_src)-stamp:
 	echo timestamp > $(cmake_src)-stamp
 
 cmake-configure-stamp:  $(cmake_src)-stamp
-	(cd $(cmake_src) && ./configure $(defaults) --prefix=$(cmake_prefix))
+	(cd $(cmake_src) && ./configure --prefix=$(cmake_prefix))
 	echo timestamp > cmake-configure-stamp
 
 cmake-compile-stamp: cmake-configure-stamp
@@ -429,30 +429,28 @@ sqlite3: sqlite3-install-stamp
 # hdf4 handler will have to be modifed to use a special set of de-
 # pendencies. jhrg 10/29/20
 proj_src=$(src)/$(proj)
-proj_prefix=$(prefix)/deps/proj-6
+proj_prefix=$(prefix)/deps/proj
 
 $(proj_src)-stamp:
 	tar -xzf downloads/$(proj_dist) -C $(src)
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
-	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
-	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
-	--disable-shared)
+	(cd $(proj_src) && mkdir build && cd build \
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF -DENABLE_TIFF=OFF ..)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS))
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > proj-install-stamp
 
 proj-clean:
 	-rm proj-*-stamp
-	-(cd  $(proj_src) && $(MAKE) $(MFLAGS) uninstall clean)
+	-(cd  $(proj_src)/build && $(MAKE) $(MFLAGS) uninstall clean)
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp	
@@ -461,7 +459,51 @@ proj-really-clean: proj-clean
 .PHONY: proj
 proj: proj-install-stamp
 
-# GDAL4
+# GDAL
+# Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
+# cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
+gdal36_src=$(src)/$(gdal36)
+gdal36_prefix=$(prefix)/deps
+
+$(gdal36_src)-stamp:
+	tar -xzf downloads/$(gdal36_dist) -C $(src)
+	echo timestamp > $(gdal36_src)-stamp
+
+# Set build options here (a few) and (most) in gdal36-config.cmake.
+# jhrg 11/30/22
+gdal36-configure-stamp: $(gdal36_src)-stamp
+	(cd $(gdal36_src) \
+	 && mkdir build && cd build \
+	 && cmake \
+	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
+	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+	 -DBUILD_SHARED_LIBS:bool=OFF \
+	 -C ../../../gdal-config.cmake ..)
+	echo timestamp > gdal36-configure-stamp
+
+gdal36-compile-stamp: gdal36-configure-stamp
+	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
+	echo timestamp > gdal36-compile-stamp
+
+gdal36-install-stamp: gdal36-compile-stamp
+	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	echo timestamp > gdal36-install-stamp
+
+gdal36-clean:
+	-rm gdal36-*-stamp
+	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
+
+gdal36-really-clean: gdal36-clean
+	-rm $(gdal36_src)-stamp
+	-rm -rf $(gdal36_src)
+
+.PHONY: gdal36
+gdal36: gdal36-install-stamp
+
+# The old 'gdal4' rules follow... Keep until we are comfortable with
+# the new build.
 gdal4_src=$(src)/$(gdal4)
 gdal4_prefix=$(prefix)/deps
 
@@ -551,7 +593,8 @@ $(hdf4_src)-stamp:
 hdf4-configure-stamp:  $(hdf4_src)-stamp
 	(cd $(hdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) CFLAGS=-w \
 	--disable-fortran --enable-production --disable-netcdf \
-	--with-pic --with-jpeg=$(jpeg_prefix) --prefix=$(hdf4_prefix))
+	--with-pic --with-jpeg=$(jpeg_prefix) --enable-hdf4-xdr \
+	--prefix=$(hdf4_prefix))
 	echo timestamp > hdf4-configure-stamp
 
 hdf4-compile-stamp: hdf4-configure-stamp
@@ -588,14 +631,6 @@ $(hdfeos_src)-stamp:
 	tar -xzf downloads/$(hdfeos_dist) -C $(src)
 	echo timestamp > $(hdfeos_src)-stamp
 
-# hdfeos-configure-stamp:  $(hdfeos_src)-stamp
-# 	(cd $(hdfeos_src) && ./configure CC=$(hdf4_prefix)/bin/h4cc	\
-# 	$(CONFIGURE_FLAGS) $(defaults) --disable-fortran --enable-production	\
-# 	--with-pic --enable-install-include --with-hdf4=$(hdf4_prefix)	\
-# 	--prefix=$(hdfeos_prefix))
-# 	echo timestamp > hdfeos-configure-stamp
-
-# FIXME Hackery
 hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	(if test -f $(hdf4_prefix)/bin/h4cc; \
 	then \
