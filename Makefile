@@ -445,45 +445,45 @@ proj: proj-install-stamp
 # GDAL
 # Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
 # cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
-gdal36_src=$(src)/$(gdal36)
-gdal36_prefix=$(prefix)/deps
+# gdal36_src=$(src)/$(gdal36)
+# gdal36_prefix=$(prefix)/deps
 
-$(gdal36_src)-stamp:
-	tar -xzf downloads/$(gdal36_dist) -C $(src)
-	echo timestamp > $(gdal36_src)-stamp
+# $(gdal36_src)-stamp:
+# 	tar -xzf downloads/$(gdal36_dist) -C $(src)
+# 	echo timestamp > $(gdal36_src)-stamp
 
-# Set build options here (a few) and (most) in gdal36-config.cmake.
-# jhrg 11/30/22
-gdal36-configure-stamp: $(gdal36_src)-stamp
-	(cd $(gdal36_src) \
-	 && mkdir build && cd build \
-	 && cmake \
-	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-	 -DBUILD_SHARED_LIBS:bool=OFF \
-	 -C ../../../gdal-config.cmake ..)
-	echo timestamp > gdal36-configure-stamp
+# # Set build options here (a few) and (most) in gdal36-config.cmake.
+# # jhrg 11/30/22
+# gdal36-configure-stamp: $(gdal36_src)-stamp
+# 	(cd $(gdal36_src) \
+# 	 && mkdir build && cd build \
+# 	 && cmake \
+# 	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+# 	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
+# 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+# 	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+# 	 -DBUILD_SHARED_LIBS:bool=OFF \
+# 	 -C ../../../gdal-config.cmake ..)
+# 	echo timestamp > gdal36-configure-stamp
 
-gdal36-compile-stamp: gdal36-configure-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
-	echo timestamp > gdal36-compile-stamp
+# gdal36-compile-stamp: gdal36-configure-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
+# 	echo timestamp > gdal36-compile-stamp
 
-gdal36-install-stamp: gdal36-compile-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > gdal36-install-stamp
+# gdal36-install-stamp: gdal36-compile-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+# 	echo timestamp > gdal36-install-stamp
 
-gdal36-clean:
-	-rm gdal36-*-stamp
-	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
+# gdal36-clean:
+# 	-rm gdal36-*-stamp
+# 	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
 
-gdal36-really-clean: gdal36-clean
-	-rm $(gdal36_src)-stamp
-	-rm -rf $(gdal36_src)
+# gdal36-really-clean: gdal36-clean
+# 	-rm $(gdal36_src)-stamp
+# 	-rm -rf $(gdal36_src)
 
-.PHONY: gdal36
-gdal36: gdal36-install-stamp
+# .PHONY: gdal36
+# gdal36: gdal36-install-stamp
 
 # The old 'gdal4' rules follow... Keep until we are comfortable with
 # the new build.
