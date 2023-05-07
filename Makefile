@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.42
+VERSION = 1.43
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -27,27 +27,10 @@ VERSION = 1.42
 site-deps = 
 -include ../hyrax-site.mk
 
-# These options speed up the builds jhrg 12/08/20
-# but defining this here breaks the static builds. jhrg 12/09/20
-#CONFIGURE_FLAGS = --disable-dependency-tracking --enable-silent-rules
-
-# Changed the sense of the BUILD_STARE env var so that if it's undefined,
-# the library is built. Setting it to 'no' suppresses the library build.
-# We don't build the library for CentOS6 (no C++11 on C6) or debian.
-# jhrg 5/15/20
-#
-# No longer needed - we require c++-11 for all the builds now that
-# CentOS 6 support has ended. jhrg 10/30/20
-# ifeq ("$(BUILD_STARE)", "no")
-# STARE =
-# else
-# STARE = stare
-# endif
-
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal36 icu stare list-built
+netcdf4 sqlite3 proj gdal icu stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -61,7 +44,7 @@ netcdf4 sqlite3 proj gdal36 icu stare list-built
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 sqlite3 proj gdal36 stare list-built
+hdfeos hdf5 netcdf4 sqlite3 proj gdal stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -166,7 +149,7 @@ ci-part-3:
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
-	$(MAKE) $(MFLAGS) gdal36
+	$(MAKE) $(MFLAGS) gdal
 
 clean: $(deps_clean)
 
@@ -198,7 +181,6 @@ bison_dist=$(bison).tar.xz
 jpeg=jpeg-6b
 jpeg_dist=jpegsrc.v6b.tar.gz
 
-# openjpeg=openjpeg-2.3.1
 openjpeg=openjpeg-2.4.0
 openjpeg_dist=$(openjpeg).tar.gz
 
@@ -211,11 +193,17 @@ sqlite3_dist=$(sqlite3).tar.gz
 #
 # Needed by GDAL, build and installed in a special directory under
 # $prefix and use it only with GDAL. jhrg 10/30/20
-proj=proj-9.1.0
+# proj=proj-9.1.0
+# proj_dist=$(proj).tar.gz
+
+# gdal36=gdal-3.6.1
+# gdal36_dist=$(gdal36).tar.gz
+
+proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
-gdal36=gdal-3.6.1
-gdal36_dist=$(gdal36).tar.gz
+gdal=gdal-3.2.1
+gdal_dist=$(gdal).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -225,6 +213,7 @@ hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
 hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
+# This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
 # hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
 
 hdf5=hdf5-1.10.10
@@ -233,16 +222,12 @@ hdf5_dist=$(hdf5).tar.bz2
 netcdf4=netcdf-c-4.9.0
 netcdf4_dist=$(netcdf4).tar.gz
 
-# fits=cfitsio
-# fits_dist=$(fits)3270.tar.gz
 fits=cfitsio-3.49
 fits_dist=$(fits).tar.gz
 
 icu=icu-3.6
 icu_dist=icu4c-3_6-src.tgz
 
-# stare=STARE-0.16.2-beta
-# stare=STARE-0.16.3
 stare=STARE-1.1.0
 stare_dist=$(stare).tar.bz2
 
@@ -251,14 +236,12 @@ src = src
 
 defaults = --disable-dependency-tracking --enable-silent-rules
 
-# Specific source packages below here
-
 # JPEG
 jpeg_src=$(src)/$(jpeg)
 jpeg_prefix=$(prefix)/deps
 
 # Why use a 'stamp' file here instead of the directory itself? The
-# directory's modification time is updated by the comple target, which
+# directory's modification time is updated by the compile target, which
 # means that the configure and compilation will be repeated until the
 # compilation makes no change in the directory. The -stamp file will
 # not be modified by the compile target
@@ -429,28 +412,30 @@ sqlite3: sqlite3-install-stamp
 # hdf4 handler will have to be modifed to use a special set of de-
 # pendencies. jhrg 10/29/20
 proj_src=$(src)/$(proj)
-proj_prefix=$(prefix)/deps/proj
+proj_prefix=$(prefix)/deps/proj-6
 
 $(proj_src)-stamp:
 	tar -xzf downloads/$(proj_dist) -C $(src)
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && mkdir build && cd build \
-	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF -DENABLE_TIFF=OFF ..)
+	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
+	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
+	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
+	--disable-shared)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src)/build && $(MAKE) $(MFLAGS))
+	(cd $(proj_src) && $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
-	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(proj_src) && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > proj-install-stamp
 
 proj-clean:
 	-rm proj-*-stamp
-	-(cd  $(proj_src)/build && $(MAKE) $(MFLAGS) uninstall clean)
+	-(cd  $(proj_src) && $(MAKE) $(MFLAGS) uninstall clean)
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp	
@@ -462,54 +447,59 @@ proj: proj-install-stamp
 # GDAL
 # Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
 # cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
-gdal36_src=$(src)/$(gdal36)
-gdal36_prefix=$(prefix)/deps
+# gdal36_src=$(src)/$(gdal36)
+# gdal36_prefix=$(prefix)/deps
 
-$(gdal36_src)-stamp:
-	tar -xzf downloads/$(gdal36_dist) -C $(src)
-	echo timestamp > $(gdal36_src)-stamp
+# $(gdal36_src)-stamp:
+# 	tar -xzf downloads/$(gdal36_dist) -C $(src)
+# 	echo timestamp > $(gdal36_src)-stamp
 
-# Set build options here (a few) and (most) in gdal36-config.cmake.
-# jhrg 11/30/22
-gdal36-configure-stamp: $(gdal36_src)-stamp
-	(cd $(gdal36_src) \
-	 && mkdir build && cd build \
-	 && cmake \
-	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-	 -DBUILD_SHARED_LIBS:bool=OFF \
-	 -C ../../../gdal-config.cmake ..)
-	echo timestamp > gdal36-configure-stamp
+# # Set build options here (a few) and (most) in gdal36-config.cmake.
+# # jhrg 11/30/22
+# gdal36-configure-stamp: $(gdal36_src)-stamp
+# 	(cd $(gdal36_src) \
+# 	 && mkdir build && cd build \
+# 	 && cmake \
+# 	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+# 	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
+# 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+# 	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+# 	 -DBUILD_SHARED_LIBS:bool=OFF \
+# 	 -C ../../../gdal-config.cmake ..)
+# 	echo timestamp > gdal36-configure-stamp
 
-gdal36-compile-stamp: gdal36-configure-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
-	echo timestamp > gdal36-compile-stamp
+# gdal36-compile-stamp: gdal36-configure-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
+# 	echo timestamp > gdal36-compile-stamp
 
-gdal36-install-stamp: gdal36-compile-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > gdal36-install-stamp
+# gdal36-install-stamp: gdal36-compile-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+# 	echo timestamp > gdal36-install-stamp
 
-gdal36-clean:
-	-rm gdal36-*-stamp
-	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
+# gdal36-clean:
+# 	-rm gdal36-*-stamp
+# 	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
 
-gdal36-really-clean: gdal36-clean
-	-rm $(gdal36_src)-stamp
-	-rm -rf $(gdal36_src)
+# gdal36-really-clean: gdal36-clean
+# 	-rm $(gdal36_src)-stamp
+# 	-rm -rf $(gdal36_src)
 
-.PHONY: gdal36
-gdal36: gdal36-install-stamp
+# .PHONY: gdal36
+# gdal36: gdal36-install-stamp
 
 # The old 'gdal4' rules follow... Keep until we are comfortable with
 # the new build.
-gdal4_src=$(src)/$(gdal4)
-gdal4_prefix=$(prefix)/deps
+# Update: GDAL 3.6 just won't build on the linux boxes with the other
+# stuff we have. And it's not that critical a part of the server, so I
+# and dropping back to 3.2.1. I'm going to rename gdal4 to just gdal.
+# jhrg 5//7/23
 
-$(gdal4_src)-stamp:
-	tar -xzf downloads/$(gdal4_dist) -C $(src)
-	echo timestamp > $(gdal4_src)-stamp
+gdal_src=$(src)/$(gdal)
+gdal_prefix=$(prefix)/deps
+
+$(gdal_src)-stamp:
+	tar -xzf downloads/$(gdal_dist) -C $(src)
+	echo timestamp > $(gdal_src)-stamp
 
 # I disabled sqlite3 because it was failing on CentOS7.
 # NB: The sqlite3 library is used for the proj library tests, so it is
@@ -519,35 +509,36 @@ $(gdal4_src)-stamp:
 # To build the grib driver, you must build the png driver - using
 # --without-png causes the grib driver to not be built without a warning.
 # jhrg 3/23/22
-gdal4-configure-stamp: $(gdal4_src)-stamp
-	(cd $(gdal4_src) && \
+gdal-configure-stamp: $(gdal_src)-stamp
+	(cd $(gdal_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
-	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal4_prefix) --with-pic \
-	--disable-all-optional-drivers --enable-driver-grib --with-proj=$(proj_prefix) \
+	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
+	--disable-all-optional-drivers --enable-driver-grib \
+	$(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
-	echo timestamp > gdal4-configure-stamp
+	echo timestamp > gdal-configure-stamp
 
-gdal4-compile-stamp: gdal4-configure-stamp
-	(cd $(gdal4_src) && $(MAKE) $(MFLAGS))
-	echo timestamp > gdal4-compile-stamp
+gdal-compile-stamp: gdal-configure-stamp
+	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
+	echo timestamp > gdal-compile-stamp
 
 # Force -j1 for install
-gdal4-install-stamp: gdal4-compile-stamp
-	(cd $(gdal4_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > gdal4-install-stamp
+gdal-install-stamp: gdal-compile-stamp
+	(cd $(gdal_src) && $(MAKE) $(MFLAGS) -j1 install)
+	echo timestamp > gdal-install-stamp
 
-gdal4-clean:
-	-rm gdal4-*-stamp
-	-(cd  $(gdal4_src) && $(MAKE) $(MFLAGS) clean)
+gdal-clean:
+	-rm gdal-*-stamp
+	-(cd  $(gdal_src) && $(MAKE) $(MFLAGS) clean)
 
-gdal4-really-clean: gdal4-clean
-	-rm $(gdal4_src)-stamp
-	-rm -rf $(gdal4_src)
+gdal-really-clean: gdal-clean
+	-rm $(gdal_src)-stamp
+	-rm -rf $(gdal_src)
 
-.PHONY: gdal4
-gdal4: gdal4-install-stamp
+.PHONY: gdal
+gdal: gdal-install-stamp
 
 # Gridfields 
 gridfields_src=$(src)/$(gridfields)
