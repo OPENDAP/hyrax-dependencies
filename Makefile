@@ -203,7 +203,7 @@ proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
 gdal=gdal-3.2.1
-gdal_dist=$(gdal36).tar.gz
+gdal_dist=$(gdal).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
