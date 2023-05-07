@@ -30,8 +30,7 @@ site-deps =
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-
-netcdf4 sqlite3 proj gdal36 icu stare list-built
+netcdf4 sqlite3 proj gdal icu stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -45,7 +44,7 @@ netcdf4 sqlite3 proj gdal36 icu stare list-built
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 sqlite3 proj gdal36 stare list-built
+hdfeos hdf5 netcdf4 sqlite3 proj gdal stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -150,7 +149,7 @@ ci-part-3:
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
-	$(MAKE) $(MFLAGS) gdal36
+	$(MAKE) $(MFLAGS) gdal
 
 clean: $(deps_clean)
 
@@ -182,7 +181,6 @@ bison_dist=$(bison).tar.xz
 jpeg=jpeg-6b
 jpeg_dist=jpegsrc.v6b.tar.gz
 
-# openjpeg=openjpeg-2.3.1
 openjpeg=openjpeg-2.4.0
 openjpeg_dist=$(openjpeg).tar.gz
 
@@ -195,11 +193,17 @@ sqlite3_dist=$(sqlite3).tar.gz
 #
 # Needed by GDAL, build and installed in a special directory under
 # $prefix and use it only with GDAL. jhrg 10/30/20
-proj=proj-9.1.0
+# proj=proj-9.1.0
+# proj_dist=$(proj).tar.gz
+
+# gdal36=gdal-3.6.1
+# gdal36_dist=$(gdal36).tar.gz
+
+proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
-gdal36=gdal-3.6.1
-gdal36_dist=$(gdal36).tar.gz
+gdal=gdal-3.2.1
+gdal_dist=$(gdal36).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -480,12 +484,6 @@ gdal36-really-clean: gdal36-clean
 
 .PHONY: gdal36
 gdal36: gdal36-install-stamp
-
-# The old 'gdal4' rules follow... Keep until we are comfortable with
-# the new build.
-gdal_src=$(src)/$(gdal4)
-gdal_prefix=$(prefix)/deps
-
 
 # The old 'gdal4' rules follow... Keep until we are comfortable with
 # the new build.
