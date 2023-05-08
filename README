@@ -9,6 +9,17 @@ the environment variable 'prefix' has been set. It should point to the
 directory where you are installing Hyrax. The Makefile will compile,
 test and install all of the dependencies in $prefix/deps.
 
+** For the Apple M1/2 and maybe other machines, the GDAL library
+needs special help finding libpng. If the GDAL library cannot find
+libpng (you have to read over the GDAL configure output to learn
+this and that's painful, I know) then use the Makefile variable
+$(LIBPNG) to provide the base path for the libpng include and lib
+directories. You can do this by writing a file called 'hyrax-site.mk'
+in the directory that holds 'hyrax-dependencies' and putting
+'--with-png=/path/to/include-and-lib' in that file. Look at the
+top of the Makefile to see how hyrax-site.mk is included by the
+main Makefile. jhrg 5/8/23
+
 Other targets in the Makefile besides 'all:'
 
 for-static-rpm: Use this to build only static versions of the
