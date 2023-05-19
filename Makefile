@@ -512,9 +512,11 @@ $(gdal_src)-stamp:
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
+	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
+	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
-	--disable-all-optional-drivers --enable-driver-grib \
-	$(LIBPNG) --with-proj=$(proj_prefix) \
+	--with-openjpeg --without-jasper --disable-all-optional-drivers \
+	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
