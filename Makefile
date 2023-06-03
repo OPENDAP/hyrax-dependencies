@@ -203,7 +203,7 @@ proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
 gdal=gdal-3.2.1
-gdal_dist=$(gdal36).tar.gz
+gdal_dist=$(gdal).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -412,28 +412,30 @@ sqlite3: sqlite3-install-stamp
 # hdf4 handler will have to be modifed to use a special set of de-
 # pendencies. jhrg 10/29/20
 proj_src=$(src)/$(proj)
-proj_prefix=$(prefix)/deps/proj
+proj_prefix=$(prefix)/deps/proj-6
 
 $(proj_src)-stamp:
 	tar -xzf downloads/$(proj_dist) -C $(src)
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && mkdir build && cd build \
-	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DBUILD_SHARED_LIBS=OFF -DENABLE_TIFF=OFF ..)
+	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
+	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
+	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
+	--disable-shared)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src)/build && $(MAKE) $(MFLAGS))
+	(cd $(proj_src) && $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
-	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(proj_src) && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > proj-install-stamp
 
 proj-clean:
 	-rm proj-*-stamp
-	-(cd  $(proj_src)/build && $(MAKE) $(MFLAGS) uninstall clean)
+	-(cd  $(proj_src) && $(MAKE) $(MFLAGS) uninstall clean)
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp	
@@ -445,45 +447,45 @@ proj: proj-install-stamp
 # GDAL
 # Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
 # cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
-gdal36_src=$(src)/$(gdal36)
-gdal36_prefix=$(prefix)/deps
+# gdal36_src=$(src)/$(gdal36)
+# gdal36_prefix=$(prefix)/deps
 
-$(gdal36_src)-stamp:
-	tar -xzf downloads/$(gdal36_dist) -C $(src)
-	echo timestamp > $(gdal36_src)-stamp
+# $(gdal36_src)-stamp:
+# 	tar -xzf downloads/$(gdal36_dist) -C $(src)
+# 	echo timestamp > $(gdal36_src)-stamp
 
-# Set build options here (a few) and (most) in gdal36-config.cmake.
-# jhrg 11/30/22
-gdal36-configure-stamp: $(gdal36_src)-stamp
-	(cd $(gdal36_src) \
-	 && mkdir build && cd build \
-	 && cmake \
-	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-	 -DBUILD_SHARED_LIBS:bool=OFF \
-	 -C ../../../gdal-config.cmake ..)
-	echo timestamp > gdal36-configure-stamp
+# # Set build options here (a few) and (most) in gdal36-config.cmake.
+# # jhrg 11/30/22
+# gdal36-configure-stamp: $(gdal36_src)-stamp
+# 	(cd $(gdal36_src) \
+# 	 && mkdir build && cd build \
+# 	 && cmake \
+# 	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+# 	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
+# 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+# 	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+# 	 -DBUILD_SHARED_LIBS:bool=OFF \
+# 	 -C ../../../gdal-config.cmake ..)
+# 	echo timestamp > gdal36-configure-stamp
 
-gdal36-compile-stamp: gdal36-configure-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
-	echo timestamp > gdal36-compile-stamp
+# gdal36-compile-stamp: gdal36-configure-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
+# 	echo timestamp > gdal36-compile-stamp
 
-gdal36-install-stamp: gdal36-compile-stamp
-	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > gdal36-install-stamp
+# gdal36-install-stamp: gdal36-compile-stamp
+# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+# 	echo timestamp > gdal36-install-stamp
 
-gdal36-clean:
-	-rm gdal36-*-stamp
-	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
+# gdal36-clean:
+# 	-rm gdal36-*-stamp
+# 	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
 
-gdal36-really-clean: gdal36-clean
-	-rm $(gdal36_src)-stamp
-	-rm -rf $(gdal36_src)
+# gdal36-really-clean: gdal36-clean
+# 	-rm $(gdal36_src)-stamp
+# 	-rm -rf $(gdal36_src)
 
-.PHONY: gdal36
-gdal36: gdal36-install-stamp
+# .PHONY: gdal36
+# gdal36: gdal36-install-stamp
 
 # The old 'gdal4' rules follow... Keep until we are comfortable with
 # the new build.
@@ -510,9 +512,11 @@ $(gdal_src)-stamp:
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
+	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
+	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
-	--disable-all-optional-drivers --enable-driver-grib \
-	$(LIBPNG) --with-proj=$(proj_prefix) \
+	--with-openjpeg --without-jasper --disable-all-optional-drivers \
+	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio)
