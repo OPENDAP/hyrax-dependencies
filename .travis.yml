@@ -29,8 +29,7 @@ compiler: gcc
 branches:
   only:
     - master
-
-
+    - test-deploy
 
 
 addons:
@@ -101,13 +100,24 @@ before_deploy:
     fi
 
 deploy:
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
-  bucket: opendap.travis.build
-  local_dir: $TRAVIS_BUILD_DIR/package
-  # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
-  skip_cleanup: true
-  on:
-    branch: master
-    condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: opendap.travis.build
+    local_dir: $TRAVIS_BUILD_DIR/package
+    # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
+    skip_cleanup: true
+    on:
+      branch: master
+      condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
+      
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: opendap.travis.build
+    local_dir: $TRAVIS_BUILD_DIR/package
+    # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
+    skip_cleanup: true
+    on:
+      branch: test-deploy
+      condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
