@@ -29,7 +29,7 @@ compiler: gcc
 branches:
   only:
     - master
-    - /^(.*-test-deploy)$/
+    - test-deploy
 
 
 addons:
