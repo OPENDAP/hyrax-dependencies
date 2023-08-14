@@ -30,6 +30,9 @@ branches:
   only:
     - master
 
+
+
+
 addons:
   apt:
     packages:
@@ -57,7 +60,7 @@ before_install:
 
 stages:
   - name: build
-    if: branch = master
+    if: branch = master OR branch =~ ^(.*-test-deploy)$
   - name: never
     if: branch = never
 
