@@ -109,5 +109,5 @@ deploy:
   # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
   skip_cleanup: true
   on:
-    branch: master OR branch =~ ^(.*-test-deploy)$
+    branch: master 
     condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
