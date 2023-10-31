@@ -59,7 +59,7 @@ before_install:
 
 stages:
   - name: build
-    if: branch = master OR branch = test-deploy
+    if: branch = master OR branch =~ ^(.*-test-deploy)$
   - name: never
     if: branch = never
 
@@ -121,5 +121,3 @@ deploy:
     on:
       branch: test-deploy
       condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
-
-
