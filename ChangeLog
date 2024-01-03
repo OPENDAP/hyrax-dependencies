@@ -1,3 +1,96 @@
+2023-10-31  kyang2014  <kyang2014@users.noreply.github.com>
+
+	Merge pull request #59 from OPENDAP/direct-io
+	Direct io
+
+2023-10-31  Muqun Yang  <myang6@hdfgroup.org>
+
+	Use master's yml file
+
+2023-08-14  ndp-opendap  <ndp@opendap.org>
+
+	regex patch
+
+	trigger
+
+2023-08-14  Muqun Yang  <myang6@hdfgroup.org>
+
+	Merge branch 'master' into test-deploy
+
+2023-08-14  Nathan Potter  <ndp@opendap.org>
+
+	Test deployment feature (#57)
+	* Added build and deployment rule for  branch named "test-deploy"
+
+2023-08-14  ndp-opendap  <ndp@opendap.org>
+
+	enabling -test-deploy feature
+
+2023-08-14  Muqun Yang  <myang6@hdfgroup.org>
+
+	HYRAX-1117, check if all the BES tests get passed with a customized netCDF-4 library.
+
+2023-06-02  James Gallagher  <jgallagher@opendap.org>
+
+	Merge branch 'master' of https://github.com/OPENDAP/hyrax-dependencies
+
+2023-05-23  James Gallagher  <jgallagher@opendap.org>
+
+	Changes for rocky 8 (#56)
+
+2023-05-08  James Gallagher  <jgallagher@opendap.org>
+
+	Added description of hyrax-site.mk and the libpng/gdal issue.
+	[skip-ci]
+
+2023-05-07  James Gallagher  <jgallagher@opendap.org>
+
+	Roll back gdal to 3.2.1; keep the new netcdf 4.9 and hdf-4.16 (#54)
+	Roll back gdal to 3.2.1; keep the new netcdf 4.9 and hdf-4.16
+	Also revert to the older rules for proj 6
+
+	Rollback to gdal 3.2.1 maybe complete
+
+	WIP
+
+	Merge branch 'master' of https://github.com/OPENDAP/hyrax-dependencies
+
+	Roll back gdal to 3.2.1; keep the new netcdf 4.9 and hdf-4.16
+
+2023-05-04  James Gallagher  <jgallagher@opendap.org>
+
+	HDF5 1.10.10 added.
+
+2023-05-03  James Gallagher  <jgallagher@opendap.org>
+
+	Gdal36 (#53)
+	Try building gdal 3.6.x in place of gdal 3.2.x
+	Added new PROJ version
+	Netcdf 4.9 added; netcdf 4.8 removed
+	Added HDF 4.2.16
+	Builds and bes tests pass on the M1.
+
+2023-01-27  James Gallagher  <jgallagher@opendap.org>
+
+	Remove CentOS 7 and clean up cruft (#52)
+
+2023-01-08  James Gallagher  <jgallagher@opendap.org>
+
+	Delete config.yml
+
+2022-11-07  James Gallagher  <jgallagher@opendap.org>
+
+	Added misssing gdal-confgiure-stamp to Makefile
+	[skip ci]
+
+2022-07-01  ndp-opendap  <ndp@opendap.org>
+
+	Updating release file for Hyrax-1.16.6, hyrax-dependencies-1.4.0
+
+2022-06-12  James Gallagher  <jgallagher@opendap.org>
+
+	Rhel 8 fix (#50)
+	Add support for RHEL8 - you must install the package tirpc-devel
 ## -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 ## hyrax-dependencies-1.40, hyrax-1.16.6
 ##

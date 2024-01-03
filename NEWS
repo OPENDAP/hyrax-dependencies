@@ -1,3 +1,11 @@
+# Version-1.50, Hyrax-1.17.0
+  
+  Tagged for Hyrax-1.17.0
+  
+  - Netcdf 4.9 added, netcdf 4.8 removed
+  - Added HDF 4.2.16
+  - Changes for Rocky 8 added 
+
 # Version-1.40, Hyrax-1.16.6
 
   Tagged for Hyrax-1.16.6
