@@ -57,6 +57,9 @@ before_install:
   # added because without this the docker pulls were failing for repeated builds
   - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
   # needed for aws-eventstream, will fail otherwise
+  - sudo apt-get update
+  - sudo apt-get install -y ruby-full
+  - gem install bundler
   - gem install aws-eventstream -v 1.2.0
 
 stages:
