@@ -70,15 +70,14 @@ jobs:
     script:
       - export prefix=$HOME/install
       - make -j16 ci-part-1
-#      - make -j16 ci-part-2
-#      - make -j16 ci-part-3
-#      - make -j16 ci-part-4
+      - make -j16 ci-part-2
+      - make -j16 ci-part-3
+      - make -j16 ci-part-4
       - make list-built
       - export ARTIFACT=ubuntu
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-#  - stage: build
-  - stage: never
+  - stage: build
     name: "CentOS-Stream8"
     script:
       - install_dir=$HOME/centos-stream8/install
@@ -113,14 +112,3 @@ deploy:
       # Was "branch: master". Now supports the *-test-deploy feature and also
       # using 'main' as the branch name. jhrg 1/5/24
       condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
-      
-#  - provider: s3
-#    access_key_id: $AWS_ACCESS_KEY_ID
-#    secret_access_key: $AWS_SECRET_ACCESS_KEY
-#    bucket: opendap.travis.build
-#    local_dir: $TRAVIS_BUILD_DIR/package
-#    # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
-#    skip_cleanup: true
-#    on:
-#      branch: test-deploy
-#      condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
