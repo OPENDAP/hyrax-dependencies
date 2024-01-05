@@ -54,7 +54,7 @@ env:
     - secure: "Ney6w+mu5WNkBkiRv9W3rAfx10nBQkdRkhmxIfuuidO8eCrpF4E6KfcRUQcuaZJr6J2LANQx7MQ9bquEE7+hzn8s6Mi7Yd1KLKKCQ+ZN9J2wsvU5CdY8WeizF9iQwtQaKZq1xMcSiOxgNpHiqJ20oGTP4yKVYqGjG32+SPzVAYo="
 
 before_install:
-  - pip install --user awscli
+  # - pip install --user awscli
   # added because without this the docker pulls were failing for repeated builds
   # Removed. Travis reports this as leaking secrets. jhrg 1/5/24
   # - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
