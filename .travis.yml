@@ -29,8 +29,7 @@ compiler: gcc
 branches:
   only:
     - master
-    - test-deploy
-
+    - /^(.*-test-deploy)$/
 
 addons:
   apt:
@@ -55,10 +54,8 @@ env:
 
 before_install:
   # added because without this the docker pulls were failing for repeated builds
-  - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
-  # needed for aws-eventstream, will fail otherwise
-  - sudo apt-get update
-  - sudo apt-get install -y ruby-full
+  # Removed. Travis reports this as leaking secrets. jhrg 1/5/24
+  # - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
 
 stages:
   - name: build
@@ -70,10 +67,6 @@ jobs:
   include:
   - stage: build
     name: "ubuntu-xenial"
-    before_install:
-      - sudo apt-get update
-      - sudo apt-get install -y chruby
-      - chruby 2.7.4
     script:
       - export prefix=$HOME/install
       - make -j16 ci-part-1
@@ -86,10 +79,6 @@ jobs:
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "CentOS-Stream8"
-    before_install:
-      - sudo apt-get update
-      - sudo apt-get install -y chruby
-      - chruby 2.7.4
     script:
       - install_dir=$HOME/centos-stream8/install
       - mkdir -p $install_dir
