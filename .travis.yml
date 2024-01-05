@@ -59,7 +59,6 @@ before_install:
   # needed for aws-eventstream, will fail otherwise
   - sudo apt-get update
   - sudo apt-get install -y ruby-full
-  - gem install aws-eventstream -v 1.2.0
 
 stages:
   - name: build
@@ -71,6 +70,10 @@ jobs:
   include:
   - stage: build
     name: "ubuntu-xenial"
+    before_install:
+      - sudo apt-get update
+      - sudo apt-get install -y chruby
+      - chruby 2.7.4
     script:
       - export prefix=$HOME/install
       - make -j16 ci-part-1
@@ -83,6 +86,10 @@ jobs:
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "CentOS-Stream8"
+    before_install:
+      - sudo apt-get update
+      - sudo apt-get install -y chruby
+      - chruby 2.7.4
     script:
       - install_dir=$HOME/centos-stream8/install
       - mkdir -p $install_dir
