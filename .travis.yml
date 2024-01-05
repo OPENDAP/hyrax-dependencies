@@ -22,7 +22,9 @@ vm:
   size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
                       # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
 
-language: shell
+# Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
+# version of Ruby. jhrg 1/5/24
+language: cpp
 
 compiler: gcc
 
@@ -48,14 +50,12 @@ env:
     # AWS_SECRET_ACCESS_KEY
     - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
     # DOCKER_HUB_UID for travis (travis encrypt --org -r OPENDAP/hyrax-dependencies DOCKER_HUB_UID=...)
-    - secure: "HRdhqhsz9onm6OLMWoj9rjRFbTU+K6XAMuv69lwFEun3ECIvdb69lM2a2SCpX/NYdRmy5eYkK5mjkW0THLRaBthTDyAqXQSd8D/2Ge9Rx4KXLi0jA+FcA5OmOgy29ysAe0Ryp96UWb6UO4vv0f9jVoHGsbsakb37JN+bGHQD/nc="
+    # - secure: "HRdhqhsz9onm6OLMWoj9rjRFbTU+K6XAMuv69lwFEun3ECIvdb69lM2a2SCpX/NYdRmy5eYkK5mjkW0THLRaBthTDyAqXQSd8D/2Ge9Rx4KXLi0jA+FcA5OmOgy29ysAe0Ryp96UWb6UO4vv0f9jVoHGsbsakb37JN+bGHQD/nc="
     # DOCKER_HUB_PSWD for travis
-    - secure: "Ney6w+mu5WNkBkiRv9W3rAfx10nBQkdRkhmxIfuuidO8eCrpF4E6KfcRUQcuaZJr6J2LANQx7MQ9bquEE7+hzn8s6Mi7Yd1KLKKCQ+ZN9J2wsvU5CdY8WeizF9iQwtQaKZq1xMcSiOxgNpHiqJ20oGTP4yKVYqGjG32+SPzVAYo="
+    # - secure: "Ney6w+mu5WNkBkiRv9W3rAfx10nBQkdRkhmxIfuuidO8eCrpF4E6KfcRUQcuaZJr6J2LANQx7MQ9bquEE7+hzn8s6Mi7Yd1KLKKCQ+ZN9J2wsvU5CdY8WeizF9iQwtQaKZq1xMcSiOxgNpHiqJ20oGTP4yKVYqGjG32+SPzVAYo="
 
-before_install:
-  # added because without this the docker pulls were failing for repeated builds
-  # Removed. Travis reports this as leaking secrets. jhrg 1/5/24
-  # - echo $DOCKER_HUB_PSWD | docker login -u $DOCKER_HUB_UID --password-stdin
+# not needed. jhrg 1/5/24
+# before_install:
 
 stages:
   - name: build
@@ -108,16 +108,7 @@ deploy:
     # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
     skip_cleanup: true
     on:
-      branch: master
-      condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
-      
-  - provider: s3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket: opendap.travis.build
-    local_dir: $TRAVIS_BUILD_DIR/package
-    # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
-    skip_cleanup: true
-    on:
-      branch: test-deploy
+      all_branches: true
+      # Was "branch: master". Now supports the *-test-deploy feature and also
+      # using 'main' as the branch name. jhrg 1/5/24
       condition: $ARTIFACT =~ ^ubuntu|centos7|centos-stream8$
