@@ -48,8 +48,13 @@ hdfeos hdf5 netcdf4 sqlite3 proj gdal stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
+#
+# But... We use a special version of netCDF4 that includes calls to use/enable
+# Direct I/O _writes_. While the public HDF5 library makes these available, the
+# netCDF4 library does not. So, we added public calls for Direct I/O writes.
+# jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields hdfeos stare list-built
+docker_deps = $(site-deps) gridfields hdfeos stare netcdf4 list-built
 
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
