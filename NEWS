@@ -2,7 +2,8 @@
   
   Tagged for Hyrax-1.17.0
   
-  - Netcdf 4.9 added, netcdf 4.8 removed
+  - Netcdf 4.9 added (netcdf 4.8 removed)
+  - This version of the netcdf library supports Direct I/O operations
   - Added HDF 4.2.16
   - Changes for Rocky 8 added 
 
