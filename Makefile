@@ -16,7 +16,7 @@
 
 VERSION = 1.50
 
-# If a site.mk file exists in the parent dir, include it. Use this
+# If a hyrax-site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
 # which are needed to build the proj library in some obscure cases.
 
@@ -514,6 +514,18 @@ $(gdal_src)-stamp:
 # To build the grib driver, you must build the png driver - using
 # --without-png causes the grib driver to not be built without a warning.
 # jhrg 3/23/22
+#
+# ** For the Apple M1/2 and maybe other machines, the GDAL library
+# needs special help finding libpng. If the GDAL library cannot find
+# libpng (you have to read over the GDAL configure output to learn
+# this and that's painful, I know) then use the Makefile variable
+# $(LIBPNG) to provide the base path for the libpng include and lib
+# directories. You can do this by writing a file called 'hyrax-site.mk'
+# in the directory that holds 'hyrax-dependencies' and putting
+# '--with-png=/path/to/include-and-lib' in that file. Look at the
+# top of the Makefile to see how hyrax-site.mk is included by the
+# main Makefile. jhrg 5/8/23
+
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
