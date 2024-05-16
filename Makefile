@@ -202,12 +202,12 @@ sqlite3_dist=$(sqlite3).tar.gz
 # proj_dist=$(proj).tar.gz
 
 # gdal36=gdal-3.6.1
-# gdal36_dist=$(gdal36).tar.gz
+# gdal_dist=$(gdal36).tar.gz
 
 proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
 
-gdal=gdal-3.2.1
+gdal=gdal-3.9.0
 gdal_dist=$(gdal).tar.gz
 
 gridfields=gridfields-1.0.5
@@ -450,54 +450,8 @@ proj-really-clean: proj-clean
 proj: proj-install-stamp
 
 # GDAL
-# Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
-# cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
-# gdal36_src=$(src)/$(gdal36)
-# gdal36_prefix=$(prefix)/deps
-
-# $(gdal36_src)-stamp:
-# 	tar -xzf downloads/$(gdal36_dist) -C $(src)
-# 	echo timestamp > $(gdal36_src)-stamp
-
-# # Set build options here (a few) and (most) in gdal36-config.cmake.
-# # jhrg 11/30/22
-# gdal36-configure-stamp: $(gdal36_src)-stamp
-# 	(cd $(gdal36_src) \
-# 	 && mkdir build && cd build \
-# 	 && cmake \
-# 	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-# 	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-# 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-# 	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-# 	 -DBUILD_SHARED_LIBS:bool=OFF \
-# 	 -C ../../../gdal-config.cmake ..)
-# 	echo timestamp > gdal36-configure-stamp
-
-# gdal36-compile-stamp: gdal36-configure-stamp
-# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
-# 	echo timestamp > gdal36-compile-stamp
-
-# gdal36-install-stamp: gdal36-compile-stamp
-# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-# 	echo timestamp > gdal36-install-stamp
-
-# gdal36-clean:
-# 	-rm gdal36-*-stamp
-# 	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
-
-# gdal36-really-clean: gdal36-clean
-# 	-rm $(gdal36_src)-stamp
-# 	-rm -rf $(gdal36_src)
-
-# .PHONY: gdal36
-# gdal36: gdal36-install-stamp
-
-# The old 'gdal4' rules follow... Keep until we are comfortable with
-# the new build.
-# Update: GDAL 3.6 just won't build on the linux boxes with the other
-# stuff we have. And it's not that critical a part of the server, so I
-# and dropping back to 3.2.1. I'm going to rename gdal4 to just gdal.
-# jhrg 5//7/23
+# Move from gdal 3.2.1, which uses autotools to gdal 3.9.0 which uses
+# cmake.  jhrg 5/16/24
 
 gdal_src=$(src)/$(gdal)
 gdal_prefix=$(prefix)/deps
@@ -506,39 +460,25 @@ $(gdal_src)-stamp:
 	tar -xzf downloads/$(gdal_dist) -C $(src)
 	echo timestamp > $(gdal_src)-stamp
 
-# I disabled sqlite3 because it was failing on CentOS7.
-# NB: The sqlite3 library is used for the proj library tests, so it is
-# included for that _but_ we do not build the sqlite3 _driver_ for gdal
-# (hence the '--without-sqlite3' option). jhrg 12/29/21
-#
-# To build the grib driver, you must build the png driver - using
-# --without-png causes the grib driver to not be built without a warning.
-# jhrg 3/23/22
+# # Set build options in gdal-config.cmake.
+# # jhrg 5/16/24
 gdal-configure-stamp: $(gdal_src)-stamp
-	(cd $(gdal_src) && \
-	CPPFLAGS=-I$(proj_prefix)/include \
-	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
-	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
-	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
-	--with-openjpeg --without-jasper --disable-all-optional-drivers \
-	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
-	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
-	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio)
+	(cd $(gdal_src) \
+	 && mkdir build && cd build \
+	 && cmake -Dgdal_prefix:STRING=$(gdal_prefix) -C ../../../gdal-config.cmake ..)
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
-	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
+	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS))
 	echo timestamp > gdal-compile-stamp
 
-# Force -j1 for install
 gdal-install-stamp: gdal-compile-stamp
-	(cd $(gdal_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > gdal-install-stamp
 
 gdal-clean:
 	-rm gdal-*-stamp
-	-(cd  $(gdal_src) && $(MAKE) $(MFLAGS) clean)
+	-(cd  $(gdal_src) && rm -rf build)
 
 gdal-really-clean: gdal-clean
 	-rm $(gdal_src)-stamp
@@ -546,6 +486,61 @@ gdal-really-clean: gdal-clean
 
 .PHONY: gdal
 gdal: gdal-install-stamp
+
+## The old 'gdal4' rules follow... Keep until we are comfortable with
+## the new build.
+## Update: GDAL 3.6 just won't build on the linux boxes with the other
+## stuff we have. And it's not that critical a part of the server, so I
+## and dropping back to 3.2.1. I'm going to rename gdal4 to just gdal.
+## jhrg 5//7/23
+#
+#gdal_src=$(src)/$(gdal)
+#gdal_prefix=$(prefix)/deps
+#
+#$(gdal_src)-stamp:
+#	tar -xzf downloads/$(gdal_dist) -C $(src)
+#	echo timestamp > $(gdal_src)-stamp
+#
+## I disabled sqlite3 because it was failing on CentOS7.
+## NB: The sqlite3 library is used for the proj library tests, so it is
+## included for that _but_ we do not build the sqlite3 _driver_ for gdal
+## (hence the '--without-sqlite3' option). jhrg 12/29/21
+##
+## To build the grib driver, you must build the png driver - using
+## --without-png causes the grib driver to not be built without a warning.
+## jhrg 3/23/22
+#gdal-configure-stamp: $(gdal_src)-stamp
+#	(cd $(gdal_src) && \
+#	CPPFLAGS=-I$(proj_prefix)/include \
+#	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
+#	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
+#	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
+#	--with-openjpeg --without-jasper --disable-all-optional-drivers \
+#	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
+#	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
+#	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
+#	--without-sqlite3 --without-pg --without-cfitsio)
+#	echo timestamp > gdal-configure-stamp
+#
+#gdal-compile-stamp: gdal-configure-stamp
+#	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
+#	echo timestamp > gdal-compile-stamp
+#
+## Force -j1 for install
+#gdal-install-stamp: gdal-compile-stamp
+#	(cd $(gdal_src) && $(MAKE) $(MFLAGS) -j1 install)
+#	echo timestamp > gdal-install-stamp
+#
+#gdal-clean:
+#	-rm gdal-*-stamp
+#	-(cd  $(gdal_src) && $(MAKE) $(MFLAGS) clean)
+#
+#gdal-really-clean: gdal-clean
+#	-rm $(gdal_src)-stamp
+#	-rm -rf $(gdal_src)
+#
+#.PHONY: gdal
+#gdal: gdal-install-stamp
 
 # Gridfields 
 gridfields_src=$(src)/$(gridfields)

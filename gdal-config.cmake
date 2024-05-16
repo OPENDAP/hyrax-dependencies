@@ -1,26 +1,33 @@
 
-# collected option used to build GDAL. I put these here because typing them
+# Collected options used to build GDAL. I put these here because typing them
 # gets pretty tedious. jhrg 11/30/22
+#
+# Pass this file to cmake using the -C option. jhrg 5/16/24
 
-# we use -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps in the Makefile so that
-# the installation prefix is set correctly. I didn't put that here because
-# the value of $prefix - and env var - might not be substituted by the cmake
-#
-# Also in the Makefile -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF
-#
-# program. jhrg 11/30/22
+if(DEFINED gdal_prefix)
+  message("dependencies prefix set to: ${gdal_prefix}")
+else()
+  message(FATAL_ERROR, "The gdal_prefix variable is not set.")
+endif()
 
 set (CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+set (CMAKE_INSTALL_PREFIX ${gdal_prefix} CACHE STRING "" FORCE)
 
 set (BUILD_PYTHON_BINDINGS OFF CACHE BOOL "" FORCE)
 set (BUILD_JAVA_BINDINGS OFF CACHE BOOL "" FORCE)
 
-# because PROJ-6 is found using $prefix, it is set in the Makefile
-# PROJ_INCLUDE_DIR
-# PROJ_LIBRARY_RELEASE
+set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 set (GDAL_BUILD_OPTIONAL_DRIVERS OFF CACHE BOOL "" FORCE)
 set (OGR_BUILD_OPTIONAL_DRIVERS OFF CACHE BOOL "" FORCE)
+
+set (OPENJPEG_INCLUDE_DIR ${gdal_prefix}/include/openjpeg-2.4 CACHE STRING "" FORCE)
+set (OPENJPEG_LIBRARY ${gdal_prefix}/lib/libopenjp2.a CACHE STRING "" FORCE)
+set (GDAL_USE_OPENJPEG ON CACHE BOOL "" FORCE)
+
+set (PROJ_INCLUDE_DIR ${gdal_prefix}/proj-6/include CACHE STRING "" FORCE)
+set (PROJ_LIBRARY_RELEASE ${gdal_prefix}/proj-6/lib/libproj.a CACHE STRING "" FORCE)
+
 set (GDAL_USE_INTERNAL_LIBS ON CACHE BOOL "" FORCE)
 set (GDAL_USE_EXTERNAL_LIBS OFF CACHE BOOL "" FORCE)
 
@@ -31,7 +38,9 @@ set (GDAL_USE_HDF5 OFF CACHE BOOL "" FORCE)
 set (GDAL_USE_NETCDF OFF CACHE BOOL "" FORCE)
 set (GDAL_USE_CFITSIO OFF CACHE BOOL "" FORCE)
 
+set (GDAL_USE_TIFF_INTERNAL ON CACHE BOOL "" FORCE)
 set (GDAL_USE_SQLITE3 ON CACHE BOOL "" FORCE)
 
 set (GDAL_ENABLE_DRIVER_GRIB ON CACHE BOOL "" FORCE)
+set (GDAL_ENABLE_DRIVER_OPENJPEG ON CACHE BOOL "" FORCE)
 set (GDAL_ENABLE_DRIVER_JP2OPENJPEG ON CACHE BOOL "" FORCE)
