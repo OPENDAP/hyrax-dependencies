@@ -25,6 +25,14 @@ set (OPENJPEG_INCLUDE_DIR ${gdal_prefix}/include/openjpeg-2.4 CACHE STRING "" FO
 set (OPENJPEG_LIBRARY ${gdal_prefix}/lib/libopenjp2.a CACHE STRING "" FORCE)
 set (GDAL_USE_OPENJPEG ON CACHE BOOL "" FORCE)
 
+set (SQLite3_INCLUDE_DIR ${gdal_prefix}/include CACHE STRING "" FORCE)
+set (SQLite3_LIBRARY ${gdal_prefix}/lib/libsqlite3.a CACHE STRING "" FORCE)
+
+# sqlite3 builds using --enable-threadsafe; maybe the test is broken in 
+# GDAL's cmake system? If this is not set, the cmake configuration step 
+# fails. jhrg 5/20/24
+set (ACCEPT_MISSING_SQLITE3_MUTEX_ALLOC ON CACHE BOOL "" FORCE)
+
 set (PROJ_INCLUDE_DIR ${gdal_prefix}/proj-6/include CACHE STRING "" FORCE)
 set (PROJ_LIBRARY_RELEASE ${gdal_prefix}/proj-6/lib/libproj.a CACHE STRING "" FORCE)
 
