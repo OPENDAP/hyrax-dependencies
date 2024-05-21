@@ -16,7 +16,7 @@
 
 VERSION = 1.50
 
-# If a site.mk file exists in the parent dir, include it. Use this
+# If a hyrax-site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
 # which are needed to build the proj library in some obscure cases.
 
@@ -213,7 +213,8 @@ gdal_dist=$(gdal).tar.gz
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
 
-hdf4=hdf-4.2.16
+# hdf4=hdf-4.2.16 retired - 5/8/24 ndap
+hdf4=hdf4-hdf4.3.0
 hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
@@ -460,11 +461,12 @@ $(gdal_src)-stamp:
 	tar -xzf downloads/$(gdal_dist) -C $(src)
 	echo timestamp > $(gdal_src)-stamp
 
-# # Set build options in gdal-config.cmake.
-# # jhrg 5/16/24
+
+# Set build options in gdal-config.cmake.
+# jhrg 5/16/24
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) \
-	 && mkdir build && cd build \
+	 && mkdir -p build && cd build \
 	 && cmake -Dgdal_prefix:STRING=$(gdal_prefix) -C ../../../gdal-config.cmake ..)
 	echo timestamp > gdal-configure-stamp
 
