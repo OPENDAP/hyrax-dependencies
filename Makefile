@@ -152,6 +152,7 @@ ci-part-3:
 	$(MAKE) $(MFLAGS) netcdf4
 
 ci-part-4:
+	$(MAKE) $(MFLAGS) sqlite3
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
 	$(MAKE) $(MFLAGS) gdal
@@ -189,20 +190,15 @@ jpeg_dist=jpegsrc.v6b.tar.gz
 openjpeg=openjpeg-2.4.0
 openjpeg_dist=$(openjpeg).tar.gz
 
-sqlite3=sqlite-autoconf-3340000
+sqlite3=sqlite-autoconf-3450300
 sqlite3_dist=$(sqlite3).tar.gz
 
 # This is a new and (4/2019) experimental API. Don't build it by
 # default. It will break the HDFEOS code in the hdf4 handler. jhrg
 # 4/24/2019
 #
-# Needed by GDAL, build and installed in a special directory under
-# $prefix and use it only with GDAL. jhrg 10/30/20
 # proj=proj-9.1.0
 # proj_dist=$(proj).tar.gz
-
-# gdal36=gdal-3.6.1
-# gdal_dist=$(gdal36).tar.gz
 
 proj=proj-6.3.2
 proj_dist=$(proj).tar.gz
@@ -358,21 +354,22 @@ $(openjpeg_src)-stamp:
 
 openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	(cd $(openjpeg_src) \
+	 && mkdir -p build && cd build \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF ..)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
-	(cd $(openjpeg_src) && $(MAKE) $(MFLAGS))
+	(cd $(openjpeg_src)/build && $(MAKE) $(MFLAGS))
 	echo timestamp > openjpeg-compile-stamp
 
 openjpeg-install-stamp: openjpeg-compile-stamp
-	(cd $(openjpeg_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(openjpeg_src)/build && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > openjpeg-install-stamp
 
 openjpeg-clean:
 	-rm openjpeg-*-stamp
-	-(cd  $(openjpeg_src) && $(MAKE) $(MFLAGS) clean)
+	-(cd  $(openjpeg_src)/build && $(MAKE) $(MFLAGS) clean)
 
 openjpeg-really-clean: openjpeg-clean
 	-rm $(src)/openjpeg-*-stamp	
@@ -390,7 +387,7 @@ $(sqlite3_src)-stamp:
 
 sqlite3-configure-stamp:  $(sqlite3_src)-stamp
 	(cd $(sqlite3_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
-	--prefix=$(sqlite3_prefix) --with-pic=yes )
+	--prefix=$(sqlite3_prefix) --with-pic=yes --enable-threadsafe)
 	echo timestamp > sqlite3-configure-stamp
 
 sqlite3-compile-stamp: sqlite3-configure-stamp
@@ -460,7 +457,6 @@ gdal_prefix=$(prefix)/deps
 $(gdal_src)-stamp:
 	tar -xzf downloads/$(gdal_dist) -C $(src)
 	echo timestamp > $(gdal_src)-stamp
-
 
 # Set build options in gdal-config.cmake.
 # jhrg 5/16/24
