@@ -74,14 +74,14 @@ jobs:
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
-    name: "CentOS-Stream8"
+    name: "rocky8"
     script:
-      - install_dir=$HOME/centos-stream8/install
+      - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
       - docker run --env prefix=/root/install --volume $install_dir:/root/install 
-          --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/centos-stream8_hyrax_builder:1.0 
-          /root/hyrax-dependencies/build-for-centos-stream8.sh
-      - export ARTIFACT=centos-stream8
+          --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/rocky8_hyrax_builder:1.0 
+          /root/hyrax-dependencies/build-for-rocky8.sh
+      - export ARTIFACT=rocky8
 
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages. Note that the 'condition'
@@ -91,8 +91,8 @@ before_deploy:
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
-  - if test -n $ARTIFACT -a $ARTIFACT = centos-stream8;
-    then tar -C $HOME/centos-stream8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-centos-stream8-static.tar.gz install;
+  - if test -n $ARTIFACT -a $ARTIFACT = rocky8;
+    then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
 
 deploy:
@@ -107,4 +107,4 @@ deploy:
       all_branches: true
       # Was "branch: master". Now supports the *-test-deploy feature and also
       # using 'main' as the branch name. jhrg 1/5/24
-      condition: $ARTIFACT =~ ^ubuntu|centos-stream8$
+      condition: $ARTIFACT =~ ^rocky8$
