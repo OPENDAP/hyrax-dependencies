@@ -127,7 +127,7 @@ for-docker: prefix-set
 # hdf5: none
 # netcdf4: hdf5 AND this must follow hdf4 because the hdf4 build installs then deletes ncdump and ncgen
 
-# proj: none
+# proj: sqlite3
 # openjepg: none
 # gdal: sqlite3 proj openjpeg
 
@@ -424,14 +424,15 @@ $(proj_src)-stamp:
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
+	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) \
+	SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
 	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
 	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
 	--disable-shared)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS))
+	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
@@ -633,6 +634,7 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	(if test -f $(hdf4_prefix)/bin/h4cc; \
 	then \
 		cd $(hdfeos_src) \
+		&& echo "Using h4cc from $(hdf4_prefix)/bin" \
 		&& CC=$(hdf4_prefix)/bin/h4cc \
 		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
 			--disable-fortran --enable-production	\
@@ -640,6 +642,7 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 			--with-hdf4=$(hdf4_prefix) --prefix=$(hdfeos_prefix); \
 	else \
 		cd $(hdfeos_src) \
+		&& echo "Using stock gcc/++" \
 		&& CPPFLAGS=-I/usr/include/hdf \
 		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
 			--disable-fortran --enable-production	\
