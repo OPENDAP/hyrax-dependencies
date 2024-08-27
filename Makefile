@@ -653,7 +653,7 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	echo timestamp > hdfeos-configure-stamp
 
 hdfeos-compile-stamp: hdfeos-configure-stamp
-	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS))
+	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS) CFLAGS=-Wno-implicit-int)
 	echo timestamp > hdfeos-compile-stamp
 
 # Force -j1 for install
