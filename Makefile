@@ -256,7 +256,7 @@ $(jpeg_src)-stamp:
 	echo timestamp > $(jpeg_src)-stamp
 
 jpeg-configure-stamp:  $(jpeg_src)-stamp
-	(cd $(jpeg_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(jpeg_prefix) CFLAGS="-O2 -fPIC")
+	(cd $(jpeg_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(jpeg_prefix) CFLAGS="-O2 -fPIC -Wno-implicit-int")
 	echo timestamp > jpeg-configure-stamp
 
 jpeg-compile-stamp: jpeg-configure-stamp
