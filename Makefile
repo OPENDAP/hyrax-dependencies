@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.50
+VERSION = 1.51
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -28,9 +28,10 @@ site-deps =
 -include ../hyrax-site.mk
 
 # I think only OSX needs the icu dependency. jhrg 10/29/20
+# I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal icu stare list-built
+netcdf4 sqlite3 proj gdal stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -330,7 +331,7 @@ bison-configure-stamp:  $(bison_src)-stamp
 	echo timestamp > bison-configure-stamp
 
 bison-compile-stamp: bison-configure-stamp
-	(cd $(bison_src) && $(MAKE) $(MFLAGS))
+	(cd $(bison_src) && $(MAKE) $(MFLAGS) CFLAGS=-Wno-incompatible-function-pointer-types)
 	echo timestamp > bison-compile-stamp
 
 bison-install-stamp: bison-compile-stamp
