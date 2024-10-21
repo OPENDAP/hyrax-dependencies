@@ -140,15 +140,17 @@ ci-part-1:
 	$(MAKE) $(MFLAGS) gridfields
 	$(MAKE) $(MFLAGS) stare
 
-# Note that the actions in part-2 must come before part-3 because the hdf4 build
-# builds installs and then deletes the installed versions of ncdump and ncgen. That
-# will remove the versions built by the netcdf4 library. jhrg 1/12/22
+# Note that the actions in part-2 must come before part-3 because the
+# hdf4 build builds installs and then deletes the installed versions
+# of ncdump and ncgen. That will remove the versions built by the
+# netcdf4 library. jhrg 1/12/22
+
 ci-part-2:
 	$(MAKE) $(MFLAGS) jpeg
 	$(MAKE) $(MFLAGS) hdf4
-	$(MAKE) $(MFLAGS) hdfeos
 
 ci-part-3:
+	$(MAKE) $(MFLAGS) hdfeos
 	$(MAKE) $(MFLAGS) hdf5
 	$(MAKE) $(MFLAGS) netcdf4
 
@@ -645,7 +647,8 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	else \
 		cd $(hdfeos_src) \
 		&& echo "Using stock gcc/++" \
-		&& CPPFLAGS=-I/usr/include/hdf \
+		&& CPPFLAGS=-I$(prefix)/deps/include \
+		   LDFLAGS=-L$(prefix)/deps/lib \
 		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
 			--disable-fortran --enable-production	\
 			--with-pic --enable-install-include \
@@ -654,7 +657,8 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	echo timestamp > hdfeos-configure-stamp
 
 hdfeos-compile-stamp: hdfeos-configure-stamp
-	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS) CFLAGS=-Wno-implicit-int)
+	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS) \
+		CFLAGS="-Wno-implicit-int  -Wno-implicit-function-declaration")
 	echo timestamp > hdfeos-compile-stamp
 
 # Force -j1 for install
