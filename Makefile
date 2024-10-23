@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.50
+VERSION = 1.51
 
 # If a hyrax-site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -28,9 +28,10 @@ site-deps =
 -include ../hyrax-site.mk
 
 # I think only OSX needs the icu dependency. jhrg 10/29/20
+# I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal icu stare list-built
+netcdf4 sqlite3 proj gdal stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -127,7 +128,7 @@ for-docker: prefix-set
 # hdf5: none
 # netcdf4: hdf5 AND this must follow hdf4 because the hdf4 build installs then deletes ncdump and ncgen
 
-# proj: none
+# proj: sqlite3
 # openjepg: none
 # gdal: sqlite3 proj openjpeg
 
@@ -139,15 +140,17 @@ ci-part-1:
 	$(MAKE) $(MFLAGS) gridfields
 	$(MAKE) $(MFLAGS) stare
 
-# Note that the actions in part-2 must come before part-3 because the hdf4 build
-# builds installs and then deletes the installed versions of ncdump and ncgen. That
-# will remove the versions built by the netcdf4 library. jhrg 1/12/22
+# Note that the actions in part-2 must come before part-3 because the
+# hdf4 build builds installs and then deletes the installed versions
+# of ncdump and ncgen. That will remove the versions built by the
+# netcdf4 library. jhrg 1/12/22
+
 ci-part-2:
 	$(MAKE) $(MFLAGS) jpeg
 	$(MAKE) $(MFLAGS) hdf4
-	$(MAKE) $(MFLAGS) hdfeos
 
 ci-part-3:
+	$(MAKE) $(MFLAGS) hdfeos
 	$(MAKE) $(MFLAGS) hdf5
 	$(MAKE) $(MFLAGS) netcdf4
 
@@ -256,7 +259,7 @@ $(jpeg_src)-stamp:
 	echo timestamp > $(jpeg_src)-stamp
 
 jpeg-configure-stamp:  $(jpeg_src)-stamp
-	(cd $(jpeg_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(jpeg_prefix) CFLAGS="-O2 -fPIC")
+	(cd $(jpeg_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(jpeg_prefix) CFLAGS="-O2 -fPIC -Wno-implicit-int")
 	echo timestamp > jpeg-configure-stamp
 
 jpeg-compile-stamp: jpeg-configure-stamp
@@ -330,7 +333,7 @@ bison-configure-stamp:  $(bison_src)-stamp
 	echo timestamp > bison-configure-stamp
 
 bison-compile-stamp: bison-configure-stamp
-	(cd $(bison_src) && $(MAKE) $(MFLAGS))
+	(cd $(bison_src) && $(MAKE) $(MFLAGS) CFLAGS=-Wno-incompatible-function-pointer-types)
 	echo timestamp > bison-compile-stamp
 
 bison-install-stamp: bison-compile-stamp
@@ -425,14 +428,15 @@ $(proj_src)-stamp:
 	echo timestamp > $(proj_src)-stamp
 
 proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
+	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) \
+	SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
 	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
 	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
 	--disable-shared)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS))
+	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) $(MAKE) $(MFLAGS))
 	echo timestamp > proj-compile-stamp
 
 proj-install-stamp: proj-compile-stamp
@@ -646,6 +650,7 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	(if test -f $(hdf4_prefix)/bin/h4cc; \
 	then \
 		cd $(hdfeos_src) \
+		&& echo "Using h4cc from $(hdf4_prefix)/bin" \
 		&& CC=$(hdf4_prefix)/bin/h4cc \
 		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
 			--disable-fortran --enable-production	\
@@ -653,7 +658,9 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 			--with-hdf4=$(hdf4_prefix) --prefix=$(hdfeos_prefix); \
 	else \
 		cd $(hdfeos_src) \
-		&& CPPFLAGS=-I/usr/include/hdf \
+		&& echo "Using stock gcc/++" \
+		&& CPPFLAGS=-I$(prefix)/deps/include \
+		   LDFLAGS=-L$(prefix)/deps/lib \
 		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
 			--disable-fortran --enable-production	\
 			--with-pic --enable-install-include \
@@ -662,7 +669,8 @@ hdfeos-configure-stamp:  $(hdfeos_src)-stamp
 	echo timestamp > hdfeos-configure-stamp
 
 hdfeos-compile-stamp: hdfeos-configure-stamp
-	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS))
+	(cd $(hdfeos_src) && $(MAKE) $(MFLAGS) \
+		CFLAGS="-Wno-implicit-int  -Wno-implicit-function-declaration")
 	echo timestamp > hdfeos-compile-stamp
 
 # Force -j1 for install
