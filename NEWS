@@ -1,3 +1,12 @@
+# Version-1.60, Hyrax-1.17.1
+
+  Tagged for Hyrax-1.17.1
+
+  - Switched to hdf4-hdf4-4.3.0
+  - Moved from centos-stream8 to rocky8 linux
+  - Added the ubuntu build and switched to rocky8...:latest
+  - Fixed and added various features and support for OSX 14.6.1 and Apple Silicon
+
 # Version-1.50, Hyrax-1.17.0
   
   Tagged for Hyrax-1.17.0

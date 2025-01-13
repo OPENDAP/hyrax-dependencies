@@ -1,3 +1,29 @@
+2024-10-22  James Gallagher  <jgallagher@opendap.org>
+
+	On osx/ventura, another option is neeed to build hdfeos. (#65)
+	Need -Wno-implicit-function-declaration
+
+2024-10-15  James Gallagher  <jgallagher@opendap.org>
+	    ndp-opendap  <ndp@opendap.org>
+
+	Fix for hdfoes build on OSX 14.6.1 (#64)
+	Changes for OSX 14.6.x (Sonoma) and Apple Silicon
+	Fix for hdfeos build on OSX 14.6.1
+	Added -Wno-implicit-int to jpeg build because Sonoma...
+
+2024-06-11  James Gallagher  <jgallagher@opendap.org>
+
+	Added the ubuntu build and switched to rocky8...:latest
+
+	Moved from centos-stream8 to rocky8 linux (#63)
+	Moved from centos-stream8 to rocky8 linux
+	Added deps/bin to PATH in the proj build.
+
+2024-05-21  James Gallagher  <jgallagher@opendap.org>
+	    ndp  <ndp@roz.local>
+
+	Switching to hdf4-hdf4-4.3.0 (#62)
+
 2023-10-31  kyang2014  <kyang2014@users.noreply.github.com>
 
 	Merge pull request #59 from OPENDAP/direct-io
