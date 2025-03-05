@@ -217,7 +217,7 @@ gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
 
 # hdf4=hdf-4.2.16 retired - 5/8/24 ndap
-hdf4=hdf4-hdf4.3.0
+hdf4=hdf4-hdf4.3.0.e
 hdf4_dist=$(hdf4).tar.gz
 
 hdfeos=hdfeos
