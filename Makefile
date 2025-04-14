@@ -44,8 +44,11 @@ netcdf4 sqlite3 proj gdal stare list-built
 #
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
-linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 sqlite3 proj gdal stare list-built
+linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
+netcdf4 sqlite3 proj gdal stare list-built
+
+# $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5
+# netcdf4 sqlite3 proj gdal stare list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -64,7 +67,7 @@ all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: prefix-set
-prefix-set:
+prefix-set: rhel8
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
