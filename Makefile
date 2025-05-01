@@ -806,8 +806,8 @@ icu-configure-stamp:  $(src)/$(icu)-stamp
 	if uname -a | grep Darwin; then OS="osx"; \
 	elif uname -a | grep Linux; then OS="linux"; \
 	else OS="unknown"; fi && \
-	if test "$OS" = "osx"; then ./runConfigureICU MacOSX --prefix=$(icu_prefix) --disable-layout --disable-samples; \
-	elif test "$OS" = "linux"; then ./runConfigureICU Linux $(CONFIGURE_FLAGS) --prefix=$(icu_prefix) --disable-layout --disable-samples; \
+	if test "$$OS" = "osx"; then ./runConfigureICU MacOSX --prefix=$(icu_prefix) --disable-layout --disable-samples; \
+	elif test "$$OS" = "linux"; then ./runConfigureICU Linux $(CONFIGURE_FLAGS) --prefix=$(icu_prefix) --disable-layout --disable-samples; \
 	else ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(icu_prefix) --disable-layout --disable-samples; fi)
 	echo timestamp > icu-configure-stamp
 
