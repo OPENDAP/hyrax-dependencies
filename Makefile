@@ -35,7 +35,7 @@ netcdf4 sqlite3 proj gdal stare list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
-# and when we are not going to use _any_ RPMs. This makes for a bigger bes
+# and when we are not goen9 to use _any_ RPMs. This makes for a bigger bes
 # rpm distribution, but also one that is easier to install because it does
 # not require any non-stock yum repo.
 #
@@ -67,17 +67,17 @@ all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: prefix-set
-prefix-set: rhel8
+prefix-set: rhel9
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
-.PHONY: rhel8
-rhel8:
+.PHONY: rhel9
+rhel9:
 	@if test -f /etc/redhat-release; then \
-	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	    if grep -q '9\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	        echo "RHEL 9 or variant found, and CPPFLAGS is set"; \
 	    else \
-	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        echo "RHEL 9 and CPPFLAGS not set; source spath.sh"; \
 	        exit 1; \
             fi; \
 	fi

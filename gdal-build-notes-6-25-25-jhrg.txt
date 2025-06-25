@@ -1,0 +1,24 @@
+
+Build sqlite3 and proj first, then cmake as below works, but with a
+warning that CMAKE_BUILD_TYPE is not set. It should be "Release".
+
+Building sqlite3 and proj from source was a non-starter. On Rocky9, I
+usd yum for both, leaving them installed in the 'standard'
+locations. That is, I installed libsqlite3x, libsqlite3x-devel, proj,
+and proj-devel.
+
+The versions of the main packages are:
+Name         : proj
+Version      : 8.2.0
+Release      : 1.el9
+
+Name         : libsqlite3x
+Version      : 20071018
+Release      : 31.el9
+
+Here's how I ran cmake:
+
+cmake -DCMAKE_INSTALL_PREFIX=$prefix/deps -DCMAKE_BUILD_TYPE=Release \
+ -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF  -DOGR_BUILD_OPTIONAL_DRIVERS=OFF \
+ -DGDAL_USE_HDF4=OFF -DGDAL_USE_HDF5=OFF -DGDAL_USE_NETCDF=OFF \
+ ..

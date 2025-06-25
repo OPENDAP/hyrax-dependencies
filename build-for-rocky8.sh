@@ -15,7 +15,7 @@
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 set -eu
 
-dnf -y update
+#dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
 # RPM build we have packages that others can install. jhrg 2/8/22
@@ -25,7 +25,7 @@ export LDFLAGS=-ltirpc
 
 # Assume that the docker container has been started with the cloned repo
 # mounted so it appears within 'root.'
-cd /root/hyrax-dependencies
+#cd /root/hyrax-dependencies
 
 make -j16 sqlite3
 
