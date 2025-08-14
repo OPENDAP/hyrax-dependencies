@@ -833,7 +833,8 @@ $(src)/$(stare)-stamp:
 stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
-		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix))
+		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
 stare-compile-stamp: stare-configure-stamp
