@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.60
+VERSION = 1.61
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -183,9 +183,6 @@ check:
 # The names of the source code distribution files and and the dirs
 # they unpack to.
 
-cmake=cmake-3.11.3
-cmake_dist=$(cmake).tar.gz
-
 bison=bison-3.3
 bison_dist=$(bison).tar.xz
 
@@ -290,38 +287,6 @@ jpeg-really-clean: jpeg-clean
 
 .PHONY: jpeg
 jpeg: jpeg-install-stamp
-
-# CMake
-
-cmake_src=$(src)/$(cmake)
-cmake_prefix=$(prefix)/deps
-
-$(cmake_src)-stamp:
-	tar -xzf downloads/$(cmake_dist) -C $(src)
-	echo timestamp > $(cmake_src)-stamp
-
-cmake-configure-stamp:  $(cmake_src)-stamp
-	(cd $(cmake_src) && ./configure --prefix=$(cmake_prefix))
-	echo timestamp > cmake-configure-stamp
-
-cmake-compile-stamp: cmake-configure-stamp
-	(cd $(cmake_src) && $(MAKE) $(MFLAGS))
-	echo timestamp > cmake-compile-stamp
-
-cmake-install-stamp: cmake-compile-stamp
-	(cd $(cmake_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > cmake-install-stamp
-
-cmake-clean:
-	-rm cmake-*-stamp
-	-(cd  $(cmake_src) && $(MAKE) $(MFLAGS) clean)
-
-cmake-really-clean: cmake-clean
-	-rm $(src)/cmake-*-stamp	
-	-rm -rf $(cmake_src)
-
-.PHONY: cmake
-cmake: cmake-install-stamp
 
 # Bison 3 (Needed by libdap)
 bison_src=$(src)/$(bison)
