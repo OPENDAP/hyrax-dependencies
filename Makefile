@@ -378,7 +378,8 @@ $(openjpeg_src)-stamp:
 openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	(cd $(openjpeg_src) \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
+	 -DCMAKE_POLICY_VERSION_MINIMUM=3.5)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
@@ -846,7 +847,8 @@ $(src)/$(stare)-stamp:
 stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
-		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix))
+		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
 stare-compile-stamp: stare-configure-stamp
