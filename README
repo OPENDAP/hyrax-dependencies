@@ -31,7 +31,7 @@ for-travis: This build the dependencies for a CI build on Travis
 
 clean: run clean in all the src dirs
 
-really-clean: remove the src dirs and start over expandin the
+really-clean: remove the src dirs and start over in the
 dependencies' source distributions.
 
 uninstall: Remove all the stuff from $prefix/deps
@@ -40,10 +40,10 @@ dist: Make a tar ball distribution.
 
 --------------------------------------------------------------------
 
-To use these dependecies with the complete BES build, use the
+To use these dependencies with the complete BES build, use the
 --with-dependencies= option with its configure script like this:
 
-       ./configure [other options] --with-depdendencies=$prefix/deps
+       ./configure [other options] --with-dependencies=$prefix/deps
 
 Note that most people who build Hyrax from source will want to set the
 prefix to a specific directory, so that option would be included as

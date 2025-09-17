@@ -44,11 +44,9 @@ netcdf4 sqlite3 proj gdal stare list-built
 #
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
-linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal stare list-built
 
-# $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5
-# netcdf4 sqlite3 proj gdal stare list-built
+linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
+hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -58,7 +56,7 @@ netcdf4 sqlite3 proj gdal stare list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields hdfeos stare netcdf4 list-built
+docker_deps = $(site-deps) gridfields hdf4 hdfeos stare netcdf4 list-built
 
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
@@ -109,14 +107,17 @@ list-built-really-clean:
 # Done. This now works. Don't forget CONFIGURE_FLAGS. jhrg 5/6/15
 # CONFIGURE_FLAGS now set by this target - no need to remember to do
 # it. jhrg 11/29/17.
+.PHONY: for-static-rpm
 for-static-rpm: prefix-set
 	for d in $(linux_deps); \
 	    do CONFIGURE_FLAGS="--disable-shared" $(MAKE) $(MFLAGS) $$d; done
 
 # Made this build statically since these are now used for the deb packages.
+.PHONY: for-travis
 for-travis: prefix-set
 	for d in $(linux_deps); do $(MAKE) $(MFLAGS) $$d; done
 
+.PHONY: for-docker
 for-docker: prefix-set
 	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
 
@@ -139,6 +140,10 @@ for-docker: prefix-set
 # export CONFIGURE_FLAGS="--disable-shared"
 # and then run the four parts.
 
+# These 'ci-part-n' targets are here for the Travis CI builds so the process does not
+# time out. These are for the linux shared object builds. jhrg 3/24/25
+
+.PHONY: ci-part-1
 ci-part-1:
 	$(MAKE) $(MFLAGS) gridfields
 	$(MAKE) $(MFLAGS) stare
@@ -148,15 +153,18 @@ ci-part-1:
 # of ncdump and ncgen. That will remove the versions built by the
 # netcdf4 library. jhrg 1/12/22
 
+.PHONY: ci-part-2
 ci-part-2:
 	$(MAKE) $(MFLAGS) jpeg
 	$(MAKE) $(MFLAGS) hdf4
 
+.PHONY: ci-part-3
 ci-part-3:
 	$(MAKE) $(MFLAGS) hdfeos
 	$(MAKE) $(MFLAGS) hdf5
 	$(MAKE) $(MFLAGS) netcdf4
 
+.PHONY: ci-part-4
 ci-part-4:
 	$(MAKE) $(MFLAGS) proj
 	$(MAKE) $(MFLAGS) openjpeg
@@ -164,19 +172,24 @@ ci-part-4:
 
 clean: $(deps_clean)
 
+.PHONY: really-clean
 really-clean: $(deps_really_clean)
 
+.PHONY: uninstall
 uninstall: prefix-set
 	-rm -rf $(prefix)/deps/*
 
+.PHONY: dist
 dist: really-clean
 	(cd ../ && tar --create --file hyrax-dependencies-$(VERSION).tar \
 	 --exclude='.*' --exclude='*~'  --exclude=extra_downloads \
 	 --exclude=scripts --exclude=OSX_Resources hyrax-dependencies)
 
+.PHONY: install
 install:
 	@echo "Nothing to do for install in hyrax-dependencies"
 
+.PHONY: check
 check:
 	@echo "Nothing to do for check in hyrax-dependencies"
 
