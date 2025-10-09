@@ -31,7 +31,7 @@ site-deps =
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal stare list-built
+netcdf4 sqlite3 proj gdal stare aws_cdk list-built
 
 # The 'all-static-deps' are the deps we need when all of the handlers are
 # to be statically linked to the dependencies contained in this project - 
@@ -46,7 +46,7 @@ netcdf4 sqlite3 proj gdal stare list-built
 .PHONY: $(linux_deps)
 
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
+hdfeos hdf5 netcdf4 stare sqlite3 proj gdal aws_cdk  list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -56,7 +56,7 @@ hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields hdf4 hdfeos stare netcdf4 list-built
+docker_deps = $(site-deps) gridfields hdf4 hdfeos stare netcdf4 aws_cdk list-built
 
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
@@ -110,7 +110,7 @@ list-built-really-clean:
 .PHONY: for-static-rpm
 for-static-rpm: prefix-set
 	for d in $(linux_deps); \
-	    do CONFIGURE_FLAGS="--disable-shared" $(MAKE) $(MFLAGS) $$d; done
+	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
 
 # Made this build statically since these are now used for the deb packages.
 .PHONY: for-travis
@@ -196,6 +196,10 @@ check:
 # The names of the source code distribution files and and the dirs
 # they unpack to.
 
+aws_cdk=aws_sdk_cpp
+aws_cdk_tag=1.11.665
+# There is no dist - we pull this from github using a tag
+
 cmake=cmake-3.11.3
 cmake_dist=$(cmake).tar.gz
 
@@ -260,6 +264,44 @@ stare_dist=$(stare).tar.bz2
 src = src
 
 defaults = --disable-dependency-tracking --enable-silent-rules
+
+# AWS C++ SDK
+aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
+aws_cdk_prefix=$(prefix)/deps
+
+$(aws_cdk_src)-stamp:
+	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
+	git clone --depth 1 --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	echo timestamp > $(aws_cdk_src)-stamp
+
+aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
+	mkdir -p $(aws_cdk_src)/build
+	(cd $(aws_cdk_src)/build \
+	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
+	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS) ..)
+	echo timestamp > aws_cdk-configure-stamp
+
+# We might want to use for development cmake --build . --config=Debug
+aws_cdk-compile-stamp: aws_cdk-configure-stamp
+	(cd $(aws_cdk_src)/build && cmake --build . --parallel)
+	echo timestamp > aws_cdk-compile-stamp
+
+# As above, cmake --install . --config=Debug
+aws_cdk-install-stamp: aws_cdk-compile-stamp
+	(cd $(aws_cdk_src)/build && cmake --install .)
+	echo timestamp > aws_cdk-install-stamp
+
+aws_cdk-clean:
+	-rm aws_cdk-*-stamp
+	-(cd  $(aws_cdk_src)/build && cmake --build . --target clean)
+
+aws_cdk-really-clean: aws_cdk-clean
+	-rm $(src)/aws_cdk-*-stamp	
+	-rm -rf $(aws_cdk_src)
+
+.PHONY: aws_cdk
+aws_cdk: aws_cdk-install-stamp
+
 
 # JPEG
 jpeg_src=$(src)/$(jpeg)
