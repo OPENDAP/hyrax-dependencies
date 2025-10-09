@@ -30,23 +30,8 @@ site-deps =
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
-deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal stare aws_cdk list-built
-
-# The 'all-static-deps' are the deps we need when all of the handlers are
-# to be statically linked to the dependencies contained in this project - 
-# and when we are not going to use _any_ RPMs. This makes for a bigger bes
-# rpm distribution, but also one that is easier to install because it does
-# not require any non-stock yum repo.
-#
-# Removed cmake which breaks CentOS 6 builds and can be gotten from
-# RPMs for both C6 and C7. jhrg 10/10/18
-#
-# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
-.PHONY: $(linux_deps)
-
-linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 stare sqlite3 proj gdal aws_cdk  list-built
+deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
+hdfeos hdf5 netcdf4 sqlite3 proj gdal stare aws_cdk list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -56,7 +41,7 @@ hdfeos hdf5 netcdf4 stare sqlite3 proj gdal aws_cdk  list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields hdf4 hdfeos stare netcdf4 aws_cdk list-built
+docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk list-built
 
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
@@ -109,13 +94,12 @@ list-built-really-clean:
 # it. jhrg 11/29/17.
 .PHONY: for-static-rpm
 for-static-rpm: prefix-set
-	for d in $(linux_deps); \
+	for d in $(deps); \
 	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
 
-# Made this build statically since these are now used for the deb packages.
 .PHONY: for-travis
 for-travis: prefix-set
-	for d in $(linux_deps); do $(MAKE) $(MFLAGS) $$d; done
+	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: for-docker
 for-docker: prefix-set
