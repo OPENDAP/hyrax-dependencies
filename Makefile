@@ -44,6 +44,7 @@ netcdf4 sqlite3 proj gdal stare list-built
 #
 # fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
 .PHONY: $(linux_deps)
+
 linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
 hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
 
@@ -64,7 +65,7 @@ all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: prefix-set
-prefix-set:
+prefix-set: rhel8
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
@@ -377,7 +378,8 @@ $(openjpeg_src)-stamp:
 openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	(cd $(openjpeg_src) \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
+	 -DCMAKE_POLICY_VERSION_MINIMUM=3.5)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
@@ -845,7 +847,8 @@ $(src)/$(stare)-stamp:
 stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
-		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix))
+		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
 stare-compile-stamp: stare-configure-stamp
