@@ -59,7 +59,7 @@ jobs:
       - export ARTIFACT=ubuntu
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-  - stage: build
+  - stage: never
     name: "rocky8"
     script:
       - install_dir=$HOME/rocky8/install
