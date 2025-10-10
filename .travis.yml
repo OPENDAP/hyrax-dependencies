@@ -17,7 +17,7 @@
 dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
-  size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
+  size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
                       # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
 
 # Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
@@ -72,17 +72,19 @@ jobs:
 # The before_deploy and deploy parts are run after every 'build' script completes. This section
 # checks environment variables that are flags from the build stages. Note that the 'condition'
 # in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
+#
+# prune what goes in the tarball - these programs are huge for the static dependencies. jhrg 10/10/25
+# FIXME
+#BIN=$HOME/rocky8/install/deps/bin;
+#rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
+#rm -rf $HOME/rocky8/install/deps/proj-6/bin;
+
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = rocky8; 
-    # prune what goes in the tarball - these programs are huge for the static dependencies
-    # FIXME
-    #BIN=$HOME/rocky8/install/deps/bin;
-    #rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
-    #rm -rf $HOME/rocky8/install/deps/proj-6/bin;
     then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
 
