@@ -73,11 +73,7 @@ jobs:
 # checks environment variables that are flags from the build stages. Note that the 'condition'
 # in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
 #
-# prune what goes in the tarball - these programs are huge for the static dependencies. jhrg 10/10/25
-#
-#BIN=$HOME/rocky8/install/deps/bin;
-##rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
-##rm -rf $HOME/rocky8/install/deps/proj-6/bin;
+# prune what goes in the 'static' tarball - these programs are huge for the static dependencies. jhrg 10/10/25
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
@@ -85,7 +81,7 @@ before_deploy:
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = rocky8; 
     then BIN=$HOME/rocky8/install/deps/bin;
-    rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
+    rm -f $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
     rm -rf $HOME/rocky8/install/deps/proj-6/bin;
     tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
