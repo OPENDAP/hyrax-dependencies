@@ -19,7 +19,12 @@ dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
 # RPM build we have packages that others can install. jhrg 2/8/22
-export CONFIGURE_FLAGS="--disable-shared"
+#
+# This is not needed when the 'for-static-rpm' target is used below. That is
+# a more robust way to build the static packages since some of them might not
+# use configure, but cmake, e.g. jhrg 10/10/25
+#
+# export CONFIGURE_FLAGS="--disable-shared"
 export CPPFLAGS=-I/usr/include/tirpc
 export LDFLAGS=-ltirpc
 
