@@ -85,12 +85,13 @@ before_deploy:
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
-  - if test -n $ARTIFACT -a $ARTIFACT = rocky8;
+  - if test -n $ARTIFACT -a $ARTIFACT = rocky8; 
+    then
     # prune what goes in the tarball - these programs are huge for the static dependencies
-    BIN=$HOME/rocky8/install/deps/bin
-    rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
-    rm -rf $HOME/rocky8/install/deps/proj-6/bin
-    then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
+    BIN=$HOME/rocky8/install/deps/bin;
+    rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
+    rm -rf $HOME/rocky8/install/deps/proj-6/bin;
+    tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
 
 deploy:
