@@ -74,18 +74,20 @@ jobs:
 # in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
 #
 # prune what goes in the tarball - these programs are huge for the static dependencies. jhrg 10/10/25
-# FIXME
+#
 #BIN=$HOME/rocky8/install/deps/bin;
-#rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
-#rm -rf $HOME/rocky8/install/deps/proj-6/bin;
-
+##rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
+##rm -rf $HOME/rocky8/install/deps/proj-6/bin;
 before_deploy:
   - mkdir -p $TRAVIS_BUILD_DIR/package
   - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = rocky8; 
-    then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
+    then BIN=$HOME/rocky8/install/deps/bin;
+    rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
+    rm -rf $HOME/rocky8/install/deps/proj-6/bin;
+    tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
 
 deploy:
