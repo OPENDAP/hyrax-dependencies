@@ -35,3 +35,8 @@ cd /root/hyrax-dependencies
 make -j16 for-static-rpm
 
 make list-built
+
+# Now clean out the binary images, which are huge for a static build.
+# NB prefix = /root/install, set by the Docker run command
+rm -f $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+rm -rf $prefix/deps/proj-6/bin;

@@ -50,7 +50,7 @@ stages:
 
 jobs:
   include:
-  - stage: build
+  - stage: never
     name: "ubuntu-focal"
     script:
       - export prefix=$HOME/install
@@ -61,7 +61,7 @@ jobs:
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-  - stage: never
+  - stage: build
     name: "rocky8"
     script:
       - install_dir=$HOME/rocky8/install
@@ -71,19 +71,7 @@ jobs:
           /root/hyrax-dependencies/build-for-rocky8.sh
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
-
-# The before_deploy and deploy parts are run after every 'build' script completes. This section
-# checks environment variables that are flags from the build stages. Note that the 'condition'
-# in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
-#
-# prune what goes in the 'static' tarball - these programs are huge for the static dependencies. jhrg 10/10/25
-before_deploy:
-  - if test -n $ARTIFACT -a $ARTIFACT = rocky8; 
-    then BIN=$HOME/rocky8/install/deps/bin;
-    rm -f $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg};
-    rm -rf $HOME/rocky8/install/deps/proj-6/bin;
-    tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
-    fi
+      - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
 
 deploy:
   - provider: s3
