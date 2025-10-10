@@ -17,7 +17,7 @@
 dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
-  size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
+  size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
                       # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
 
 # Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
