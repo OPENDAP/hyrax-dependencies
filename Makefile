@@ -261,18 +261,18 @@ $(aws_cdk_src)-stamp:
 aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
-	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS) ..)
+	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
+	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . --config=Debug
 aws_cdk-compile-stamp: aws_cdk-configure-stamp
-	(cd $(aws_cdk_src)/build && cmake --build . --parallel)
+	(cd $(aws_cdk_src)/build && cmake --build . --config=Debug --parallel)
 	echo timestamp > aws_cdk-compile-stamp
 
 # As above, cmake --install . --config=Debug
 aws_cdk-install-stamp: aws_cdk-compile-stamp
-	(cd $(aws_cdk_src)/build && cmake --install .)
+	(cd $(aws_cdk_src)/build && cmake --install . --config=Debug)
 	echo timestamp > aws_cdk-install-stamp
 
 aws_cdk-clean:
@@ -280,7 +280,7 @@ aws_cdk-clean:
 	-(cd  $(aws_cdk_src)/build && cmake --build . --target clean)
 
 aws_cdk-really-clean: aws_cdk-clean
-	-rm $(src)/aws_cdk-*-stamp	
+	-rm $(src)/$(aws_cdk)-*-stamp
 	-rm -rf $(aws_cdk_src)
 
 .PHONY: aws_cdk
