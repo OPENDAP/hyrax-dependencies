@@ -27,6 +27,54 @@ VERSION = 1.62
 site-deps = 
 -include ../hyrax-site.mk
 
+# The names of the source code distribution files and and the dirs
+# they unpack to.
+
+aws_cdk=aws_sdk_cpp
+aws_cdk_tag=1.11.665
+# There is no dist - we pull this from github using a tag
+
+bison=bison-3.3
+bison_dist=$(bison).tar.xz
+
+jpeg=jpeg-6b
+jpeg_dist=jpegsrc.v6b.tar.gz
+
+openjpeg=openjpeg-2.4.0
+openjpeg_dist=$(openjpeg).tar.gz
+
+sqlite3=sqlite-autoconf-3340000
+sqlite3_dist=$(sqlite3).tar.gz
+
+proj=proj-6.3.2
+proj_dist=$(proj).tar.gz
+
+gdal=gdal-3.2.1
+gdal_dist=$(gdal).tar.gz
+
+gridfields=gridfields-1.0.5
+gridfields_dist=$(gridfields).tar.gz
+
+# hdf4=hdf-4.2.16 retired - 5/8/24 ndap
+hdf4=hdf4-hdf4.3.0.e
+hdf4_dist=$(hdf4).tar.gz
+
+hdfeos=hdfeos
+hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
+# This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
+# hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
+
+hdf5=hdf5-1.10.10
+hdf5_dist=$(hdf5).tar.bz2
+
+netcdf4=netcdf-490-e
+netcdf4_dist=$(netcdf4).tar.gz
+
+stare=STARE-1.1.0
+stare_dist=$(stare).tar.bz2
+
+# Packages that are built. jhrg 10/10/25
+
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
@@ -43,42 +91,15 @@ hdfeos hdf5 netcdf4 sqlite3 proj gdal stare aws_cdk list-built
 .PHONY: $(docker_deps)
 docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk list-built
 
+# NB The environment variable $prefix is assumed to be set.
+src = src
+defaults = --disable-dependency-tracking --enable-silent-rules
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
+# This targets are used to build and manage the dependencies builds. jhrg 10/10/25
 all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
-
-.PHONY: prefix-set
-prefix-set: rhel8
-	@if test -z "$$prefix"; then \
-	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
-
-.PHONY: rhel8
-rhel8:
-	@if test -f /etc/redhat-release; then \
-	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
-	    else \
-	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
-	        exit 1; \
-            fi; \
-	fi
-
-.PHONY: list-built
-list-built:
-	@echo
-	@echo "*** Packages built and installed ***"
-	@ls -1 *-install-stamp
-	@echo "*** ---------------------------- ***"
-
-# These two rules are here to suppress errors about these automatically-generated
-# rules not existing. jhrg 1/27/21
-.PHONY: list-built-clean
-list-built-clean:
-
-.PHONY: list-built-really-clean
-list-built-really-clean:
 
 # Build everything  as static. When the BES is built and
 # linked against these, the resulting modules will not need their
@@ -120,65 +141,38 @@ install:
 check:
 	@echo "Nothing to do for check in hyrax-dependencies"
 
-# The names of the source code distribution files and and the dirs
-# they unpack to.
+# These targets are 'support' targets for the main targets above. jhrg 10/10/25
+.PHONY: prefix-set
+prefix-set: rhel8
+	@if test -z "$$prefix"; then \
+	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
-aws_cdk=aws_sdk_cpp
-aws_cdk_tag=1.11.665
-# There is no dist - we pull this from github using a tag
-#
-#cmake=cmake-3.11.3
-#cmake_dist=$(cmake).tar.gz
+.PHONY: rhel8
+rhel8:
+	@if test -f /etc/redhat-release; then \
+	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	    else \
+	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        exit 1; \
+            fi; \
+	fi
 
-bison=bison-3.3
-bison_dist=$(bison).tar.xz
+.PHONY: list-built
+list-built:
+	@echo
+	@echo "*** Packages built and installed ***"
+	@ls -1 *-install-stamp
+	@echo "*** ---------------------------- ***"
 
-jpeg=jpeg-6b
-jpeg_dist=jpegsrc.v6b.tar.gz
+# These two rules are here to suppress errors about these automatically-generated
+# rules not existing. jhrg 1/27/21
+.PHONY: list-built-clean
+list-built-clean:
 
-openjpeg=openjpeg-2.4.0
-openjpeg_dist=$(openjpeg).tar.gz
+.PHONY: list-built-really-clean
+list-built-really-clean:
 
-sqlite3=sqlite-autoconf-3340000
-sqlite3_dist=$(sqlite3).tar.gz
-
-proj=proj-6.3.2
-proj_dist=$(proj).tar.gz
-
-gdal=gdal-3.2.1
-gdal_dist=$(gdal).tar.gz
-
-gridfields=gridfields-1.0.5
-gridfields_dist=$(gridfields).tar.gz
-
-# hdf4=hdf-4.2.16 retired - 5/8/24 ndap
-hdf4=hdf4-hdf4.3.0.e
-hdf4_dist=$(hdf4).tar.gz
-
-hdfeos=hdfeos
-hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
-# This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
-# hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
-
-hdf5=hdf5-1.10.10
-hdf5_dist=$(hdf5).tar.bz2
-
-netcdf4=netcdf-490-e
-netcdf4_dist=$(netcdf4).tar.gz
-
-#fits=cfitsio-3.49
-#fits_dist=$(fits).tar.gz
-
-#icu=icu-3.6
-#icu_dist=icu4c-3_6-src.tgz
-
-stare=STARE-1.1.0
-stare_dist=$(stare).tar.bz2
-
-# NB The environment variable $prefix is assumed to be set.
-src = src
-
-defaults = --disable-dependency-tracking --enable-silent-rules
 
 # AWS C++ SDK
 aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
@@ -259,38 +253,6 @@ jpeg-really-clean: jpeg-clean
 
 .PHONY: jpeg
 jpeg: jpeg-install-stamp
-
-## CMake
-#
-#cmake_src=$(src)/$(cmake)
-#cmake_prefix=$(prefix)/deps
-#
-#$(cmake_src)-stamp:
-#	tar -xzf downloads/$(cmake_dist) -C $(src)
-#	echo timestamp > $(cmake_src)-stamp
-#
-#cmake-configure-stamp:  $(cmake_src)-stamp
-#	(cd $(cmake_src) && ./configure --prefix=$(cmake_prefix))
-#	echo timestamp > cmake-configure-stamp
-#
-#cmake-compile-stamp: cmake-configure-stamp
-#	(cd $(cmake_src) && $(MAKE) $(MFLAGS))
-#	echo timestamp > cmake-compile-stamp
-#
-#cmake-install-stamp: cmake-compile-stamp
-#	(cd $(cmake_src) && $(MAKE) $(MFLAGS) -j1 install)
-#	echo timestamp > cmake-install-stamp
-#
-#cmake-clean:
-#	-rm cmake-*-stamp
-#	-(cd  $(cmake_src) && $(MAKE) $(MFLAGS) clean)
-#
-#cmake-really-clean: cmake-clean
-#	-rm $(src)/cmake-*-stamp
-#	-rm -rf $(cmake_src)
-#
-#.PHONY: cmake
-#cmake: cmake-install-stamp
 
 # Bison 3 (Needed by libdap)
 bison_src=$(src)/$(bison)
@@ -660,79 +622,6 @@ netcdf4-really-clean: netcdf4-clean
 
 .PHONY: netcdf4
 netcdf4: netcdf4-install-stamp
-
-## cfitsio
-#fits_src=$(src)/$(fits)
-#fits_prefix=$(prefix)/deps
-#
-#$(fits_src)-stamp:
-#	tar -xzf downloads/$(fits_dist) -C $(src)
-#	echo timestamp > $(fits_src)-stamp
-#
-#fits-configure-stamp:  $(fits_src)-stamp
-#	(cd $(fits_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
-#	--prefix=$(fits_prefix) --disable-curl)
-#	echo timestamp > fits-configure-stamp
-#
-#fits-compile-stamp: fits-configure-stamp
-#	(cd $(fits_src) && $(MAKE) $(MFLAGS))
-#	echo timestamp > fits-compile-stamp
-#
-## Force -j1 for install
-#fits-install-stamp: fits-compile-stamp
-#	(cd $(fits_src) && $(MAKE) $(MFLAGS) -j1 install)
-#	echo timestamp > fits-install-stamp
-#
-## (cd $(fits_prefix)/lib && rm -f libcfitsio*.dylib || rm -f libcfitsio.so*)
-#
-#fits-clean:
-#	-rm fits-*-stamp
-#	-(cd  $(fits_src) && $(MAKE) $(MFLAGS) clean)
-#
-#fits-really-clean: fits-clean
-#	-rm $(fits_src)-stamp
-#	-rm -rf $(fits_src)
-#
-#.PHONY: fits
-#fits: fits-install-stamp
-#
-## ICU
-#icu_src=$(src)/$(icu)/source
-#icu_prefix=$(prefix)/deps
-#
-#$(src)/$(icu)-stamp:
-#	tar -xzf downloads/$(icu_dist) -C $(src)
-#	echo timestamp > $(src)/$(icu)-stamp
-#
-#icu-configure-stamp:  $(src)/$(icu)-stamp
-#	(cd $(icu_src) && \
-#	if uname -a | grep Darwin; then OS="osx"; \
-#	elif uname -a | grep Linux; then OS="linux"; \
-#	else OS="unknown"; fi && \
-#	if test "$OS" = "osx"; then ./runConfigureICU MacOSX --prefix=$(icu_prefix) --disable-layout --disable-samples; \
-#	elif test "$OS" = "linux"; then ./runConfigureICU Linux $(CONFIGURE_FLAGS) --prefix=$(icu_prefix) --disable-layout --disable-samples; \
-#	else ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(icu_prefix) --disable-layout --disable-samples; fi)
-#	echo timestamp > icu-configure-stamp
-#
-#icu-compile-stamp: icu-configure-stamp
-#	(cd $(icu_src) && $(MAKE) $(MFLAGS) -j1)
-#	echo timestamp > icu-compile-stamp
-#
-## Force -j1 for install
-#icu-install-stamp: icu-compile-stamp
-#	(cd $(icu_src) && $(MAKE) $(MFLAGS) -j1 install)
-#	echo timestamp > icu-install-stamp
-#
-#icu-clean:
-#	-rm icu-*-stamp
-#	-(cd  $(icu_src) && $(MAKE) $(MFLAGS) clean)
-#
-#icu-really-clean: icu-clean
-#	-rm $(src)/$(icu)-stamp
-#	-rm -rf $(src)/$(icu)
-#
-#.PHONY: icu
-#icu: icu-install-stamp
 
 stare_src=src/$(stare)
 stare_prefix=$(prefix)/deps

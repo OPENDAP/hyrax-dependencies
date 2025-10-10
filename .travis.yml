@@ -58,7 +58,7 @@ jobs:
       - make list-built
       - export ARTIFACT=ubuntu
       - mkdir -p $TRAVIS_BUILD_DIR/package
-      - then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
+      - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: never
