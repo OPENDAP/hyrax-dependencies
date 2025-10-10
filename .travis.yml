@@ -14,13 +14,10 @@
 #
 # I removed the Ubuntu/deb build because we're not using it. jhrg 12/08/20
 
-# virt: lxd             # use a lxd container
-# arch: amd64           # optional, this is default, routes to a full VM
-# os: linux             # optional, this is default
 dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
-  size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
+  size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
                       # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
 
 # Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
@@ -49,9 +46,9 @@ env:
   global:
     # These keys are used to upload the build artifacts to S3. jhrg 1/19/24
     # AWS_ACCESS_KEY_ID (user: travis-hyrax-dependencies)
-    - secure: "KDHpyQLB4nARPv/k4wUjgl6OD3jLMRifRwX58YFESvbU4IGB1pKS6sV0h4p5grdBBLikLYF7S61a2HhZ3b0zYADWzNEsDNwS3HDlhqVGVv53uanUy+6yTR7igkclh8zqw1dxzM9rbHtxB9TPIhq+gI0KpXXfMf+eP26SEuaiAWs="
+    #- secure: "KDHpyQLB4nARPv/k4wUjgl6OD3jLMRifRwX58YFESvbU4IGB1pKS6sV0h4p5grdBBLikLYF7S61a2HhZ3b0zYADWzNEsDNwS3HDlhqVGVv53uanUy+6yTR7igkclh8zqw1dxzM9rbHtxB9TPIhq+gI0KpXXfMf+eP26SEuaiAWs="
     # AWS_SECRET_ACCESS_KEY
-    - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
+    #- secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
 
 stages:
   - name: build
@@ -89,6 +86,10 @@ before_deploy:
     then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
     fi
   - if test -n $ARTIFACT -a $ARTIFACT = rocky8;
+    # prune what goes in the tarball - these programs are huge for the static dependencies
+    BIN=$HOME/rocky8/install/deps/bin
+    rm $BIN/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+    rm -rf $HOME/rocky8/install/deps/proj-6/bin
     then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
     fi
 
