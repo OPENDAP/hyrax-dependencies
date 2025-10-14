@@ -14,13 +14,10 @@
 #
 # I removed the Ubuntu/deb build because we're not using it. jhrg 12/08/20
 
-# virt: lxd             # use a lxd container
-# arch: amd64           # optional, this is default, routes to a full VM
-# os: linux             # optional, this is default
 dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
-  size: x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
+  size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
                       # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
 
 # Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
@@ -45,14 +42,6 @@ addons:
       - libicu-dev
       - libsqlite3-dev
 
-env:
-  global:
-    # These keys are used to upload the build artifacts to S3. jhrg 1/19/24
-    # AWS_ACCESS_KEY_ID (user: travis-hyrax-dependencies)
-    - secure: "KDHpyQLB4nARPv/k4wUjgl6OD3jLMRifRwX58YFESvbU4IGB1pKS6sV0h4p5grdBBLikLYF7S61a2HhZ3b0zYADWzNEsDNwS3HDlhqVGVv53uanUy+6yTR7igkclh8zqw1dxzM9rbHtxB9TPIhq+gI0KpXXfMf+eP26SEuaiAWs="
-    # AWS_SECRET_ACCESS_KEY
-    - secure: "hEaItJDLc8Qrq6U2eZBVjpZKRDsCe2wSBjGA46mPkHsmeKFjP/1lG5qZ2+DdmC3+2/ZgM4iIRpTE6cqTaIjrd+6E6b8Dkgxwu1aQlEJRkuxbOJqyHrgjCob23Xq5ieXa+rS7TlDIdnYJnS8uCWWCr+cuZw8cMVUaqu1uNLY0EZQ="
-
 stages:
   - name: build
     if: branch = master OR branch = main OR branch =~ ^(.*-test-deploy)$
@@ -65,12 +54,11 @@ jobs:
     name: "ubuntu-focal"
     script:
       - export prefix=$HOME/install
-      - make -j16 ci-part-1
-      - make -j16 ci-part-2
-      - make -j16 ci-part-3
-      - make -j16 ci-part-4
+      - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
+      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
@@ -82,18 +70,8 @@ jobs:
           --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/rocky8_hyrax_builder:latest 
           /root/hyrax-dependencies/build-for-rocky8.sh
       - export ARTIFACT=rocky8
-
-# The before_deploy and deploy parts are run after every 'build' script completes. This section
-# checks environment variables that are flags from the build stages. Note that the 'condition'
-# in the 'deploy' section seems to control whether this section is run after any given stage. jhrg 1/12/22
-before_deploy:
-  - mkdir -p $TRAVIS_BUILD_DIR/package
-  - if test -n $ARTIFACT -a $ARTIFACT = ubuntu;
-    then tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install;
-    fi
-  - if test -n $ARTIFACT -a $ARTIFACT = rocky8;
-    then tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install;
-    fi
+      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
 
 deploy:
   - provider: s3

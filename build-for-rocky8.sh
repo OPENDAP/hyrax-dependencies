@@ -19,7 +19,12 @@ dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
 # RPM build we have packages that others can install. jhrg 2/8/22
-export CONFIGURE_FLAGS="--disable-shared"
+#
+# This is not needed when the 'for-static-rpm' target is used below. That is
+# a more robust way to build the static packages since some of them might not
+# use configure, but cmake, e.g. jhrg 10/10/25
+#
+# export CONFIGURE_FLAGS="--disable-shared"
 export CPPFLAGS=-I/usr/include/tirpc
 export LDFLAGS=-ltirpc
 
@@ -27,10 +32,11 @@ export LDFLAGS=-ltirpc
 # mounted so it appears within 'root.'
 cd /root/hyrax-dependencies
 
-make -j16 sqlite3
+make -j16 for-static-rpm
 
-make -j16 ci-part-1
-make -j16 ci-part-2
-make -j16 ci-part-3
-make -j16 ci-part-4
 make list-built
+
+# Now clean out the binary images, which are huge for a static build.
+# NB prefix = /root/install, set by the Docker run command
+rm -f $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+rm -rf $prefix/deps/proj-6/bin;

@@ -8,13 +8,13 @@
 # these packages.
 #
 # Note that you can pass in extra flags for the configure scripts 
-# using CONFIGURE_FLAGS=...opts on the command line.
+# using CONFIGURE_FLAGS=... and CMAKE_FLAGS opts on the command line.
 #
 # Removed the dependencies on the targets for individual libraries.
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.60
+VERSION = 1.62
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -27,26 +27,59 @@ VERSION = 1.60
 site-deps = 
 -include ../hyrax-site.mk
 
+# The names of the source code distribution files and and the dirs
+# they unpack to.
+
+aws_cdk=aws_sdk_cpp
+aws_cdk_tag=1.11.665
+# There is no dist - we pull this from github using a tag
+
+bison=bison-3.3
+bison_dist=$(bison).tar.xz
+
+jpeg=jpeg-6b
+jpeg_dist=jpegsrc.v6b.tar.gz
+
+openjpeg=openjpeg-2.4.0
+openjpeg_dist=$(openjpeg).tar.gz
+
+sqlite3=sqlite-autoconf-3340000
+sqlite3_dist=$(sqlite3).tar.gz
+
+proj=proj-6.3.2
+proj_dist=$(proj).tar.gz
+
+gdal=gdal-3.2.1
+gdal_dist=$(gdal).tar.gz
+
+gridfields=gridfields-1.0.5
+gridfields_dist=$(gridfields).tar.gz
+
+# hdf4=hdf-4.2.16 retired - 5/8/24 ndap
+hdf4=hdf4-hdf4.3.0.e
+hdf4_dist=$(hdf4).tar.gz
+
+hdfeos=hdfeos
+hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
+# This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
+# hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
+
+hdf5=hdf5-1.10.10
+hdf5_dist=$(hdf5).tar.bz2
+
+netcdf4=netcdf-493-e
+netcdf4_dist=$(netcdf4).tar.gz
+
+stare=STARE-1.1.0
+stare_dist=$(stare).tar.bz2
+
+# Packages that are built. jhrg 10/10/25
+
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 .PHONY: $(deps)
-deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 hdfeos hdf5 \
-netcdf4 sqlite3 proj gdal stare list-built
-
-# The 'all-static-deps' are the deps we need when all of the handlers are
-# to be statically linked to the dependencies contained in this project - 
-# and when we are not going to use _any_ RPMs. This makes for a bigger bes
-# rpm distribution, but also one that is easier to install because it does
-# not require any non-stock yum repo.
-#
-# Removed cmake which breaks CentOS 6 builds and can be gotten from
-# RPMs for both C6 and C7. jhrg 10/10/18
-#
-# fits Removed 3/5/21 because it does not build static-only. jhrg 3/5/21
-.PHONY: $(linux_deps)
-
-linux_deps = $(site-deps) bison jpeg openjpeg gridfields hdf4	\
-hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
+deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
+hdfeos hdf5 netcdf4 sqlite3 proj gdal stare aws_cdk list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -56,14 +89,59 @@ hdfeos hdf5 netcdf4 stare sqlite3 proj gdal list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields hdf4 hdfeos stare netcdf4 list-built
+docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk list-built
 
+# NB The environment variable $prefix is assumed to be set.
+src = src
+defaults = --disable-dependency-tracking --enable-silent-rules
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
+# This targets are used to build and manage the dependencies builds. jhrg 10/10/25
 all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
+# Build everything  as static. When the BES is built and
+# linked against these, the resulting modules will not need their
+# dependencies installed since they will be statically linked to them.
+# jhrg 4/7/15
+.PHONY: for-static-rpm
+for-static-rpm: prefix-set
+	for d in $(deps); \
+	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
+
+.PHONY: for-travis
+for-travis: prefix-set
+	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
+
+.PHONY: for-docker
+for-docker: prefix-set
+	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
+
+clean: $(deps_clean)
+
+.PHONY: really-clean
+really-clean: $(deps_really_clean)
+
+.PHONY: uninstall
+uninstall: prefix-set
+	-rm -rf $(prefix)/deps/*
+
+.PHONY: dist
+dist: really-clean
+	(cd ../ && tar --create --file hyrax-dependencies-$(VERSION).tar \
+	 --exclude='.*' --exclude='*~'  --exclude=extra_downloads \
+	 --exclude=scripts --exclude=OSX_Resources hyrax-dependencies)
+
+.PHONY: install
+install:
+	@echo "Nothing to do for install in hyrax-dependencies"
+
+.PHONY: check
+check:
+	@echo "Nothing to do for check in hyrax-dependencies"
+
+# These targets are 'support' targets for the main targets above. jhrg 10/10/25
 .PHONY: prefix-set
 prefix-set: rhel8
 	@if test -z "$$prefix"; then \
@@ -95,171 +173,43 @@ list-built-clean:
 .PHONY: list-built-really-clean
 list-built-really-clean:
 
-# Build everything but ICU, as static. When the BES is built and
-# linked against these, the resulting modules will not need their
-# dependencies installed since they will be statically linked to them.
-#
-# Another difference between this and 'all' is that icu is not built.
-# I want to avoid statically linking with that. Also, this does
-# not yet work - netcdf4 and hdf5 need to have their builds 
-# tweaked still. jhrg 4/7/15
-#
-# Done. This now works. Don't forget CONFIGURE_FLAGS. jhrg 5/6/15
-# CONFIGURE_FLAGS now set by this target - no need to remember to do
-# it. jhrg 11/29/17.
-.PHONY: for-static-rpm
-for-static-rpm: prefix-set
-	for d in $(linux_deps); \
-	    do CONFIGURE_FLAGS="--disable-shared" $(MAKE) $(MFLAGS) $$d; done
 
-# Made this build statically since these are now used for the deb packages.
-.PHONY: for-travis
-for-travis: prefix-set
-	for d in $(linux_deps); do $(MAKE) $(MFLAGS) $$d; done
+# AWS C++ SDK
+aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
+aws_cdk_prefix=$(prefix)/deps
 
-.PHONY: for-docker
-for-docker: prefix-set
-	for d in $(docker_deps); do $(MAKE) $(MFLAGS) $$d; done
+$(aws_cdk_src)-stamp:
+	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
+	git clone --depth 1 --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	echo timestamp > $(aws_cdk_src)-stamp
 
-# Dependencies:
-# stare: none
-# gridfields: none
+aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
+	mkdir -p $(aws_cdk_src)/build
+	(cd $(aws_cdk_src)/build \
+	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
+	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+	echo timestamp > aws_cdk-configure-stamp
 
-# jpeg: none
-# hdf4: jpeg
-# hdfeos: hdf4, jpeg
+# We might want to use for development cmake --build . --config=Debug
+aws_cdk-compile-stamp: aws_cdk-configure-stamp
+	(cd $(aws_cdk_src)/build && cmake --build . --config=Debug --parallel)
+	echo timestamp > aws_cdk-compile-stamp
 
-# hdf5: none
-# netcdf4: hdf5 AND this must follow hdf4 because the hdf4 build installs then deletes ncdump and ncgen
+# As above, cmake --install . --config=Debug
+aws_cdk-install-stamp: aws_cdk-compile-stamp
+	(cd $(aws_cdk_src)/build && cmake --install . --config=Debug)
+	echo timestamp > aws_cdk-install-stamp
 
-# proj: sqlite3
-# openjepg: none
-# gdal: sqlite3 proj openjpeg
+aws_cdk-clean:
+	-rm aws_cdk-*-stamp
+	-(cd  $(aws_cdk_src)/build && cmake --build . --target clean)
 
-# to build static versions of these packages, export CONFIGURE_FLAGS using:
-# export CONFIGURE_FLAGS="--disable-shared"
-# and then run the four parts.
+aws_cdk-really-clean: aws_cdk-clean
+	-rm $(src)/$(aws_cdk)-*-stamp
+	-rm -rf $(aws_cdk_src)
 
-# These 'ci-part-n' targets are here for the Travis CI builds so the process does not
-# time out. These are for the linux shared object builds. jhrg 3/24/25
-
-.PHONY: ci-part-1
-ci-part-1:
-	$(MAKE) $(MFLAGS) gridfields
-	$(MAKE) $(MFLAGS) stare
-
-# Note that the actions in part-2 must come before part-3 because the
-# hdf4 build builds installs and then deletes the installed versions
-# of ncdump and ncgen. That will remove the versions built by the
-# netcdf4 library. jhrg 1/12/22
-
-.PHONY: ci-part-2
-ci-part-2:
-	$(MAKE) $(MFLAGS) jpeg
-	$(MAKE) $(MFLAGS) hdf4
-
-.PHONY: ci-part-3
-ci-part-3:
-	$(MAKE) $(MFLAGS) hdfeos
-	$(MAKE) $(MFLAGS) hdf5
-	$(MAKE) $(MFLAGS) netcdf4
-
-.PHONY: ci-part-4
-ci-part-4:
-	$(MAKE) $(MFLAGS) proj
-	$(MAKE) $(MFLAGS) openjpeg
-	$(MAKE) $(MFLAGS) gdal
-
-clean: $(deps_clean)
-
-.PHONY: really-clean
-really-clean: $(deps_really_clean)
-
-.PHONY: uninstall
-uninstall: prefix-set
-	-rm -rf $(prefix)/deps/*
-
-.PHONY: dist
-dist: really-clean
-	(cd ../ && tar --create --file hyrax-dependencies-$(VERSION).tar \
-	 --exclude='.*' --exclude='*~'  --exclude=extra_downloads \
-	 --exclude=scripts --exclude=OSX_Resources hyrax-dependencies)
-
-.PHONY: install
-install:
-	@echo "Nothing to do for install in hyrax-dependencies"
-
-.PHONY: check
-check:
-	@echo "Nothing to do for check in hyrax-dependencies"
-
-# The names of the source code distribution files and and the dirs
-# they unpack to.
-
-cmake=cmake-3.11.3
-cmake_dist=$(cmake).tar.gz
-
-bison=bison-3.3
-bison_dist=$(bison).tar.xz
-
-jpeg=jpeg-6b
-jpeg_dist=jpegsrc.v6b.tar.gz
-
-openjpeg=openjpeg-2.4.0
-openjpeg_dist=$(openjpeg).tar.gz
-
-sqlite3=sqlite-autoconf-3340000
-sqlite3_dist=$(sqlite3).tar.gz
-
-# This is a new and (4/2019) experimental API. Don't build it by
-# default. It will break the HDFEOS code in the hdf4 handler. jhrg
-# 4/24/2019
-#
-# Needed by GDAL, build and installed in a special directory under
-# $prefix and use it only with GDAL. jhrg 10/30/20
-# proj=proj-9.1.0
-# proj_dist=$(proj).tar.gz
-
-# gdal36=gdal-3.6.1
-# gdal36_dist=$(gdal36).tar.gz
-
-proj=proj-6.3.2
-proj_dist=$(proj).tar.gz
-
-gdal=gdal-3.2.1
-gdal_dist=$(gdal).tar.gz
-
-gridfields=gridfields-1.0.5
-gridfields_dist=$(gridfields).tar.gz
-
-# hdf4=hdf-4.2.16 retired - 5/8/24 ndap
-hdf4=hdf4-hdf4.3.0.e
-hdf4_dist=$(hdf4).tar.gz
-
-hdfeos=hdfeos
-hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
-# This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
-# hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
-
-hdf5=hdf5-1.10.10
-hdf5_dist=$(hdf5).tar.bz2
-
-netcdf4=netcdf-493-e
-netcdf4_dist=$(netcdf4).tar.gz
-
-fits=cfitsio-3.49
-fits_dist=$(fits).tar.gz
-
-icu=icu-3.6
-icu_dist=icu4c-3_6-src.tgz
-
-stare=STARE-1.1.0
-stare_dist=$(stare).tar.bz2
-
-# NB The environment variable $prefix is assumed to be set.
-src = src
-
-defaults = --disable-dependency-tracking --enable-silent-rules
+.PHONY: aws_cdk
+aws_cdk: aws_cdk-install-stamp
 
 # JPEG
 jpeg_src=$(src)/$(jpeg)
@@ -303,38 +253,6 @@ jpeg-really-clean: jpeg-clean
 
 .PHONY: jpeg
 jpeg: jpeg-install-stamp
-
-# CMake
-
-cmake_src=$(src)/$(cmake)
-cmake_prefix=$(prefix)/deps
-
-$(cmake_src)-stamp:
-	tar -xzf downloads/$(cmake_dist) -C $(src)
-	echo timestamp > $(cmake_src)-stamp
-
-cmake-configure-stamp:  $(cmake_src)-stamp
-	(cd $(cmake_src) && ./configure --prefix=$(cmake_prefix))
-	echo timestamp > cmake-configure-stamp
-
-cmake-compile-stamp: cmake-configure-stamp
-	(cd $(cmake_src) && $(MAKE) $(MFLAGS))
-	echo timestamp > cmake-compile-stamp
-
-cmake-install-stamp: cmake-compile-stamp
-	(cd $(cmake_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > cmake-install-stamp
-
-cmake-clean:
-	-rm cmake-*-stamp
-	-(cd  $(cmake_src) && $(MAKE) $(MFLAGS) clean)
-
-cmake-really-clean: cmake-clean
-	-rm $(src)/cmake-*-stamp	
-	-rm -rf $(cmake_src)
-
-.PHONY: cmake
-cmake: cmake-install-stamp
 
 # Bison 3 (Needed by libdap)
 bison_src=$(src)/$(bison)
@@ -471,56 +389,6 @@ proj-really-clean: proj-clean
 .PHONY: proj
 proj: proj-install-stamp
 
-# GDAL
-# Move from gdal 3.2.1, which uses autotools to gdal 3.6.0 which uses
-# cmake. Confusingly, I used 'gdal4' for gdal 3.2.1. jhrg 11/30/22
-# gdal36_src=$(src)/$(gdal36)
-# gdal36_prefix=$(prefix)/deps
-
-# $(gdal36_src)-stamp:
-# 	tar -xzf downloads/$(gdal36_dist) -C $(src)
-# 	echo timestamp > $(gdal36_src)-stamp
-
-# # Set build options here (a few) and (most) in gdal36-config.cmake.
-# # jhrg 11/30/22
-# gdal36-configure-stamp: $(gdal36_src)-stamp
-# 	(cd $(gdal36_src) \
-# 	 && mkdir build && cd build \
-# 	 && cmake \
-# 	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-# 	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-# 	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-# 	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-# 	 -DBUILD_SHARED_LIBS:bool=OFF \
-# 	 -C ../../../gdal-config.cmake ..)
-# 	echo timestamp > gdal36-configure-stamp
-
-# gdal36-compile-stamp: gdal36-configure-stamp
-# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS))
-# 	echo timestamp > gdal36-compile-stamp
-
-# gdal36-install-stamp: gdal36-compile-stamp
-# 	(cd $(gdal36_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-# 	echo timestamp > gdal36-install-stamp
-
-# gdal36-clean:
-# 	-rm gdal36-*-stamp
-# 	-(cd  $(gdal36_src)/build && $(MAKE) $(MFLAGS) clean)
-
-# gdal36-really-clean: gdal36-clean
-# 	-rm $(gdal36_src)-stamp
-# 	-rm -rf $(gdal36_src)
-
-# .PHONY: gdal36
-# gdal36: gdal36-install-stamp
-
-# The old 'gdal4' rules follow... Keep until we are comfortable with
-# the new build.
-# Update: GDAL 3.6 just won't build on the linux boxes with the other
-# stuff we have. And it's not that critical a part of the server, so I
-# and dropping back to 3.2.1. I'm going to rename gdal4 to just gdal.
-# jhrg 5//7/23
-
 gdal_src=$(src)/$(gdal)
 gdal_prefix=$(prefix)/deps
 
@@ -528,14 +396,6 @@ $(gdal_src)-stamp:
 	tar -xzf downloads/$(gdal_dist) -C $(src)
 	echo timestamp > $(gdal_src)-stamp
 
-# I disabled sqlite3 because it was failing on CentOS7.
-# NB: The sqlite3 library is used for the proj library tests, so it is
-# included for that _but_ we do not build the sqlite3 _driver_ for gdal
-# (hence the '--without-sqlite3' option). jhrg 12/29/21
-#
-# To build the grib driver, you must build the png driver - using
-# --without-png causes the grib driver to not be built without a warning.
-# jhrg 3/23/22
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS=-I$(proj_prefix)/include \
@@ -762,79 +622,6 @@ netcdf4-really-clean: netcdf4-clean
 
 .PHONY: netcdf4
 netcdf4: netcdf4-install-stamp
-
-# cfitsio 
-fits_src=$(src)/$(fits)
-fits_prefix=$(prefix)/deps
-
-$(fits_src)-stamp:
-	tar -xzf downloads/$(fits_dist) -C $(src)
-	echo timestamp > $(fits_src)-stamp
-
-fits-configure-stamp:  $(fits_src)-stamp
-	(cd $(fits_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
-	--prefix=$(fits_prefix) --disable-curl)
-	echo timestamp > fits-configure-stamp
-
-fits-compile-stamp: fits-configure-stamp
-	(cd $(fits_src) && $(MAKE) $(MFLAGS))
-	echo timestamp > fits-compile-stamp
-
-# Force -j1 for install
-fits-install-stamp: fits-compile-stamp
-	(cd $(fits_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > fits-install-stamp
-
-# (cd $(fits_prefix)/lib && rm -f libcfitsio*.dylib || rm -f libcfitsio.so*)
-
-fits-clean:
-	-rm fits-*-stamp
-	-(cd  $(fits_src) && $(MAKE) $(MFLAGS) clean)
-
-fits-really-clean: fits-clean
-	-rm $(fits_src)-stamp
-	-rm -rf $(fits_src)
-
-.PHONY: fits
-fits: fits-install-stamp
-
-# ICU 
-icu_src=$(src)/$(icu)/source
-icu_prefix=$(prefix)/deps
-
-$(src)/$(icu)-stamp:
-	tar -xzf downloads/$(icu_dist) -C $(src)
-	echo timestamp > $(src)/$(icu)-stamp
-
-icu-configure-stamp:  $(src)/$(icu)-stamp
-	(cd $(icu_src) && \
-	if uname -a | grep Darwin; then OS="osx"; \
-	elif uname -a | grep Linux; then OS="linux"; \
-	else OS="unknown"; fi && \
-	if test "$OS" = "osx"; then ./runConfigureICU MacOSX --prefix=$(icu_prefix) --disable-layout --disable-samples; \
-	elif test "$OS" = "linux"; then ./runConfigureICU Linux $(CONFIGURE_FLAGS) --prefix=$(icu_prefix) --disable-layout --disable-samples; \
-	else ./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(icu_prefix) --disable-layout --disable-samples; fi)
-	echo timestamp > icu-configure-stamp
-
-icu-compile-stamp: icu-configure-stamp
-	(cd $(icu_src) && $(MAKE) $(MFLAGS) -j1)
-	echo timestamp > icu-compile-stamp
-
-# Force -j1 for install
-icu-install-stamp: icu-compile-stamp
-	(cd $(icu_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > icu-install-stamp
-
-icu-clean:
-	-rm icu-*-stamp
-	-(cd  $(icu_src) && $(MAKE) $(MFLAGS) clean)
-
-icu-really-clean: icu-clean
-	-rm $(src)/$(icu)-stamp
-	-rm -rf $(src)/$(icu)
-
-.PHONY: icu
-icu: icu-install-stamp
 
 stare_src=src/$(stare)
 stare_prefix=$(prefix)/deps
