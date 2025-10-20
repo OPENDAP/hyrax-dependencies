@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.62
+VERSION = 1.63
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -77,9 +77,10 @@ stare_dist=$(stare).tar.bz2
 
 # I think only OSX needs the icu dependency. jhrg 10/29/20
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
+# Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
-hdfeos hdf5 netcdf4 sqlite3 proj gdal stare aws_cdk list-built
+hdfeos hdf5 netcdf4 proj gdal stare aws_cdk list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -511,26 +512,33 @@ $(hdfeos_src)-stamp:
 	tar -xzf downloads/$(hdfeos_dist) -C $(src)
 	echo timestamp > $(hdfeos_src)-stamp
 
+# This block below was used for many years to build hdfeos. I have replaced it with
+# the code we have now, but this is so fragile I'm keeping the old way here because
+# someone may need it and not know about it (and thus not know to extract it from
+# git). jhrg 10/0/25
+#cd $(hdfeos_src) \
+#		&& echo "Using h4cc from $(hdf4_prefix)/bin" \
+#		&& CC=$(hdf4_prefix)/bin/h4cc \
+#		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
+#			--disable-fortran --enable-production	\
+#			--with-pic --enable-install-include \
+#			--with-hdf4=$(hdf4_prefix) --prefix=$(hdfeos_prefix); \
+
+# In the configure command, the path $(hdfeos_src)/gctp/include is forced
+# to the front of CPPFLAGS so that it will take precedence over any other
+# path that might be on CPPFLAGS (e.g., because something like homebrew/include
+# is there) that contains the libproj header 'proj.h'. The hdfeos code has
+# a header named 'proj.h' that it must find. jhrg 10/20/265
+#
 hdfeos-configure-stamp:  $(hdfeos_src)-stamp
-	(if test -f $(hdf4_prefix)/bin/h4cc; \
-	then \
-		cd $(hdfeos_src) \
-		&& echo "Using h4cc from $(hdf4_prefix)/bin" \
-		&& CC=$(hdf4_prefix)/bin/h4cc \
-		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
-			--disable-fortran --enable-production	\
-			--with-pic --enable-install-include \
-			--with-hdf4=$(hdf4_prefix) --prefix=$(hdfeos_prefix); \
-	else \
-		cd $(hdfeos_src) \
-		&& echo "Using stock gcc/++" \
-		&& CPPFLAGS=-I$(prefix)/deps/include \
-		   LDFLAGS=-L$(prefix)/deps/lib \
-		   ./configure $(CONFIGURE_FLAGS) $(defaults) \
-			--disable-fortran --enable-production	\
-			--with-pic --enable-install-include \
-			--prefix=$(hdfeos_prefix); \
-	fi)
+	cd $(hdfeos_src) \
+	&& echo "Using stock gcc/++" \
+	&& CPPFLAGS="-I$(hdfeos_src)/gctp/include -I$(prefix)/deps/include $(CPPFLAGS)" \
+	   LDFLAGS="-L$(prefix)/deps/lib $(LDFLAGS)" \
+	   ./configure $(CONFIGURE_FLAGS) $(defaults) \
+		--disable-fortran --enable-production	\
+		--with-pic --enable-install-include \
+		--prefix=$(hdfeos_prefix);
 	echo timestamp > hdfeos-configure-stamp
 
 hdfeos-compile-stamp: hdfeos-configure-stamp
