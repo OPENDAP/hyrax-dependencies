@@ -20,7 +20,21 @@ in the directory that holds 'hyrax-dependencies' and putting
 top of the Makefile to see how hyrax-site.mk is included by the
 main Makefile. jhrg 5/8/23
 
-Other targets in the Makefile besides 'all:'
+** If you get the error 'MAXPROJ Undefined' while building the hdfeos
+code, then look at your shell environment for paths on CPPFLAGS, etc.,
+and check for developer installs of the 'proj' library on any paths
+they name.
+
+The hdfeos build contains an include named 'proj.h' that defines
+a symbol 'MAXPROJ'. However, you might have an installed version of
+the 'proj' library using (Homebrew on OSX?) and _that_ also has a
+header named, yes, 'proj.h' which does _not_ define MAXPROJ. If you
+have the include path set using CPPFLAGS=-I/opt/homebrew/include,
+for example, then the build may fail with the MAXPROJ Undefined
+message because that path will get precedence over the paths in
+hdfeos Makefile.
+
+Other targets in the Makefile besides 'all'
 
 for-static-rpm: Use this to build only static versions of the
 libraries. This is used to build RPM packages for Hyrax that use
