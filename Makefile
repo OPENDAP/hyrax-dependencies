@@ -64,8 +64,8 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 # This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
 # hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
 
-hdf5=hdf5-1.10.10
-hdf5_dist=$(hdf5).tar.bz2
+hdf5=hdf5-1.14.6
+hdf5_dist=$(hdf5).tar.gz
 
 netcdf4=netcdf-493-e
 netcdf4_dist=$(netcdf4).tar.gz
