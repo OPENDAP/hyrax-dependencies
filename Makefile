@@ -14,7 +14,7 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.63
+VERSION = 1.64
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -40,17 +40,24 @@ bison_dist=$(bison).tar.xz
 jpeg=jpeg-6b
 jpeg_dist=jpegsrc.v6b.tar.gz
 
-openjpeg=openjpeg-2.4.0
+# openjpeg version bumped up for gdal 3.9.x jhrg 10/24/25
+# openjpeg=openjpeg-2.4.0
+openjpeg=openjpeg-2.5.3
 openjpeg_dist=$(openjpeg).tar.gz
 
-sqlite3=sqlite-autoconf-3340000
-sqlite3_dist=$(sqlite3).tar.gz
-
-proj=proj-6.3.2
+# Needed by GDAL, build and installed in a special directory under
+# $prefix and use it only with GDAL. jhrg 10/30/20
+# proj=proj-9.7.0 - requires C++-17. jhrg 9/19/25
+proj=proj-9.5.1
 proj_dist=$(proj).tar.gz
 
 gdal=gdal-3.2.1
 gdal_dist=$(gdal).tar.gz
+
+# This (3.9.3) is the last version of gdal that does not require c++-17. jhrg 9/17/25
+# gdal=gdal-3.11.4 - requires C++-17. jhrg 9/19/25
+# gdal=gdal-3.9.3
+# gdal_dist=$(gdal).tar.gz
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -295,23 +302,23 @@ $(openjpeg_src)-stamp:
 	echo timestamp > $(openjpeg_src)-stamp
 
 openjpeg-configure-stamp:  $(openjpeg_src)-stamp
-	(cd $(openjpeg_src) \
+	mkdir -p $(openjpeg_src)/build
+	(cd $(openjpeg_src)/build \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" -DBUILD_SHARED_LIBS:bool=OFF \
-	 -DCMAKE_POLICY_VERSION_MINIMUM=3.5)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) ..)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
-	(cd $(openjpeg_src) && $(MAKE) $(MFLAGS))
+	(cd $(openjpeg_src)/build && $(MAKE) $(MFLAGS))
 	echo timestamp > openjpeg-compile-stamp
 
 openjpeg-install-stamp: openjpeg-compile-stamp
-	(cd $(openjpeg_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(openjpeg_src)/build && $(MAKE) $(MFLAGS) -j1 install)
 	echo timestamp > openjpeg-install-stamp
 
 openjpeg-clean:
 	-rm openjpeg-*-stamp
-	-(cd  $(openjpeg_src) && $(MAKE) $(MFLAGS) clean)
+	-(cd  $(openjpeg_src)/build && $(MAKE) $(MFLAGS) clean)
 
 openjpeg-really-clean: openjpeg-clean
 	-rm $(src)/openjpeg-*-stamp	
@@ -319,76 +326,6 @@ openjpeg-really-clean: openjpeg-clean
 
 .PHONY: openjpeg
 openjpeg: openjpeg-install-stamp
-
-sqlite3_src=$(src)/$(sqlite3)
-sqlite3_prefix=$(prefix)/deps
-
-$(sqlite3_src)-stamp:
-	tar -xzf downloads/$(sqlite3_dist) -C $(src)
-	echo timestamp > $(sqlite3_src)-stamp
-
-sqlite3-configure-stamp:  $(sqlite3_src)-stamp
-	(cd $(sqlite3_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
-	--prefix=$(sqlite3_prefix) --with-pic=yes )
-	echo timestamp > sqlite3-configure-stamp
-
-sqlite3-compile-stamp: sqlite3-configure-stamp
-	(cd $(sqlite3_src) && $(MAKE) $(MFLAGS))
-	echo timestamp > sqlite3-compile-stamp
-
-sqlite3-install-stamp: sqlite3-compile-stamp
-	(cd $(sqlite3_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > sqlite3-install-stamp
-
-sqlite3-clean:
-	-rm sqlite3-*-stamp
-	-(cd  $(sqlite3_src) && $(MAKE) $(MFLAGS) uninstall clean)
-
-sqlite3-really-clean: sqlite3-clean
-	-rm $(src)/sqlite-*-stamp
-	-rm -rf $(sqlite3_src)
-
-.PHONY: sqlite3
-sqlite3: sqlite3-install-stamp
-
-# proj6 Make a special directory for this since HDFEOS also installs
-# a 'proj.h' header and the hdf4 handler needs to find it. In the
-# future, invert this, making HDFEOS use the special install. The
-# hdf4 handler will have to be modifed to use a special set of de-
-# pendencies. jhrg 10/29/20
-proj_src=$(src)/$(proj)
-proj_prefix=$(prefix)/deps/proj-6
-
-$(proj_src)-stamp:
-	tar -xzf downloads/$(proj_dist) -C $(src)
-	echo timestamp > $(proj_src)-stamp
-
-proj-configure-stamp: $(proj_src)-stamp
-	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) \
-	SQLITE3_CFLAGS="-I$(sqlite3_prefix)/include -fPIC" \
-	SQLITE3_LIBS="-L$(sqlite3_prefix)/lib -lsqlite3" \
-	./configure $(CONFIGURE_FLAGS) $(defaults) --prefix=$(proj_prefix) \
-	--disable-shared)
-	echo timestamp > proj-configure-stamp
-
-proj-compile-stamp: proj-configure-stamp
-	(cd $(proj_src) && PATH=$(sqlite3_prefix)/bin:$(PATH) $(MAKE) $(MFLAGS))
-	echo timestamp > proj-compile-stamp
-
-proj-install-stamp: proj-compile-stamp
-	(cd $(proj_src) && $(MAKE) $(MFLAGS) -j1 install)
-	echo timestamp > proj-install-stamp
-
-proj-clean:
-	-rm proj-*-stamp
-	-(cd  $(proj_src) && $(MAKE) $(MFLAGS) uninstall clean)
-
-proj-really-clean: proj-clean
-	-rm $(src)/proj-*-stamp	
-	-rm -rf $(proj_src)
-
-.PHONY: proj
-proj: proj-install-stamp
 
 gdal_src=$(src)/$(gdal)
 gdal_prefix=$(prefix)/deps
@@ -429,6 +366,88 @@ gdal-really-clean: gdal-clean
 
 .PHONY: gdal
 gdal: gdal-install-stamp
+
+# proj6 Make a special directory for this since HDFEOS also installs
+# a 'proj.h' header and the hdf4 handler needs to find it. In the
+# future, invert this, making HDFEOS use the special install. The
+# hdf4 handler will have to be modified to use a special set of
+# dependencies. jhrg 10/29/20
+# Moved to proj 9.x - jhrg 9/19/25
+proj_src=$(src)/$(proj)
+proj_prefix=$(prefix)/deps/proj
+
+$(proj_src)-stamp:
+	tar -xzf downloads/$(proj_dist) -C $(src)
+	echo timestamp > $(proj_src)-stamp
+
+proj-configure-stamp: $(proj_src)-stamp
+	mkdir -p $(proj_src)/build
+	(cd $(proj_src)/build \
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) $(CMAKE_FLAGS) \
+	 		  -DENABLE_TIFF:bool=OFF -DCMAKE_PREFIX_PATH=$(prefix)/deps ..)
+	echo timestamp > proj-configure-stamp
+
+proj-compile-stamp: proj-configure-stamp
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS))
+	echo timestamp > proj-compile-stamp
+
+proj-install-stamp: proj-compile-stamp
+	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	echo timestamp > proj-install-stamp
+
+proj-clean:
+	-rm proj-*-stamp
+	-(cd  $(proj_src)/build && $(MAKE) $(MFLAGS) uninstall clean)
+
+proj-really-clean: proj-clean
+	-rm $(src)/proj-*-stamp
+	-rm -rf $(proj_src)
+
+.PHONY: proj
+proj: proj-install-stamp
+
+# The 3.9.3 cmake build of GDAL did not work on OSX 15.7.1, but did
+# work on a previous version of 15.x jhrg 10/24/25
+# GDAL
+#gdal_src=$(src)/$(gdal)
+#gdal_prefix=$(prefix)/deps
+#
+#$(gdal_src)-stamp:
+#	tar -xzf downloads/$(gdal_dist) -C $(src)
+#	echo timestamp > $(gdal_src)-stamp
+#
+## Set build options here (a few) and (most) in gdal-config.cmake.
+## jhrg 11/30/22
+#gdal-configure-stamp: $(gdal_src)-stamp
+#	mkdir -p $(gdal_src)/build
+#	(cd $(gdal_src)/build \
+#	 && cmake \
+#	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
+#	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
+#	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
+#	 -DCMAKE_C_FLAGS="-fPIC -O2" \
+#	 $(CMAKE_FLAGS) \
+#	 -C ../../../gdal-config.cmake ..)
+#	echo timestamp > gdal-configure-stamp
+#
+#gdal-compile-stamp: gdal-configure-stamp
+#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS))
+#	echo timestamp > gdal-compile-stamp
+#
+#gdal-install-stamp: gdal-compile-stamp
+#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+#	echo timestamp > gdal-install-stamp
+#
+#gdal-clean:
+#	-rm gdal-*-stamp
+#	-(cd  $(gdal_src)/build && $(MAKE) $(MFLAGS) clean)
+#
+#gdal-really-clean: gdal-clean
+#	-rm $(gdal_src)-stamp
+#	-rm -rf $(gdal_src)
+#
+#.PHONY: gdal
+#gdal: gdal-install-stamp
 
 # Gridfields 
 gridfields_src=$(src)/$(gridfields)
