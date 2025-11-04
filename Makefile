@@ -568,7 +568,7 @@ hdf5_src=$(src)/$(hdf5)
 hdf5_prefix=$(prefix)/deps
 
 $(hdf5_src)-stamp:
-	tar -xjf downloads/$(hdf5_dist) -C $(src)
+	tar -xzf downloads/$(hdf5_dist) -C $(src)
 	echo timestamp > $(hdf5_src)-stamp
 
 hdf5-configure-stamp:  $(hdf5_src)-stamp
