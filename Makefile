@@ -71,8 +71,8 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 # This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
 # hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
 
-hdf5=hdf5-1.10.10
-hdf5_dist=$(hdf5).tar.bz2
+hdf5=hdf5-1.14.6
+hdf5_dist=$(hdf5).tar.gz
 
 netcdf4=netcdf-493-e
 netcdf4_dist=$(netcdf4).tar.gz
@@ -587,7 +587,7 @@ hdf5_src=$(src)/$(hdf5)
 hdf5_prefix=$(prefix)/deps
 
 $(hdf5_src)-stamp:
-	tar -xjf downloads/$(hdf5_dist) -C $(src)
+	tar -xzf downloads/$(hdf5_dist) -C $(src)
 	echo timestamp > $(hdf5_src)-stamp
 
 hdf5-configure-stamp:  $(hdf5_src)-stamp
