@@ -73,6 +73,21 @@ jobs:
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
 
+  - stage: build
+    name: "rocky9"
+    script:
+      - install_dir=$HOME/rocky9/install
+      - mkdir -p $install_dir
+      - docker run 
+        --env prefix=/root/install 
+        --volume $install_dir:/root/install 
+        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
+        opendap/rocky9_hyrax_builder:latest 
+        /root/hyrax-dependencies/build-for-rocky9.sh
+      - export ARTIFACT=rocky9
+      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static.tar.gz install
+
 deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
