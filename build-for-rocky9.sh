@@ -53,6 +53,5 @@ make list-built
 # Now clean out the binary images, which are huge for a static build.
 # NB prefix = /root/install, set by the Docker run command
 loggy "Cleanup..."
-
 rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
 rm -vrf $prefix/deps/proj-6/bin;
