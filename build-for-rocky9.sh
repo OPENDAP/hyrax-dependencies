@@ -19,9 +19,10 @@
 function loggy(){
     echo  "$@" | awk '{ print "# "$0;}'  >&2
 }
-
-loggy "BEGIN - In docker image"
-
+HR="#########################################################################"
+loggy "$HR"
+loggy "BEGIN $0 - In docker image"
+loggy "prefix: $prefix"
 set -eu
 
 loggy "Running dnf update"
