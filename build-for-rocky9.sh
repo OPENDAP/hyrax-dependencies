@@ -14,16 +14,20 @@
 # -e: Exit immediately if a command, command in a pipeline, etc., fails
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
 
+set -eu
+
+HR="#########################################################################"
 ###########################################################################
 # loggy()
 function loggy(){
     echo  "$@" | awk '{ print "# "$0;}'  >&2
 }
-HR="#########################################################################"
+
 loggy "$HR"
 loggy "BEGIN $0 - In docker image"
-loggy "prefix: $prefix"
-set -eu
+loggy "        prefix: $prefix"
+loggy "redhat-release: $(cat /etc/redhat-release)"
+
 
 loggy "Running dnf update"
 dnf -y update
@@ -37,10 +41,10 @@ dnf -y update
 #
 # export CONFIGURE_FLAGS="--disable-shared"
 
-export CPPFLAGS=-I/usr/include/tirpc
+export CPPFLAGS="-I/usr/include/tirpc"
 loggy "CPPFLAGS: $CPPFLAGS"
 
-export LDFLAGS=-ltirpc
+export LDFLAGS="-ltirpc"
 loggy " LDFLAGS: $LDFLAGS"
 
 # Assume that the docker container has been started with the cloned repo
