@@ -151,14 +151,14 @@ check:
 
 # These targets are 'support' targets for the main targets above. jhrg 10/10/25
 .PHONY: prefix-set
-prefix-set: rhel8
+prefix-set: rhel
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
-.PHONY: rhel8
-rhel8:
+.PHONY: rhel
+rhel:
 	@if test -f /etc/redhat-release; then \
-	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	    if grep -q -e'[89]\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
 	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
 	    else \
 	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
