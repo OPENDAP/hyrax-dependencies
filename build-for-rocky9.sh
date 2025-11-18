@@ -13,8 +13,18 @@
 
 # -e: Exit immediately if a command, command in a pipeline, etc., fails
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
+
+###########################################################################
+# loggy()
+function loggy(){
+    echo  "$@" | awk '{ print "# "$0;}'  >&2
+}
+
+loggy "BEGIN - In docker image"
+
 set -eu
 
+loggy "Running dnf update"
 dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
@@ -25,18 +35,24 @@ dnf -y update
 # use configure, but cmake, e.g. jhrg 10/10/25
 #
 # export CONFIGURE_FLAGS="--disable-shared"
+
 export CPPFLAGS=-I/usr/include/tirpc
+loggy "CPPFLAGS: $CPPFLAGS"
+
 export LDFLAGS=-ltirpc
+loggy " LDFLAGS: $LDFLAGS"
 
 # Assume that the docker container has been started with the cloned repo
 # mounted so it appears within 'root.'
 cd /root/hyrax-dependencies
 
+loggy "Running make"
 make -j16 for-static-rpm
-
 make list-built
 
 # Now clean out the binary images, which are huge for a static build.
 # NB prefix = /root/install, set by the Docker run command
-rm -f $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
-rm -rf $prefix/deps/proj-6/bin;
+loggy "Cleanup..."
+
+rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+rm -vrf $prefix/deps/proj-6/bin;
