@@ -155,13 +155,14 @@ prefix-set: rhel
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
+# Look for RHEL 8 or 9
 .PHONY: rhel
 rhel:
 	@if test -f /etc/redhat-release; then \
 	    if grep -q -e'[89]\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	        echo "RHEL or variant found, and CPPFLAGS is set"; \
 	    else \
-	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        echo "RHEL not found and/or CPPFLAGS not set; source spath.sh"; \
 	        exit 1; \
             fi; \
 	fi
