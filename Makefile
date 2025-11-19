@@ -160,7 +160,7 @@ prefix-set: rhel
 rhel:
 	@if test -f /etc/redhat-release; then \
 	    if grep -q -e'[89]\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL or variant found, and CPPFLAGS is set"; \
+	        echo "RHEL found, and CPPFLAGS is set"; \
 	    else \
 	        echo "RHEL not found and/or CPPFLAGS not set; source spath.sh"; \
 	        exit 1; \
