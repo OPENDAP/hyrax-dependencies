@@ -50,4 +50,4 @@ make list-built
 # NB prefix = /root/install, set by the Docker run command
 loggy "Cleanup..."
 rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
-rm -vrf $prefix/deps/proj-6/bin;
+rm -vrf $prefix/deps/proj-6/bin
