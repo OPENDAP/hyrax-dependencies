@@ -3,9 +3,24 @@
 # Build the hyrax-dependencies binary tar ball for use with libdap and BES 
 # RPM builds for RHEL9. Uses the docker container:
 #     opendap/rocky9_hyrax_builder:latest
-# To build the software.
 #
-
+# To build it, first we set up the directory into which we will put the results:
+#
+#    install_dir=$HOME/rocky9/install
+#    mkdir -p "$install_dir"
+#
+# And then we use this script to build it by running the script in the docker container:
+#
+#     docker run
+#        --env prefix=/root/install
+#        --volume $install_dir:/root/install
+#        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies
+#        opendap/rocky9_hyrax_builder:latest
+#        /root/hyrax-dependencies/build-for-rocky9.sh
+#
+# We collect the results like this:
+#    tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static.tar.gz install
+#
 
 # -e: Exit immediately if a command, command in a pipeline, etc., fails
 # -u: Treat unset variables in substitutions as errors (except for @ and *)
