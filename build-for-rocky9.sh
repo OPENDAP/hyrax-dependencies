@@ -37,7 +37,7 @@ function loggy(){
 loggy "$HR"
 loggy "BEGIN $0"
 loggy "Inside the docker container. Some ENV vars:"
-loggy "  BUILD_NUMBER: $BUILD_NUMBER"
+# loggy "  BUILD_NUMBER: $BUILD_NUMBER"
 loggy "        prefix: $prefix"
 loggy "          HOME: $HOME"
 loggy "          PATH: $PATH"
