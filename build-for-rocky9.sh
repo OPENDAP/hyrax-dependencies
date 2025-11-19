@@ -36,10 +36,13 @@ function loggy(){
 
 loggy "$HR"
 loggy "BEGIN $0"
-loggy " Running in docker image."
+loggy "Inside the docker container. Some ENV vars:"
+loggy "  BUILD_NUMBER: $BUILD_NUMBER"
 loggy "        prefix: $prefix"
+loggy "          HOME: $HOME"
+loggy "          PATH: $PATH"
 loggy "redhat-release: \"$(cat /etc/redhat-release)\""
-
+loggy ""
 loggy "Running dnf update"
 dnf -y update
 
