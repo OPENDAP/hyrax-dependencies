@@ -80,6 +80,7 @@ jobs:
       - mkdir -p $install_dir
       - docker run 
         --env prefix=/root/install 
+        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
         --volume $install_dir:/root/install 
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky9_hyrax_builder:latest 
