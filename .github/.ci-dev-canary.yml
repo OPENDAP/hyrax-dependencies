@@ -1,88 +1,60 @@
 
-# Build the hyrax-dependencies repo and snapshot that build if it works. This also builds
+# Build the hyrax-dependencies repo to validate that they will build on developer machines. This also builds
 # static versions of the dependencies for use with the rpm builds of the BES.
-#
-# jhrg 2/23/18
 #
 # NB: Since the STARE library is part of our research work, include it in the 'travis'
 # deps build and in the C7 version of the static deps. Don't include it in the C6 deps
 # build since C++-11 is not part of C6 by default. We're leaving STARE out of the Debian
 # package build for now as well. jhrg 10/28/19
 #
-# I removed CentOS 6 from our packages (10/27/20) since it is going to stop having
-# maintenance releases in November 2020. jhrg
-#
-# I removed the Ubuntu/deb build because we're not using it. jhrg 12/08/20
 
-dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
-
-vm:
-  size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
-                      # which is 2 vCPUs and 4 to 8 GB. Each size up from the default is 2x more
-
-# Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
-# version of Ruby. jhrg 1/5/24
-language: cpp
-
-compiler: gcc
-
-branches:
-  only:
-    - master
-    - main
-    - /^(.*-test-deploy)$/
-
-addons:
-  apt:
-    packages:
-      - uuid-dev
-      - libxml2-dev
-      - libcurl4-openssl-dev
-      - libcppunit-dev
-      - libicu-dev
-      - libsqlite3-dev
-
-stages:
-  - name: build
-    if: branch = master OR branch = main OR branch =~ ^(.*-test-deploy)$
-  - name: never
-    if: branch = never
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
+  #     - main
+  #     - /^(.*-test-deploy)$/
+  # pull_request:
+  #   types: [opened, synchronize, reopened, ready_for_review]
+concurrency:
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
-  include:
-  - stage: build
-    name: "ubuntu-focal"
-    script:
-      - export prefix=$HOME/install
-      - make -j16 for-travis
-      - make list-built
-      - export ARTIFACT=ubuntu
-      - mkdir -p $TRAVIS_BUILD_DIR/package
-      - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
-
-    # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-  - stage: build
-    name: "rocky8"
-    script:
-      - install_dir=$HOME/rocky8/install
-      - mkdir -p $install_dir
-      - docker run --env prefix=/root/install --volume $install_dir:/root/install 
-          --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/rocky8_hyrax_builder:latest 
-          /root/hyrax-dependencies/build-for-rocky8.sh
-      - export ARTIFACT=rocky8
-      - mkdir -p $TRAVIS_BUILD_DIR/package
-      - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
-
-deploy:
-  - provider: s3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket: opendap.travis.build
-    local_dir: $TRAVIS_BUILD_DIR/package
-    # The documentation says we don't need 'skip_cleanup', but as of 1/12/22, we do. jhrg
-    skip_cleanup: true
-    on:
-      all_branches: true
-      # Was "branch: master". Now supports the *-test-deploy feature and also
-      # using 'main' as the branch name. jhrg 1/5/24
-      condition: $ARTIFACT =~ ^ubuntu|rocky8$
+  test:
+    # Run on pushes or non-draft PRs
+    if: (github.event_name == 'push') || (github.event.pull_request.draft == false) || (github.event_name == 'workflow_dispatch')
+    name: Julia ${{ matrix.version }} - ${{ matrix.runs-on }} - ${{ matrix.threads}} threads - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          # See https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md for pre-installed software
+          - macos-15
+          - macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          brew install bison \
+                       openssl \
+                       jpeg \
+                       cppunit \
+                       autoconf \
+                       automake \
+        shell: bash
+      - name: Make ${{ matrix.version }} developer build 
+        run: |
+            export prefix=$HOME/install \
+            hyrax_setup_env \
+            cd bes \
+            autoreconf --force --install --verbose \
+            ./configure --prefix=$prefix  --with-dependencies=$prefix/deps --enable-developer \
+            make -j16 for-travis \
+            make list-built
+        shell: bash
