@@ -116,7 +116,7 @@ all: prefix-set
 .PHONY: for-static-rpm
 for-static-rpm: prefix-set
 	for d in $(deps); \
-	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
+	    do echo "#### BUILDING: $d"; CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: for-travis
 for-travis: prefix-set
