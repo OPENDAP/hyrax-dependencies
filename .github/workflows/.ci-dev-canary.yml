@@ -26,7 +26,7 @@ jobs:
   test:
     # Run on pushes or non-draft PRs
     if: (github.event_name == 'push') || (github.event.pull_request.draft == false) || (github.event_name == 'workflow_dispatch')
-    name: Julia ${{ matrix.version }} - ${{ matrix.runs-on }} - ${{ matrix.threads}} threads - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: ${{ matrix.runs-on }} - ${{ github.event_name }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -34,7 +34,7 @@ jobs:
         runs-on:
           # See https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md for pre-installed software
           - macos-15
-          # - macos-15-intel
+          # - macos-15-intel  # TODO - re-enable before committing
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,13 +48,12 @@ jobs:
                        autoconf \
                        automake \
         shell: bash
-      - name: Make ${{ matrix.version }} developer build 
+      - name: Build hyrax-dependencies
         run: |
             export prefix=$HOME/install
-            hyrax_setup_env
-            cd bes
-            autoreconf --force --install --verbose
-            ./configure --prefix=$prefix  --with-dependencies=$prefix/deps --enable-developer
-            make -j16 for-travis
-            make list-built
+            make for-travis -j16
+        shell: bash
+      - name: List built dependencies
+        run: make list-built
+        # TODO: something to test that everything we expect is there??
         shell: bash
