@@ -50,6 +50,7 @@ loggy "      CPPFLAGS: $CPPFLAGS"
 loggy "redhat-release: \"$(cat /etc/redhat-release)\""
 loggy "   Environment:"
 loggy "$(env)"
+loggy "uname -a: $(uname -a)"
 loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running dnf update"
 dnf -y update
