@@ -42,7 +42,8 @@ loggy "        prefix: $prefix"
 loggy "          HOME: $HOME"
 loggy "          PATH: $PATH"
 loggy "redhat-release: \"$(cat /etc/redhat-release)\""
-loggy ""
+loggy "env:"
+loggy "$(env)"
 loggy "Running dnf update"
 dnf -y update
 
