@@ -11,8 +11,8 @@ on:
   #     - master
   #     - main
   #     - /^(.*-test-deploy)$/
-  # pull_request:
-  #   types: [opened, synchronize, reopened, ready_for_review]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   # Cancel intermediate builds only on pull requests
   group: ${{ github.workflow }}-${{ github.ref }}
