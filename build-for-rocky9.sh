@@ -40,7 +40,7 @@ export LDFLAGS="-ltirpc"
 
 loggy "$HR"
 loggy "BEGIN $0"
-loggy "Inside the docker container. Some ENV vars:"
+loggy "Inside the docker container."
 loggy "  BUILD_NUMBER: $BUILD_NUMBER"
 loggy "        prefix: $prefix"
 loggy "          HOME: $HOME"
@@ -58,10 +58,10 @@ dnf -y update
 # RPM build we have packages that others can install. jhrg 2/8/22
 #
 # Assume that the docker container has been started with the cloned repo
-# mounted so it appears within 'root.'
+# mounted so it appears within '/root', cd into that spot to run the build...
 cd /root/hyrax-dependencies
 
-loggy "Running make"
+loggy "Running: make for-static-rpm"
 make -j16 for-static-rpm
 make list-built
 
@@ -70,3 +70,5 @@ make list-built
 loggy "Cleanup..."
 rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
 rm -vrf $prefix/deps/proj-6/bin
+
+loggy "END - $0"
