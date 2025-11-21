@@ -34,6 +34,10 @@ function loggy(){
     echo  "$@" | awk '{ print "# "$0;}'  >&2
 }
 
+export CPPFLAGS="-I/usr/include/tirpc"
+
+export LDFLAGS="-ltirpc"
+
 loggy "$HR"
 loggy "BEGIN $0"
 loggy "Inside the docker container. Some ENV vars:"
@@ -41,22 +45,18 @@ loggy "  BUILD_NUMBER: $BUILD_NUMBER"
 loggy "        prefix: $prefix"
 loggy "          HOME: $HOME"
 loggy "          PATH: $PATH"
+loggy "       LDFLAGS: $LDFLAGS"
+loggy "      CPPFLAGS: $CPPFLAGS"
 loggy "redhat-release: \"$(cat /etc/redhat-release)\""
-loggy "env:"
+loggy "   Environment:"
 loggy "$(env)"
+loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running dnf update"
 dnf -y update
 
 # Build only the static libraries so that when these are used during the BES
 # RPM build we have packages that others can install. jhrg 2/8/22
 #
-
-export CPPFLAGS="-I/usr/include/tirpc"
-loggy "CPPFLAGS: $CPPFLAGS"
-
-export LDFLAGS="-ltirpc"
-loggy " LDFLAGS: $LDFLAGS"
-
 # Assume that the docker container has been started with the cloned repo
 # mounted so it appears within 'root.'
 cd /root/hyrax-dependencies
