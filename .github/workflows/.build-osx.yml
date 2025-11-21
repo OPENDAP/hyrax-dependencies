@@ -22,7 +22,7 @@ jobs:
   test:
     # Run on pushes or non-draft PRs
     if: (github.event_name == 'push') || (github.event.pull_request.draft == false) || (github.event_name == 'workflow_dispatch')
-    name: ${{ matrix.runs-on }} - ${{ github.event_name }}
+    name: Build on ${{ matrix.runs-on }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
