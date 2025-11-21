@@ -15,7 +15,7 @@ on:
   #     - master
   #     - main
   #     - /^(.*-test-deploy)$/
-  # pull_request:
+  pull_request:
   #   types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   # Cancel intermediate builds: only if it is a pull request build.
