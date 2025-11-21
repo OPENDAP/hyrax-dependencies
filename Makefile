@@ -345,7 +345,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio)
+	--without-sqlite3 --without-pg --without-cfitsio; status=$?; if test $status -ne 0 ; then cat ./config.log; fi )
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
