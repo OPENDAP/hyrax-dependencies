@@ -34,7 +34,7 @@ jobs:
         runs-on:
           # See https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md for pre-installed software
           - macos-15
-          - macos-15-intel
+          # - macos-15-intel
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,11 +50,11 @@ jobs:
         shell: bash
       - name: Make ${{ matrix.version }} developer build 
         run: |
-            export prefix=$HOME/install \
-            hyrax_setup_env \
-            cd bes \
-            autoreconf --force --install --verbose \
-            ./configure --prefix=$prefix  --with-dependencies=$prefix/deps --enable-developer \
-            make -j16 for-travis \
+            export prefix=$HOME/install
+            hyrax_setup_env
+            cd bes
+            autoreconf --force --install --verbose
+            ./configure --prefix=$prefix  --with-dependencies=$prefix/deps --enable-developer
+            make -j16 for-travis
             make list-built
         shell: bash
