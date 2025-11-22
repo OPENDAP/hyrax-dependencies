@@ -116,7 +116,7 @@ all: prefix-set
 .PHONY: for-static-rpm
 for-static-rpm: prefix-set
 	for d in $(deps); \
-	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
+	    do echo "#### BUILDING: $$d"; CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: for-travis
 for-travis: prefix-set
@@ -151,17 +151,18 @@ check:
 
 # These targets are 'support' targets for the main targets above. jhrg 10/10/25
 .PHONY: prefix-set
-prefix-set: rhel8
+prefix-set: rhel
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
-.PHONY: rhel8
-rhel8:
+# Look for RHEL 8 or 9
+.PHONY: rhel
+rhel:
 	@if test -f /etc/redhat-release; then \
-	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	    if grep -q -e'[89]\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	        echo "RHEL found, and CPPFLAGS is set"; \
 	    else \
-	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        echo "RHEL not found and/or CPPFLAGS not set; source spath.sh"; \
 	        exit 1; \
             fi; \
 	fi
@@ -344,7 +345,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio)
+	--without-sqlite3 --without-pg --without-cfitsio; status=$$?; if test $$status -ne 0 ; then  awk '{ print "## "$$0;}' ./config.log ; fi )
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
