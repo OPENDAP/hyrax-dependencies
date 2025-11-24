@@ -74,3 +74,6 @@ rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
 rm -vrf $prefix/deps/proj-6/bin
 
 loggy "END - $0"
+
+
+
