@@ -34,8 +34,7 @@ function loggy(){
     echo  "$@" | awk '{ print "# "$0;}'  >&2
 }
 
-export CPPFLAGS="$CPPFLAGS"
-export CPPFLAGS="$CPPFLAGS -I/usr/include/tirpc"
+export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/tirpc"
 export LDFLAGS="${LDFLAGS:-""} -ltirpc"
 
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
