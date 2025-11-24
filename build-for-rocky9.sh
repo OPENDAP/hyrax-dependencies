@@ -66,6 +66,7 @@ loggy "Running: make for-static-rpm"
 make -j16 for-static-rpm
 make list-built
 
+
 # Now clean out the binary images, which are huge for a static build.
 # NB prefix = /root/install, set by the Docker run command
 loggy "Cleanup..."
