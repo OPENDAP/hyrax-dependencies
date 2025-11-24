@@ -38,6 +38,7 @@ addons:
       - uuid-dev
       - libxml2-dev
       - libcurl4-openssl-dev
+      - libcurl4
       - libcppunit-dev
       - libicu-dev
       - libsqlite3-dev
