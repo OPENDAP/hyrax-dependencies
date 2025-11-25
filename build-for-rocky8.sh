@@ -36,8 +36,8 @@ export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
 export LDFLAGS="${LDFLAGS:-""} -lcurl"
 
 # Why no sqlite already? Installed from yum! No one knows...
-export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include"
-export LDFLAGS="${LDFLAGS:-""} -lsqlite"
+#export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include"
+#export LDFLAGS="${LDFLAGS:-""} -lsqlite"
 
 loggy "$HR"
 loggy "BEGIN $0"
