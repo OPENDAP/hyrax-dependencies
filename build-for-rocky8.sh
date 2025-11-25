@@ -26,12 +26,14 @@ function loggy(){
 # use configure, but cmake, e.g. jhrg 10/10/25
 #
 # export CONFIGURE_FLAGS="--disable-shared"
+
+# Need to have 64 bit rpc code!
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/tirpc"
 export LDFLAGS="${LDFLAGS:-""} -ltirpc"
 
+# Why no libcurl already? No one knows...
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
 export LDFLAGS="${LDFLAGS:-""} -lcurl"
-
 
 loggy "$HR"
 loggy "BEGIN $0"

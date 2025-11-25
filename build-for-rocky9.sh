@@ -34,9 +34,11 @@ function loggy(){
     echo  "$@" | awk '{ print "# rocky9 - "$0;}'  >&2
 }
 
+# Need to have 64 bit rpc code!
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/tirpc"
 export LDFLAGS="${LDFLAGS:-""} -ltirpc"
 
+# Why no libcurl already? No one knows...
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
 export LDFLAGS="${LDFLAGS:-""} -lcurl"
 

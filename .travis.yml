@@ -81,22 +81,6 @@ jobs:
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
 
   - stage: build
-    name: "rocky8-NEW"
-    script:
-      - install_dir=$HOME/rocky8/install
-      - mkdir -p $install_dir
-      - docker run 
-        --env prefix=/root/install
-        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
-        --volume $install_dir:/root/install 
-        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
-        opendap/rocky8_hyrax_builder_new:latest 
-        /root/hyrax-dependencies/build-for-rocky8.sh
-      - export ARTIFACT=rocky8
-      - mkdir -p $TRAVIS_BUILD_DIR/package
-      - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
-
-  - stage: build
     name: "rocky9"
     script:
       - install_dir=$HOME/rocky9/install
