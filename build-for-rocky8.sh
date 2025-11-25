@@ -56,11 +56,11 @@ loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running dnf update"
 dnf -y update
 
-
 # Assume that the docker container has been started with the cloned repo
 # mounted so it appears within 'root.'
 cd /root/hyrax-dependencies
 
+loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running: make for-static-rpm"
 make -j16 for-static-rpm
 
@@ -68,9 +68,11 @@ make list-built
 
 # Now clean out the binary images, which are huge for a static build.
 # NB prefix = /root/install, set by the Docker run command
+loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Cleanup..."
 rm -f $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
 rm -rf $prefix/deps/proj-6/bin;
 
 loggy "END - $0"
+loggy "$HR"
 
