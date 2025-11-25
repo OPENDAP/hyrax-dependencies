@@ -6,13 +6,13 @@ on:
   # For now, run only on manually triggered builds (workflow_dispatch).
   # Uncomment the "push" and "pull_request" to build on all non-draft PRs
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - master
-  #     - main
-  #     - /^(.*-test-deploy)$/
-  # pull_request:
-  #   types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - master
+      - main
+      - /^(.*-test-deploy)$/
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   # Cancel intermediate builds only on pull requests
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -43,6 +43,7 @@ jobs:
                        cppunit \
                        autoconf \
                        automake \
+                       libgeotiff
         shell: bash
       - name: Build hyrax-dependencies
         run: |
@@ -51,4 +52,12 @@ jobs:
         shell: bash
       - name: List built dependencies
         run: make list-built
+        shell: bash
+      - name: Confirm all dependencies are built
+        run: |
+          num_deps=$(find . -name '*-install-stamp' | wc -l)
+          if [ "$num_deps" != 13 ]; then
+            echo "Unexpected number of dependencies installed: Should be 13, found $num_deps."
+          fi
+
         shell: bash

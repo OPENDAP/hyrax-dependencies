@@ -336,7 +336,7 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	CPPFLAGS=-I$(proj_prefix)/include \
+	CPPFLAGS="-I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
 	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
 	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
