@@ -43,7 +43,7 @@ jobs:
                        cppunit \
                        autoconf \
                        automake \
-                       geotiff
+                       libgeotiff
         shell: bash
       - name: Build hyrax-dependencies
         run: |
