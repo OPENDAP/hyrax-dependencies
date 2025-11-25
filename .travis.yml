@@ -59,6 +59,9 @@ jobs:
       - export ARTIFACT=ubuntu
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
+      - num_deps_installed=$(find . -name '*-install-stamp' | wc -l)
+      - if [ "$num_deps_installed" != 11 ]; then echo "Unexpected number of dependencies installed; found $num_deps_installed."; fi
+      - make list-built
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
@@ -72,6 +75,9 @@ jobs:
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
+      - num_deps_installed=$(find . -name '*-install-stamp' | wc -l)
+      - if [ "$num_deps_installed" != 10 ]; then echo "Unexpected number of dependencies installed; found $num_deps_installed."; fi
+      - make list-built
 
 deploy:
   - provider: s3
