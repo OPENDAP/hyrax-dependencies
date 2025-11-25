@@ -35,6 +35,10 @@ export LDFLAGS="${LDFLAGS:-""} -ltirpc"
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
 export LDFLAGS="${LDFLAGS:-""} -lcurl"
 
+# Why no sqlite already? Installed from yum! No one knows...
+export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include"
+export LDFLAGS="${LDFLAGS:-""} -lsqlite"
+
 loggy "$HR"
 loggy "BEGIN $0"
 loggy "Inside the docker container."
