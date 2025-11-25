@@ -26,8 +26,11 @@ function loggy(){
 # use configure, but cmake, e.g. jhrg 10/10/25
 #
 # export CONFIGURE_FLAGS="--disable-shared"
-export CPPFLAGS=-I/usr/include/tirpc
-export LDFLAGS=-ltirpc
+export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/tirpc"
+export LDFLAGS="${LDFLAGS:-""} -ltirpc"
+
+export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
+export LDFLAGS="${LDFLAGS:-""} -lcurl"
 
 
 loggy "$HR"
