@@ -189,7 +189,7 @@ aws_cdk_prefix=$(prefix)/deps
 
 $(aws_cdk_src)-stamp:
 	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
-	git clone --depth 1 --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
 	echo timestamp > $(aws_cdk_src)-stamp
 
 aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
@@ -337,7 +337,7 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	CPPFLAGS=-I$(proj_prefix)/include \
+	CPPFLAGS="-I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
 	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
 	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \

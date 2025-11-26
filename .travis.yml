@@ -56,17 +56,23 @@ jobs:
   - stage: build
     name: "ubuntu-focal"
     script:
+      - export expected_deps=11
       - export prefix=$HOME/install
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
+      - deps_installed="$(find . -name '*-install-stamp')"
+      - echo "Dependencies installed - $deps_installed"
+      - num_deps_installed=$(echo "$deps_installed" | wc -l)
+      - if [ "$num_deps_installed" != "$expected_deps" ]; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps"; exit 1; fi
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "rocky8"
     script:
+      - export expected_deps=11
       - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
       - docker run 
@@ -79,11 +85,16 @@ jobs:
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
+      - deps_installed="$(find . -name '*-install-stamp')"
+      - echo "Dependencies installed - $deps_installed"
+      - num_deps_installed=$(echo "$deps_installed" | wc -l)
+      - if [ "$num_deps_installed" != "$expected_deps" ]; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps"; exit 1; fi
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
     name: "rocky9"
     script:
+      - export expected_deps=11
       - install_dir=$HOME/rocky9/install
       - mkdir -p $install_dir
       - docker run 
@@ -96,6 +107,8 @@ jobs:
       - export ARTIFACT=rocky9
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static-$TRAVIS_BUILD_NUMBER.gz install
+      - deps_installed="$(find . -name '*-install-stamp')"
+      - echo "Dependencies installed - $deps_installed"
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
 
