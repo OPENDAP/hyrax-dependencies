@@ -79,6 +79,7 @@ jobs:
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
+      - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
     name: "rocky9"
@@ -95,6 +96,7 @@ jobs:
       - export ARTIFACT=rocky9
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static-$TRAVIS_BUILD_NUMBER.gz install
+      - ls -l  $TRAVIS_BUILD_DIR/package/
 
 deploy:
   - provider: s3
