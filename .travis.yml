@@ -73,6 +73,7 @@ jobs:
     name: "rocky8"
     script:
       - export expected_deps=11
+      - echo "Expecting to build and install $expected_deps dependencies." >&2
       - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
       - docker run 
@@ -86,15 +87,16 @@ jobs:
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
       - deps_installed="$(find . -name '*-install-stamp')"
-      - echo "Dependencies installed - $deps_installed"
+      - echo "Dependencies installed - $deps_installed" >&2
       - num_deps_installed=$(echo "$deps_installed" | wc -l)
-      - if [ "$num_deps_installed" != "$expected_deps" ]; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps"; exit 1; fi
+      - if test $num_deps_installed -ne $expected_deps ]; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps" >&2 ; exit 1; fi
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
     name: "rocky9"
     script:
       - export expected_deps=11
+      - echo "Expecting to build and install $expected_deps dependencies." >&2
       - install_dir=$HOME/rocky9/install
       - mkdir -p $install_dir
       - docker run 
