@@ -56,7 +56,7 @@ jobs:
   - stage: build
     name: "ubuntu-focal"
     script:
-      - export expected_deps_count=11
+      - export expected_deps_count=12
       - echo "# ubuntu-focal - Expecting to build and install $expected_deps_count dependencies." >&2
       - export prefix=$HOME/install
       - make -j16 for-travis
@@ -74,7 +74,7 @@ jobs:
   - stage: build
     name: "rocky8"
     script:
-      - export expected_deps_count=11
+      - export expected_deps_count=12
       - echo "# rocky8 - Expecting to build and install $expected_deps_count dependencies." >&2
       - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
@@ -98,7 +98,7 @@ jobs:
   - stage: build
     name: "rocky9"
     script:
-      - export expected_deps_count=11
+      - export expected_deps_count=12
       - echo "# rocky9 - Expecting to build and install $expected_deps_count dependencies." >&2
       - install_dir=$HOME/rocky9/install
       - mkdir -p $install_dir
