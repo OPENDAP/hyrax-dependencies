@@ -116,6 +116,7 @@ jobs:
       - num_deps_installed=$(echo "$deps_installed" | wc -l)
       - echo "Dependencies installed $num_deps_installed expected $expected_deps_count" >&2
       - echo "$deps_installed" >&2
+      - if test $num_deps_installed -ne $expected_deps_count ; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps_count" >&2 ; exit 1; fi
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
 

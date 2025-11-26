@@ -394,6 +394,7 @@ proj-compile-stamp: proj-configure-stamp
 
 proj-install-stamp: proj-compile-stamp
 	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	pkg-config --list-all
 	echo timestamp > proj-install-stamp
 
 proj-clean:
