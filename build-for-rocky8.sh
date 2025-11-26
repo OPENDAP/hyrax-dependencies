@@ -55,6 +55,7 @@ loggy "     uname -a: '$(uname -a)'"
 loggy "ldd --version: '$(ldd --version | head -1)'"
 loggy "pkg-config --list-all: $(pkg-config --list-all)"
 loggy "- - - - - - - - - - - - - - - - - - - - -"
+loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running dnf update"
 dnf -y update
 
