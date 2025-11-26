@@ -98,6 +98,7 @@ jobs:
       - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static-$TRAVIS_BUILD_NUMBER.gz install
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
+
 deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
