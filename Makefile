@@ -341,9 +341,13 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
 	PKG_CONFIG_PATH="$(prefix)/deps/proj/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig"; \
 	echo "###################################################################"; \
-	echo "PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
-	echo "PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
+	echo "# PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
+	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
+	echo "#"; \
+	echo "#"; \
+	pkg-config --with-path=""$(prefix)/deps/proj/lib/pkgconfig" --list-all | awk '{print "## "$$0; }' - ; \
+	echo "#"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
