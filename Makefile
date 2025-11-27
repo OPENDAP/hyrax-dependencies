@@ -339,7 +339,8 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS="-I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
 	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
-	PKG_CONFIG_PATH="$(prefix)/deps/proj/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig" \
+	PKG_CONFIG_PATH="$(prefix)/deps/proj/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig"; \
+	echo "PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
