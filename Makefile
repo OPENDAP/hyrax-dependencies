@@ -348,10 +348,8 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "# ls -l $(prefix)/deps/proj/lib/pkgconfig: "; \
 	ls -l $(prefix)/deps/proj/lib/pkgconfig; \
 	echo "#"; \
-	echo "# ls -l $(prefix)/deps/proj/ "; \
-	ls -l $(prefix)/deps/proj/; \
-	echo "#"; \
-	pkg-config --with-path="$(prefix)/deps/proj/lib64/pkgconfig" --list-all | awk '{print "## "$$0; }' - ; \
+	echo "# cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc: "; \
+	cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc"; \
 	echo "#"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
