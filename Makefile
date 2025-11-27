@@ -343,7 +343,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "###################################################################"; \
 	echo "PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
 	echo "PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
-	pkg-config --list-all | awk '{print "## "$0; }' - ; \
+	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
