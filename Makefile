@@ -346,7 +346,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
 	echo "#"; \
-	pkg-config --with-path="$(prefix)/deps/proj/lib/pkgconfig" --list-all | awk '{print "## "$$0; }' - ; \
+	pkg-config --with-path="$(prefix)/deps/proj/lib64/pkgconfig" --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
