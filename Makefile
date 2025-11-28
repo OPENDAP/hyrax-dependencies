@@ -373,7 +373,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 gdal-compile-stamp: gdal-configure-stamp
 	(cd $(gdal_src) \
 	    && LDFLAGS="$${LDFLAGS:-""} -L /home/travis/install/deps/proj/lib -lproj" \
-	    && echo "LDFLAGS: $$LDFLAGS" >&2; \
+	    && echo "LDFLAGS: $$LDFLAGS" >&2 \
 	    && $(MAKE) $(MFLAGS) \
 	)
 	echo timestamp > gdal-compile-stamp
