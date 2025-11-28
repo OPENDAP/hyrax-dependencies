@@ -338,7 +338,7 @@ $(gdal_src)-stamp:
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
 	CPPFLAGS="-I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
-	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
+	LDFLAGS="$(LDFLAGS) -lpthread -lm -L $(prefix)/deps/proj/lib -lproj" \
 	PKG_CONFIG_PATH="$(prefix)/deps/proj/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "# PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
@@ -371,11 +371,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
-	(cd $(gdal_src) \
-	    && LDFLAGS="$${LDFLAGS:-""} -L /home/travis/install/deps/proj/lib -lproj" \
-	    && echo "LDFLAGS: $$LDFLAGS" >&2 \
-	    && $(MAKE) $(MFLAGS) \
-	)
+	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
 	echo timestamp > gdal-compile-stamp
 
 # Force -j1 for install
