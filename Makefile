@@ -351,7 +351,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "# ls -l $(prefix)/deps/proj/lib/pkgconfig: "; \
 	ls -l $(prefix)/deps/proj/lib/pkgconfig; \
 	echo "#"; \
-	echo "# cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc: "; \
+	echo "# awk '{print "## "$$0;}' $(prefix)/deps/proj/lib/pkgconfig/proj.pc: "; \
 	awk '{print "## "$$0;}' $(prefix)/deps/proj/lib/pkgconfig/proj.pc; \
 	echo "#"; \
 	echo "# pkg-config --exists proj"; \
