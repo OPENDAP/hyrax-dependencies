@@ -355,7 +355,8 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc; \
 	echo "#"; \
 	echo "# pkg-config --exists proj"; \
-	pkg-config --exists proj; if test $? -eq 0; then echo "# FOUND Proj in pkg-config"; else echo "# No proj found in pkg-config"; fi \
+	pkg-config --exists proj; \
+	if test $$? -eq 0 ; then echo "# FOUND proj in pkg-config"; else echo "# No proj found in pkg-config"; fi \
 	echo "#"; \
 	echo "###################################################################"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
