@@ -352,8 +352,9 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	ls -l $(prefix)/deps/proj/lib/pkgconfig; \
 	echo "#"; \
 	echo "# cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc: "; \
-	cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc; \
 	echo "#"; \
+	cat $(prefix)/deps/proj/lib/pkgconfig/proj.pc; \
+	echo "###################################################################"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
