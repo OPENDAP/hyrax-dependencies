@@ -345,6 +345,9 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
+	echo "# ls -l $(prefix)/deps/proj/lib/ "; \
+	ls -l $(prefix)/deps/proj/lib/ ; \
+	echo "#"; \
 	echo "# ls -l $(prefix)/deps/proj/lib/pkgconfig: "; \
 	ls -l $(prefix)/deps/proj/lib/pkgconfig; \
 	echo "#"; \
