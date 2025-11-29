@@ -337,8 +337,9 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
-	export LDFLAGS="$(LDFLAGS) -lpthread -lm -L$(prefix)/deps/proj/lib -lproj" \
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
+	export LDFLAGS="$(LDFLAGS) -lpthread -lm -L$(prefix)/deps/proj/lib"; \
+	if test "$$OSTYPE" == "" ; then export LDFLAGS="$(LDFLAGS) -lproj"; fi \
 	export PKG_CONFIG_PATH="$(prefix)/deps/proj/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "# PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
