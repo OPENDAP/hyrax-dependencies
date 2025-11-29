@@ -342,10 +342,10 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	if test -z "$$OSTYPE"; then LDFLAGS="$$LDFLAGS -lproj"; fi \
 	export PKG_CONFIG_PATH="$(proj_prefix)/lib/pkgconfig:$(prefix)/deps/lib/pkgconfig"; \
 	echo "###################################################################"; \
-	echo "# PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
-	echo "#        CPPFLAGS: $$CPPFLAGS"; \
-	echo "#         LDFLAGS: $$LDFLAGS"; \
-	echo "#          OSTYPE: $$OSTYPE"; \
+	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
+	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
+	echo "#         LDFLAGS: '$$LDFLAGS'"; \
+	echo "#          OSTYPE: '$$OSTYPE'"; \
 	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
@@ -362,9 +362,9 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	pkg-config --exists proj; \
 	if test $$? -eq 0 ; then echo "# FOUND proj in pkg-config"; else echo "# No proj found in pkg-config"; fi ; \
 	echo "#"; \
-	echo "# PKG_CONFIG_PATH: $$PKG_CONFIG_PATH"; \
-	echo "#        CPPFLAGS: $$CPPFLAGS"; \
-	echo "#         LDFLAGS: $$LDFLAGS"; \
+	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
+	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
+	echo "#         LDFLAGS: '$$LDFLAGS'"; \
 	echo "#"; \
 	echo "###################################################################"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
