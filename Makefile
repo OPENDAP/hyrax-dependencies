@@ -340,8 +340,9 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
 	export libdir="lib64" ; \
 	if test -z "$$OSTYPE"; then libdir="lib"; LDFLAGS="$$LDFLAGS -lproj"; fi ; \
+	echo "# USING libdir: $$libdir"; \
 	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$(proj_prefix)/$$libdir"; \
-	export PKG_CONFIG_PATH="$(proj_prefix)/$(libdir)/pkgconfig:$(prefix)/deps/$$libdir/pkgconfig"; \
+	export PKG_CONFIG_PATH="$(proj_prefix)/$$libdir/pkgconfig:$(prefix)/deps/$$libdir/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
 	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
