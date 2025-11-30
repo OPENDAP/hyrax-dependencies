@@ -340,8 +340,8 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
 	export libdir="lib" ; \
 	if test -z "$$OSTYPE"; then libdir="lib64"; LDFLAGS="$$LDFLAGS -lproj"; fi ; \
-	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$(proj_prefix)/$(libdir)"; \
-	export PKG_CONFIG_PATH="$(proj_prefix)/$(libdir)/pkgconfig:$(prefix)/deps/$(libdir)/pkgconfig"; \
+	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$(proj_prefix)/$$libdir"; \
+	export PKG_CONFIG_PATH="$(proj_prefix)/$(libdir)/pkgconfig:$(prefix)/deps/$$libdir/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
 	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
@@ -350,14 +350,14 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
-	echo "# ls -l $(proj_prefix)/$(libdir)/ "; \
-	ls -l $(proj_prefix)/$(libdir)/ ; \
+	echo "# ls -l $(proj_prefix)/$$libdir/ "; \
+	ls -l $(proj_prefix)/$$libdir/ ; \
 	echo "#"; \
-	echo "# ls -l $(proj_prefix)/$(libdir)/pkgconfig: "; \
-	ls -l $(proj_prefix)/$(libdir)/pkgconfig; \
+	echo "# ls -l $(proj_prefix)/$$libdir/pkgconfig: "; \
+	ls -l $(proj_prefix)/$$libdir/pkgconfig; \
 	echo "#"; \
-	echo "# awk '{print "## "$$0;}' $(proj_prefix)/$(libdir)/pkgconfig/proj.pc: "; \
-	awk '{print "## "$$0;}' $(proj_prefix)/$(libdir)/pkgconfig/proj.pc; \
+	echo "# awk '{print "## "$$0;}' $(proj_prefix)/$$libdir/pkgconfig/proj.pc: "; \
+	awk '{print "## "$$0;}' $(proj_prefix)/$$libdir/pkgconfig/proj.pc; \
 	echo "#"; \
 	echo "# pkg-config --exists proj"; \
 	pkg-config --exists proj; \
