@@ -56,8 +56,8 @@ jobs:
       - name: Confirm all dependencies are built
         run: |
           num_deps=$(find . -name '*-install-stamp' | wc -l)
-          if [ "$num_deps" != 13 ]; then
-            echo "Unexpected number of dependencies installed: Should be 13, found $num_deps."
+          if [ "$num_deps" != 14 ]; then
+            echo "Unexpected number of dependencies installed: Should be 14, found $num_deps."
           fi
 
         shell: bash

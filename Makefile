@@ -91,7 +91,7 @@ stare_dist=$(stare).tar.bz2
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
 deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
-hdfeos hdf5 netcdf4 proj gdal stare aws_cdk list-built
+hdfeos hdf5 netcdf4 proj gdal stare aws_cdk aws_s2n_tls list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -101,7 +101,7 @@ hdfeos hdf5 netcdf4 proj gdal stare aws_cdk list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk list-built
+docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk aws_s2n_tls list-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src
