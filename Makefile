@@ -97,7 +97,7 @@ stare_dist=$(stare).tar.bz2
 # deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
 # hdfeos hdf5 netcdf4 proj gdal stare aws_cdk aws_s2n_tls aws_lc_src list-built
 # TEMPORARILY DISABLE OTHER STUFF to watch just aws_lc build
-deps = $(site-deps) aws_lc_src list-built
+deps = $(site-deps) aws_lc list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -288,11 +288,9 @@ aws_lc-install-stamp: aws_lc-compile-stamp
 	(cd $(aws_lc_src)/build && ninja install)
 	echo timestamp > aws_lc-install-stamp
 
-aws_lc_src-clean:
-	-(cd $(aws_lc_src)/build && ninja clean)
-
-aws_lc-clean: aws_lc_src-clean
+aws_lc-clean:
 	-rm aws_lc-*-stamp
+	-(cd $(aws_lc_src)/build && ninja clean)
 
 aws_lc-really-clean: aws_lc-clean
 	-rm $(src)/$(aws_lc)-*-stamp
