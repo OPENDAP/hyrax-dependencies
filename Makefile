@@ -237,13 +237,11 @@ aws_s2n_tls-configure-stamp:  $(aws_s2n_tls_src)-stamp
 	 && cmake .. -B . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(prefix)/deps)
 	echo timestamp > aws_s2n_tls-configure-stamp
 
-# We might want to use for development cmake --build . --config=Debug
 aws_s2n_tls-compile-stamp: aws_s2n_tls-configure-stamp
 	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel \
 	&& ctest --test-dir . --parallel)
 	echo timestamp > aws_s2n_tls-compile-stamp
 
-# As above, cmake --install . --config=Debug
 aws_s2n_tls-install-stamp: aws_s2n_tls-compile-stamp
 	(cd $(aws_s2n_tls_src)/build && cmake --install . --config=Debug)
 	echo timestamp > aws_s2n_tls-install-stamp
