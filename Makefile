@@ -341,8 +341,8 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export proj_libdir="$(proj_prefix)/lib64" ; \
 	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; LDFLAGS="$$LDFLAGS -lproj"; fi ; \
 	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$$proj_libdir"; \
-	export deps_libdir="$(prefix)/deps/lib64" ; \
-	if ! test -d "$$deps_libdir"; then deps_libdir="$(prefix)/deps/lib; fi ; \
+	export deps_libdir="$(prefix)/deps/lib64"; \
+	if ! test -d "$$deps_libdir"; then deps_libdir="$(prefix)/deps/lib"; fi; \
 	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "#     proj_libdir: '$$proj_libdir'"; \
@@ -354,18 +354,18 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
 	echo "#"; \
-	echo "# ls -l $(proj_prefix)/$$libdir/ "; \
-	ls -l $(proj_prefix)/$$libdir/ ; \
+	echo "# ls -l $$proj_libdir "; \
+	ls -l "$$proj_libdir" ; \
 	echo "#"; \
-	echo "# ls -l $(proj_prefix)/$$libdir/pkgconfig: "; \
-	ls -l $(proj_prefix)/$$libdir/pkgconfig; \
+	echo "# ls -l $$proj_libdir/pkgconfig: "; \
+	ls -l $$proj_libdir/pkgconfig; \
 	echo "#"; \
-	echo "# awk '{print "## "$$0;}' $(proj_prefix)/$$libdir/pkgconfig/proj.pc: "; \
-	awk '{print "## "$$0;}' $(proj_prefix)/$$libdir/pkgconfig/proj.pc; \
+	echo "# awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc: "; \
+	awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc; \
 	echo "#"; \
 	echo "# pkg-config --exists proj"; \
 	pkg-config --exists proj; \
-	if test $$? -eq 0 ; then echo "# FOUND proj in pkg-config"; else echo "# No proj found in pkg-config"; fi ; \
+	if test $$? -eq 0 ; then echo "# pkg-config FOUND proj"; else echo "# pkg-config FAILED to find proj"; fi ; \
 	echo "#"; \
 	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
 	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
