@@ -70,12 +70,8 @@ jobs:
       - export ARTIFACT=ubuntu
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
-      - deps_installed="$(find . -name '*-install-stamp')"
-      - num_deps_installed=$(echo "$deps_installed" | wc -l)
-      - echo "Dependencies installed $num_deps_installed expected $EXPECTED_DEPS_COUNT" >&2
-      - echo "$deps_installed" >&2
-      - if test $num_deps_installed -ne $EXPECTED_DEPS_COUNT ; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $EXPECTED_DEPS_COUNT"; exit 1; fi
-
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      -
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "rocky8"
@@ -90,15 +86,11 @@ jobs:
         --volume $install_dir:/root/install 
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky8_hyrax_builder:latest 
-        /root/hyrax-dependencies/build-for-rocky8.sh
+        /root/hyrax-dependencies/travis/build-for-rocky8.sh
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
-      - deps_installed="$(find . -name '*-install-stamp')"
-      - num_deps_installed=$(echo "$deps_installed" | wc -l)
-      - echo "Dependencies installed $num_deps_installed expected $EXPECTED_DEPS_COUNT" >&2
-      - echo "$deps_installed" >&2
-      - if test $num_deps_installed -ne $EXPECTED_DEPS_COUNT ; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $EXPECTED_DEPS_COUNT" >&2 ; exit 1; fi
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
@@ -114,15 +106,11 @@ jobs:
         --volume $install_dir:/root/install 
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky9_hyrax_builder:latest 
-        /root/hyrax-dependencies/build-for-rocky9.sh
+        /root/hyrax-dependencies/travis/build-for-rocky9.sh
       - export ARTIFACT=rocky9
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static-$TRAVIS_BUILD_NUMBER.gz install
-      - deps_installed="$(find . -name '*-install-stamp')"
-      - num_deps_installed=$(echo "$deps_installed" | wc -l)
-      - echo "Dependencies installed $num_deps_installed expected $EXPECTED_DEPS_COUNT" >&2
-      - echo "$deps_installed" >&2
-      - if test $num_deps_installed -ne $EXPECTED_DEPS_COUNT ; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $EXPECTED_DEPS_COUNT" >&2 ; exit 1; fi
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
 deploy:
