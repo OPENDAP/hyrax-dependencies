@@ -125,4 +125,4 @@ deploy:
       all_branches: true
       # Was "branch: master". Now supports the *-test-deploy feature and also
       # using 'main' as the branch name. jhrg 1/5/24
-      condition: $ARTIFACT =~ ^ubuntu|rocky8$
+      condition: $ARTIFACT =~ ^ubuntu|rocky8|rocky9$
