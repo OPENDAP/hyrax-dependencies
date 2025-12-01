@@ -63,6 +63,7 @@ jobs:
     script:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
+      - export extra_targets="aws_s2n_tls"
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
@@ -79,6 +80,7 @@ jobs:
     name: "rocky8"
     script:
       - echo "# rocky8 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
       - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
       - docker run 
@@ -102,6 +104,7 @@ jobs:
     name: "rocky9"
     script:
       - echo "# rocky9 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
       - install_dir=$HOME/rocky9/install
       - mkdir -p $install_dir
       - docker run 
