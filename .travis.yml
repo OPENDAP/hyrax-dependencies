@@ -119,7 +119,6 @@ jobs:
       - if test $num_deps_installed -ne $expected_deps_count ; then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps_count" >&2 ; exit 1; fi
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
-
 deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
