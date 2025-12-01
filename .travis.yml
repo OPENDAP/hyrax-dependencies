@@ -22,6 +22,8 @@ vm:
 
 # Using 'shell' here causes a problem down in the 'deploy' section with loading a particular
 # version of Ruby. jhrg 1/5/24
+#
+#
 language: cpp
 
 compiler: gcc
@@ -38,6 +40,7 @@ addons:
       - uuid-dev
       - libxml2-dev
       - libcurl4-openssl-dev
+      - libcurl4
       - libcppunit-dev
       - libicu-dev
       - libsqlite3-dev
@@ -48,36 +51,67 @@ stages:
   - name: never
     if: branch = never
 
+env:
+  global:
+    - EXPECTED_DEPS_COUNT=12
+    - TIMEOUT=1000
+
 jobs:
   include:
   - stage: build
     name: "ubuntu-focal"
     script:
+      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
+      - export EXPECTED_DEPS_COUNT=13
+      - export extra_targets="aws_s2n_tls"
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
-      - num_deps_installed=$(find . -name '*-install-stamp' | wc -l)
-      - if [ "$num_deps_installed" != 12 ]; then echo "Unexpected number of dependencies installed; found $num_deps_installed."; exit 1; fi
-      - find . -name '*-install-stamp' | wc -l
-
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      -
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "rocky8"
     script:
+      - echo "# rocky8 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
       - install_dir=$HOME/rocky8/install
       - mkdir -p $install_dir
-      - docker run --env prefix=/root/install --volume $install_dir:/root/install 
-          --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies opendap/rocky8_hyrax_builder:latest 
-          /root/hyrax-dependencies/build-for-rocky8.sh
+      - docker run 
+        --env prefix=/root/install
+        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
+        --volume $install_dir:/root/install 
+        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
+        opendap/rocky8_hyrax_builder:latest 
+        /root/hyrax-dependencies/travis/build-for-rocky8.sh
       - export ARTIFACT=rocky8
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME/rocky8/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky8-static.tar.gz install
-      - num_deps_installed=$(find . -name '*-install-stamp' | wc -l)
-      - if [ "$num_deps_installed" != 12 ]; then echo "Unexpected number of dependencies installed; found $num_deps_installed."; exit 1; fi
-      - find . -name '*-install-stamp' | wc -l
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      - ls -l  $TRAVIS_BUILD_DIR/package/
+
+  - stage: build
+    name: "rocky9"
+    script:
+      - echo "# rocky9 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
+      - install_dir=$HOME/rocky9/install
+      - mkdir -p $install_dir
+      - docker run 
+        --env prefix=/root/install 
+        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
+        --volume $install_dir:/root/install 
+        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
+        opendap/rocky9_hyrax_builder:latest 
+        /root/hyrax-dependencies/travis/build-for-rocky9.sh
+      - export ARTIFACT=rocky9
+      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static-$TRAVIS_BUILD_NUMBER.gz install
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      - ls -l  $TRAVIS_BUILD_DIR/package/
 
 deploy:
   - provider: s3
