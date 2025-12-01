@@ -43,7 +43,9 @@ jobs:
                        cppunit \
                        autoconf \
                        automake \
-                       libgeotiff
+                       libgeotiff \
+                       ninja \
+                       go
         shell: bash
       - name: Build hyrax-dependencies
         run: |
