@@ -53,7 +53,7 @@ stages:
 
 env:
   global:
-    - EXPECTED_DEPS_COUNT=13
+    - EXPECTED_DEPS_COUNT=12
     - TIMEOUT=1000
 
 jobs:
@@ -63,6 +63,7 @@ jobs:
     script:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
+      - export EXPECTED_DEPS_COUNT=13
       - export extra_targets="aws_s2n_tls"
       - make -j16 for-travis
       - make list-built
