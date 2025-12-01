@@ -407,10 +407,6 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	pkg-config --exists proj; \
 	if test $$? -eq 0 ; then echo "# pkg-config FOUND proj"; else echo "# pkg-config FAILED to find proj"; fi ; \
 	echo "#"; \
-	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
-	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
-	echo "#         LDFLAGS: '$$LDFLAGS'"; \
-	echo "#"; \
 	echo "###################################################################"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
