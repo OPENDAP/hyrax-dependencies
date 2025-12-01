@@ -29,7 +29,7 @@ FROM centos:centos7
 WORKDIR /root
 
 # Install any needed packages specified in requirements.txt
-RUN yum -y install gcc-c++ make cmake ninja-build go-toolset git flex bison autoconf automake libtool bc libsqlite3x-devel
+RUN yum -y install gcc-c++ make cmake git flex bison autoconf automake libtool bc libsqlite3x-devel
 RUN yum -y install openssl-devel libuuid-devel readline-devel libxml2-devel curl-devel libicu-devel
 RUN yum -y install zlib-devel bzip2 bzip2-devel libjpeg-devel rpm-devel rpm-build redhat-rpm-config
 RUN yum -y install openjpeg2-devel-2.3.1
