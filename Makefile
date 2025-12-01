@@ -20,13 +20,6 @@ VERSION = 1.64
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
 # which are needed to build the proj library in some obscure cases.
 
-# jhrg 12/5/20
-# Use this include file to define things to build that are
-# site-specific. Use the Makefile variable 'site-deps.' If
-# the file does not exist, no error is generated.
-site-deps = 
--include ../hyrax-site.mk
-
 # The names of the source code distribution files and and the dirs
 # they unpack to.
 
@@ -90,7 +83,7 @@ stare_dist=$(stare).tar.bz2
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
-deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
+deps = bison jpeg openjpeg gridfields hdf4 \
 hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
@@ -101,7 +94,7 @@ hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
+docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src
