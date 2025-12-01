@@ -341,7 +341,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export proj_libdir="$(proj_prefix)/lib64" ; \
 	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; LDFLAGS="$$LDFLAGS -lproj"; fi ; \
 	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$$proj_libdir"; \
-	export deps_libdir="$(prefix)/deps/lib64"
+	export deps_libdir="$(prefix)/deps/lib64" ; \
 	if ! test -d "$$deps_libdir"; then deps_libdir="$(prefix)/deps/lib; fi ; \
 	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
 	echo "###################################################################"; \
