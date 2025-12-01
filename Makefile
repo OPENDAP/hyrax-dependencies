@@ -346,7 +346,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
 	echo "###################################################################"; \
 	echo "#     proj_libdir: '$$proj_libdir'"; \
-	echo "#     deps_libdir: '$$libdir'"; \
+	echo "#     deps_libdir: '$$deps_libdir'"; \
 	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
 	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
 	echo "#         LDFLAGS: '$$LDFLAGS'"; \
