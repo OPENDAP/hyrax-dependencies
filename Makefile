@@ -378,11 +378,11 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export deps_libdir="$(prefix)/deps/lib64"; \
 	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
 		if [[ "$$OSTYPE" == "darwin"* ]]; then \
-			echo "Building on OSX, LDFLAGS unchanged" \
+			echo "# Building on OSX, LDFLAGS unchanged"; \
 		else \
-			echo "Not building on OSX; updating LDFLAGS" \
+			echo "# Not building on OSX; updating LDFLAGS"; \
 			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
-		fi \
+		fi; \
 	fi ; \
 	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
 	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
