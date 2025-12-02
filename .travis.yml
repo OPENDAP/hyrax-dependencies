@@ -41,6 +41,8 @@ addons:
       - libcppunit-dev
       - libicu-dev
       - libsqlite3-dev
+      - ninja-build
+      - golang-go
 
 stages:
   - name: build
