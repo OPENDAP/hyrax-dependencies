@@ -1,11 +1,5 @@
 #!/bin/bash
 
-echo "Contents of $HOME/install/deps/include/" >&2
-ls $HOME/install/deps/include/ >&2
-
-echo "Contents of $HOME/install/deps/include/openjpeg-2.5" >&2
-ls $HOME/install/deps/include/openjpeg-2.5 >&2
-
 expected_deps_count="$1"
 deps_installed="$(find . -name '*-install-stamp')"
 num_deps_installed=$(echo "$deps_installed" | sed '/^\s*$/d' | wc -l)
