@@ -71,7 +71,7 @@ jobs:
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - tar -C $HOME -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tar.gz install
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
-      -
+
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "rocky8"
