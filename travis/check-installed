@@ -9,6 +9,3 @@ if test $num_deps_installed -ne $expected_deps_count
 then echo "Unexpected number of dependencies installed! Found $num_deps_installed, expected $expected_deps_count";
     exit 1;
 fi
-
-
-
