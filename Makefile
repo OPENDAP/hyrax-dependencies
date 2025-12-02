@@ -83,9 +83,8 @@ stare_dist=$(stare).tar.bz2
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
-# deps = bison jpeg openjpeg gridfields hdf4 \
-# hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
-deps = jpeg openjpeg proj gdal list-built
+deps = bison jpeg openjpeg gridfields hdf4 \
+hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
