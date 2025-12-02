@@ -54,10 +54,7 @@ jobs:
         run: make list-built
         shell: bash
       - name: Confirm all dependencies are built
-        run: |
-          num_deps=$(find . -name '*-install-stamp' | wc -l)
-          if [ "$num_deps" != 14 ]; then
-            echo "Unexpected number of dependencies installed: Should be 14, found $num_deps."
-          fi
-
+        run: ./travis/check-installed $EXPECTED_DEPS_COUNT
         shell: bash
+        env:
+          EXPECTED_DEPS_COUNT: 14
