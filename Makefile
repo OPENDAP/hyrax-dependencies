@@ -383,7 +383,11 @@ gdal-configure-stamp: $(gdal_src)-stamp
 		fi; \
 	fi ; \
 	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
-	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+	if [[ "$$OSTYPE" == "darwin"* ]]; then \
+		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
+	else \
+		export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+	fi; \
 	echo "###################################################################"; \
 	echo "#     proj_libdir: '$$proj_libdir'"; \
 	echo "#     deps_libdir: '$$deps_libdir'"; \
