@@ -20,13 +20,6 @@ VERSION = 1.64
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
 # which are needed to build the proj library in some obscure cases.
 
-# jhrg 12/5/20
-# Use this include file to define things to build that are
-# site-specific. Use the Makefile variable 'site-deps.' If
-# the file does not exist, no error is generated.
-site-deps = 
--include ../hyrax-site.mk
-
 # The names of the source code distribution files and and the dirs
 # they unpack to.
 
@@ -94,10 +87,10 @@ stare_dist=$(stare).tar.bz2
 # I Removed the icu dependency because it is not needed for OSX anymore. jhrg 10/11/24
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
-# deps = $(site-deps) bison jpeg openjpeg gridfields hdf4 \
-# hdfeos hdf5 netcdf4 proj gdal stare aws_cdk aws_s2n_tls aws_lc_src list-built
+# deps = bison jpeg openjpeg gridfields hdf4 \
+# hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 # TEMPORARILY DISABLE OTHER STUFF to watch just aws_lc build
-deps = $(site-deps) aws_lc list-built
+deps = aws_lc list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -107,7 +100,7 @@ deps = $(site-deps) aws_lc list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = $(site-deps) gridfields stare hdf4 hdfeos netcdf4 aws_cdk aws_s2n_tls aws_lc_src list-built
+docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src
@@ -126,7 +119,7 @@ all: prefix-set
 .PHONY: for-static-rpm
 for-static-rpm: prefix-set
 	for d in $(deps); \
-	    do CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
+	    do echo "#### BUILDING: $$d"; CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
 
 .PHONY: for-travis
 for-travis: prefix-set
@@ -161,17 +154,18 @@ check:
 
 # These targets are 'support' targets for the main targets above. jhrg 10/10/25
 .PHONY: prefix-set
-prefix-set: rhel8
+prefix-set: rhel
 	@if test -z "$$prefix"; then \
 	echo "The env variable 'prefix' must be set. See README"; exit 1; fi
 
-.PHONY: rhel8
-rhel8:
+# Look for RHEL 8 or 9
+.PHONY: rhel
+rhel:
 	@if test -f /etc/redhat-release; then \
-	    if grep -q '8\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
-	        echo "RHEL 8 or variant found, and CPPFLAGS is set"; \
+	    if grep -q -e'[89]\.' /etc/redhat-release && echo $$CPPFLAGS | grep -q tirpc; then \
+	        echo "RHEL found, and CPPFLAGS is set"; \
 	    else \
-	        echo "RHEL 8 and CPPFLAGS not set; source spath.sh"; \
+	        echo "RHEL not found and/or CPPFLAGS not set; source spath.sh"; \
 	        exit 1; \
             fi; \
 	fi
@@ -414,17 +408,51 @@ $(gdal_src)-stamp:
 	tar -xzf downloads/$(gdal_dist) -C $(src)
 	echo timestamp > $(gdal_src)-stamp
 
+#	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; export LDFLAGS="$$LDFLAGS -lproj"; fi ; \
+#	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$$proj_libdir"; \
+
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	CPPFLAGS="-I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"\
-	LDFLAGS="$(LDFLAGS) -lpthread -lm" \
-	PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig \
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
+	export LDFLAGS="$$LDFLAGS -lpthread -lm "; \
+	export proj_libdir="$(proj_prefix)/lib64" ; \
+	export deps_libdir="$(prefix)/deps/lib64"; \
+	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; fi ; \
+	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
+	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+	echo "###################################################################"; \
+	echo "#     proj_libdir: '$$proj_libdir'"; \
+	echo "#     deps_libdir: '$$deps_libdir'"; \
+	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
+	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
+	echo "#         LDFLAGS: '$$LDFLAGS'"; \
+	echo "#          OSTYPE: '$$OSTYPE'"; \
+	echo "#"; \
+	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
+	echo "#"; \
+	echo "# ls -l $$proj_libdir "; \
+	ls -l "$$proj_libdir" ; \
+	echo "#"; \
+	echo "# ls -l $$proj_libdir/pkgconfig: "; \
+	ls -l $$proj_libdir/pkgconfig; \
+	echo "#"; \
+	echo "# awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc: "; \
+	awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc; \
+	echo "#"; \
+	echo "# pkg-config --exists proj"; \
+	pkg-config --exists proj; \
+	if test $$? -eq 0 ; then echo "# pkg-config FOUND proj"; else echo "# pkg-config FAILED to find proj"; fi ; \
+	echo "#"; \
+	echo "###################################################################"; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio)
+	--without-sqlite3 --without-pg --without-cfitsio; \
+	status=$$?; \
+	if test $$status -ne 0 ; then  awk '{ print "## "$$0;}' ./config.log ; fi \
+	)
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
@@ -464,7 +492,7 @@ proj-configure-stamp: $(proj_src)-stamp
 	mkdir -p $(proj_src)/build
 	(cd $(proj_src)/build \
 	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) $(CMAKE_FLAGS) \
-	 		  -DENABLE_TIFF:bool=OFF -DCMAKE_PREFIX_PATH=$(prefix)/deps ..)
+        -DENABLE_TIFF:bool=OFF -DCMAKE_PREFIX_PATH=$(prefix)/deps ..)
 	echo timestamp > proj-configure-stamp
 
 proj-compile-stamp: proj-configure-stamp
@@ -473,6 +501,7 @@ proj-compile-stamp: proj-configure-stamp
 
 proj-install-stamp: proj-compile-stamp
 	(cd $(proj_src)/build && $(MAKE) $(MFLAGS) -j1 install)
+	pkg-config --list-all
 	echo timestamp > proj-install-stamp
 
 proj-clean:
