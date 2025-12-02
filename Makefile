@@ -198,11 +198,11 @@ aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
 	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+		-DAUTORUN_UNIT_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DAWS_CUSTOM_LIB_CRYPTO_PATH=$(prefix)/deps $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . --config=Debug
-aws_cdk-compile-stamp: aws_cdk-configure-stamp
+aws_cdk-compile-stamp: aws_cdk-configure-stamp aws_lc-install-stamp
 	(cd $(aws_cdk_src)/build && cmake --build . --config=Debug --parallel)
 	echo timestamp > aws_cdk-compile-stamp
 
