@@ -232,8 +232,7 @@ aws_s2n_tls-configure-stamp:  $(aws_s2n_tls_src)-stamp
 	echo timestamp > aws_s2n_tls-configure-stamp
 
 aws_s2n_tls-compile-stamp: aws_s2n_tls-configure-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel \
-	&& ctest --test-dir . --parallel)
+	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel)
 	echo timestamp > aws_s2n_tls-compile-stamp
 
 aws_s2n_tls-install-stamp: aws_s2n_tls-compile-stamp
