@@ -89,7 +89,7 @@ stare_dist=$(stare).tar.bz2
 .PHONY: $(deps)
 deps = bison jpeg openjpeg gridfields hdf4 \
 	   hdfeos hdf5 netcdf4 proj gdal stare \
-	   aws_cdk $(extra_targets) list-built
+	   $(extra_targets) list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -99,7 +99,7 @@ deps = bison jpeg openjpeg gridfields hdf4 \
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
+docker_deps = gridfields stare hdf4 hdfeos netcdf4 $(extra_targets) list-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src

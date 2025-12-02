@@ -70,7 +70,7 @@ jobs:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
       - export EXPECTED_DEPS_COUNT=14
-      - export extra_targets="aws_s2n_tls aws_lc"
+      - export extra_targets="aws_s2n_tls aws_lc aws_cdk"
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu

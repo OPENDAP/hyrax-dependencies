@@ -53,7 +53,7 @@ jobs:
             make for-travis -j16
         shell: bash
         env:
-          extra_targets: "aws_s2n_tls aws_lc"
+          extra_targets: "aws_s2n_tls aws_lc aws_cdk"
       - name: List built dependencies
         run: make list-built
         shell: bash
