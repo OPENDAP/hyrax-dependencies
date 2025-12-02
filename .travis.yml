@@ -46,10 +46,10 @@ addons:
       - libsqlite3-dev
       - ninja-build
   snaps:
-      # apt-install of go is stale; official option for snaps as alternative
-      # package manager: https://go.dev/wiki/Ubuntu
-      - go
-        confinement: classic
+    # apt-install of go is stale; official option for snaps as alternative
+    # package manager: https://go.dev/wiki/Ubuntu
+    - name: go
+      confinement: classic
 
 stages:
   - name: build
