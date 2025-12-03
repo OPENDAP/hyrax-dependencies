@@ -29,6 +29,10 @@ aws_cdk_tag=1.11.665
 
 aws_s2n_tls=aws_s2n_tls
 aws_s2n_tls_tag=v1.6.1
+# There is technically a dist - but it requires some extra script shenanigans, so we choose to pull from the tag instead
+
+aws_lc=aws_lc
+aws_lc_tag=v1.65.0
 # There is no dist - we pull this from github using a tag
 
 bison=bison-3.3
@@ -84,7 +88,8 @@ stare_dist=$(stare).tar.bz2
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
 deps = bison jpeg openjpeg gridfields hdf4 \
-hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
+	   hdfeos hdf5 netcdf4 proj gdal stare \
+	   $(extra_targets) list-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -94,7 +99,7 @@ hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
+docker_deps = gridfields stare hdf4 hdfeos netcdf4 $(extra_targets) list-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src
@@ -193,11 +198,11 @@ aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
 	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+		-DAUTORUN_UNIT_TESTS=OFF -DBUILD_SHARED_LIBS=ON -DAWS_CUSTOM_LIB_CRYPTO_PATH=$(prefix)/deps $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . "--config Debug"
-aws_cdk-compile-stamp: aws_cdk-configure-stamp
+aws_cdk-compile-stamp: aws_cdk-configure-stamp aws_lc-install-stamp
 	(cd $(aws_cdk_src)/build && cmake --build . --config Debug --parallel)
 	echo timestamp > aws_cdk-compile-stamp
 
@@ -232,11 +237,11 @@ aws_s2n_tls-configure-stamp:  $(aws_s2n_tls_src)-stamp
 	echo timestamp > aws_s2n_tls-configure-stamp
 
 aws_s2n_tls-compile-stamp: aws_s2n_tls-configure-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel)
+	(cd $(aws_s2n_tls_src)/build && cmake --build . --config Debug --parallel)
 	echo timestamp > aws_s2n_tls-compile-stamp
 
 aws_s2n_tls-install-stamp: aws_s2n_tls-compile-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --install . --config=Debug)
+	(cd $(aws_s2n_tls_src)/build && cmake --install . --config Debug)
 	echo timestamp > aws_s2n_tls-install-stamp
 
 aws_s2n_tls-clean:
@@ -249,6 +254,42 @@ aws_s2n_tls-really-clean: aws_s2n_tls-clean
 
 .PHONY: aws_s2n_tls
 aws_s2n_tls: aws_s2n_tls-install-stamp
+
+# AWS lc (conditionally required by AWS SDK)
+aws_lc_src=$(src)/$(aws_lc)-$(aws_lc_tag)
+aws_lc_prefix=$(prefix)/deps
+
+$(aws_lc_src)-stamp:
+	git clone --depth 1 https://github.com/aws/aws-lc.git --branch $(aws_lc_tag) $(aws_lc_src)
+	echo timestamp > $(aws_lc_src)-stamp
+
+aws_lc-configure-stamp:  $(aws_lc_src)-stamp
+	mkdir -p $(aws_lc_src)/build
+	(cd $(aws_lc_src)/build \
+		&& cmake .. -GNinja -B . \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$(prefix)/deps)
+	echo timestamp > aws_lc-configure-stamp
+
+aws_lc-compile-stamp: aws_lc-configure-stamp
+	(cd $(aws_lc_src)/build && ninja -C .)
+# 	ninja -C . run_tests     # Fails! Not necessarily needed?
+	echo timestamp > aws_lc-compile-stamp
+
+aws_lc-install-stamp: aws_lc-compile-stamp
+	(cd $(aws_lc_src)/build && ninja install)
+	echo timestamp > aws_lc-install-stamp
+
+aws_lc-clean:
+	-rm aws_lc-*-stamp
+	-(cd $(aws_lc_src)/build && ninja clean)
+
+aws_lc-really-clean: aws_lc-clean
+	-rm $(src)/$(aws_lc)-*-stamp
+	-rm -rf $(aws_lc_src)
+
+.PHONY: aws_lc
+aws_lc: aws_lc-install-stamp
 
 # JPEG
 jpeg_src=$(src)/$(jpeg)

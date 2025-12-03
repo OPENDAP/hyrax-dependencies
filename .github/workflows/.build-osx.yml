@@ -43,15 +43,17 @@ jobs:
                        cppunit \
                        autoconf \
                        automake \
-                       libgeotiff
+                       libgeotiff \
+                       ninja \
+                       go
         shell: bash
       - name: Build hyrax-dependencies
         run: |
             export prefix=$HOME/install
             make for-travis -j16
         shell: bash
-        env: 
-          extra_targets: "aws_s2n_tls"
+        env:
+          extra_targets: "aws_s2n_tls aws_lc aws_cdk"
       - name: List built dependencies
         run: make list-built
         shell: bash
@@ -60,4 +62,4 @@ jobs:
         shell: bash
         env:
           # GDAL currently doesn't build on m-chip, ref #93
-          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 12 || 13 }}"
+          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 13 || 14 }}"

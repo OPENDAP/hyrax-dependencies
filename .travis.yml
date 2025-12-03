@@ -44,6 +44,12 @@ addons:
       - libcppunit-dev
       - libicu-dev
       - libsqlite3-dev
+      - ninja-build
+  snaps:
+    # apt-install of go is stale; official option for snaps as alternative
+    # package manager: https://go.dev/wiki/Ubuntu
+    - name: go
+      confinement: classic
 
 stages:
   - name: build
@@ -63,8 +69,8 @@ jobs:
     script:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
-      - export EXPECTED_DEPS_COUNT=13
-      - export extra_targets="aws_s2n_tls"
+      - export EXPECTED_DEPS_COUNT=14
+      - export extra_targets="aws_s2n_tls aws_lc aws_cdk"
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
