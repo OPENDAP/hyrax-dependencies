@@ -50,6 +50,8 @@ jobs:
             export prefix=$HOME/install
             make for-travis -j16
         shell: bash
+        env: 
+          extra_targets: "aws_s2n_tls"
       - name: List built dependencies
         run: make list-built
         shell: bash
@@ -57,4 +59,5 @@ jobs:
         run: ./travis/check-installed $EXPECTED_DEPS_COUNT
         shell: bash
         env:
-          EXPECTED_DEPS_COUNT: 12
+          # GDAL currently doesn't build on m-chip, ref #93
+          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 12 || 13 }}"
