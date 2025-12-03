@@ -196,14 +196,14 @@ aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
-# We might want to use for development cmake --build . --config=Debug
+# We might want to use for development cmake --build . "--config Debug"
 aws_cdk-compile-stamp: aws_cdk-configure-stamp
-	(cd $(aws_cdk_src)/build && cmake --build . --config=Debug --parallel)
+	(cd $(aws_cdk_src)/build && cmake --build . --config Debug --parallel)
 	echo timestamp > aws_cdk-compile-stamp
 
-# As above, cmake --install . --config=Debug
+# As above, cmake --install . "--config Debug"
 aws_cdk-install-stamp: aws_cdk-compile-stamp
-	(cd $(aws_cdk_src)/build && cmake --install . --config=Debug)
+	(cd $(aws_cdk_src)/build && cmake --install . --config Debug)
 	echo timestamp > aws_cdk-install-stamp
 
 aws_cdk-clean:
