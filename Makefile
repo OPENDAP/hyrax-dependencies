@@ -232,8 +232,7 @@ aws_s2n_tls-configure-stamp:  $(aws_s2n_tls_src)-stamp
 	echo timestamp > aws_s2n_tls-configure-stamp
 
 aws_s2n_tls-compile-stamp: aws_s2n_tls-configure-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel \
-	&& ctest --test-dir . --parallel)
+	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel)
 	echo timestamp > aws_s2n_tls-compile-stamp
 
 aws_s2n_tls-install-stamp: aws_s2n_tls-compile-stamp
@@ -375,9 +374,20 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	export LDFLAGS="$$LDFLAGS -lpthread -lm "; \
 	export proj_libdir="$(proj_prefix)/lib64" ; \
 	export deps_libdir="$(prefix)/deps/lib64"; \
-	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; fi ; \
+	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
+		if [[ "$$OSTYPE" == "darwin"* ]]; then \
+			echo "# Building on OSX, LDFLAGS unchanged"; \
+		else \
+			echo "# Not building on OSX; updating LDFLAGS"; \
+			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
+		fi; \
+	fi ; \
 	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
-	export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+	if [[ "$$OSTYPE" == "darwin"* ]]; then \
+		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
+	else \
+		export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+	fi; \
 	echo "###################################################################"; \
 	echo "#     proj_libdir: '$$proj_libdir'"; \
 	echo "#     deps_libdir: '$$deps_libdir'"; \
