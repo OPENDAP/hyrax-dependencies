@@ -61,4 +61,5 @@ jobs:
         run: ./travis/check-installed $EXPECTED_DEPS_COUNT
         shell: bash
         env:
-          EXPECTED_DEPS_COUNT: 14
+          # GDAL currently doesn't build on m-chip, ref #93
+          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 13 || 14 }}"
