@@ -64,10 +64,10 @@ jobs:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
       - echo "# ubuntu-focal - prefix '$prefix'" >&2
-      - export EXPECTED_DEPS_COUNT=13
-      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets="aws_s2n_tls"
       - echo "# ubuntu-focal - extra_targets '$extra_targets'" >&2
+      - export EXPECTED_DEPS_COUNT=13
+      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
@@ -76,7 +76,7 @@ jobs:
       - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static.tgz"
       - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
-      - tar -C "$HOME/" -czvf "$tarball_numbered" install
+      - tar -C "$HOME" -czvf "$tarball_numbered" install
       - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
 
