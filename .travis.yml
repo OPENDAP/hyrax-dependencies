@@ -102,7 +102,7 @@ jobs:
   - stage: build
     name: "rocky9"
     script:
-      - export $ARTIFACT="rocky9"
+      - export ARTIFACT="rocky9"
       - echo "# rocky9 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - install_dir="$HOME/$ARTIFACT/install"
