@@ -27,10 +27,6 @@ aws_cdk=aws_sdk_cpp
 aws_cdk_tag=1.11.665
 # There is no dist - we pull this from github using a tag
 
-aws_s2n_tls=aws_s2n_tls
-aws_s2n_tls_tag=v1.6.1
-# There is no dist - we pull this from github using a tag
-
 bison=bison-3.3
 bison_dist=$(bison).tar.xz
 
@@ -216,39 +212,6 @@ aws_cdk-really-clean: aws_cdk-clean
 
 .PHONY: aws_cdk
 aws_cdk: aws_cdk-install-stamp
-
-# AWS s2n-tls (conditionally required by AWS SDK)
-aws_s2n_tls_src=$(src)/$(aws_s2n_tls)-$(aws_s2n_tls_tag)
-aws_s2n_tls_prefix=$(prefix)/deps
-
-$(aws_s2n_tls_src)-stamp:
-	git clone --depth 1 https://github.com/aws/s2n-tls.git --branch $(aws_s2n_tls_tag) $(aws_s2n_tls_src)
-	echo timestamp > $(aws_s2n_tls_src)-stamp
-
-aws_s2n_tls-configure-stamp:  $(aws_s2n_tls_src)-stamp
-	mkdir -p $(aws_s2n_tls_src)/build
-	(cd $(aws_s2n_tls_src)/build \
-	 && cmake .. -B . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(prefix)/deps)
-	echo timestamp > aws_s2n_tls-configure-stamp
-
-aws_s2n_tls-compile-stamp: aws_s2n_tls-configure-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --build . --config=Debug --parallel)
-	echo timestamp > aws_s2n_tls-compile-stamp
-
-aws_s2n_tls-install-stamp: aws_s2n_tls-compile-stamp
-	(cd $(aws_s2n_tls_src)/build && cmake --install . --config=Debug)
-	echo timestamp > aws_s2n_tls-install-stamp
-
-aws_s2n_tls-clean:
-	-rm aws_s2n_tls-*-stamp
-	-(cd  $(aws_s2n_tls_src)/build && cmake --build . --target clean)
-
-aws_s2n_tls-really-clean: aws_s2n_tls-clean
-	-rm $(src)/$(aws_s2n_tls)-*-stamp
-	-rm -rf $(aws_s2n_tls_src)
-
-.PHONY: aws_s2n_tls
-aws_s2n_tls: aws_s2n_tls-install-stamp
 
 # JPEG
 jpeg_src=$(src)/$(jpeg)
