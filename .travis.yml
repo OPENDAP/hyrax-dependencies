@@ -71,10 +71,10 @@ jobs:
       - mkdir -p $TRAVIS_BUILD_DIR/package
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static-$TRAVIS_BUILD_NUMBER.tgz"
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static.tgz"
-      - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
+      - tar -C "$HOME/" -czvf "$tarball_numbered" install
       - cp "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
-      -
+
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
     name: "rocky8"
