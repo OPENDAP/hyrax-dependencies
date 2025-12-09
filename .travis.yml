@@ -63,16 +63,21 @@ jobs:
     script:
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
+      - echo "# ubuntu-focal - prefix '$prefix'" >&2
       - export EXPECTED_DEPS_COUNT=13
+      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets="aws_s2n_tls"
+      - echo "# ubuntu-focal - extra_targets '$extra_targets'" >&2
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
-      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - mkdir -vp $TRAVIS_BUILD_DIR/package
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static.tgz"
+      - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
       - tar -C "$HOME/" -czvf "$tarball_numbered" install
-      - cp "$tarball_numbered" "$tarball_latest"
+      - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
