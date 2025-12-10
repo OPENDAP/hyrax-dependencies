@@ -65,9 +65,9 @@ jobs:
       - make list-built
       - export ARTIFACT=ubuntu
       - mkdir -vp $TRAVIS_BUILD_DIR/package
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$TRAVIS_BUILD_NUMBER.tgz"
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tgz"
       - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
       - tar -C "$HOME" -czvf "$tarball_numbered" install
       - cp -v "$tarball_numbered" "$tarball_latest"
