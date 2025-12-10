@@ -57,13 +57,10 @@ jobs:
   - stage: build
     name: "ubuntu-focal"
     script:
+      - export EXPECTED_DEPS_COUNT=12
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
       - echo "# ubuntu-focal - prefix '$prefix'" >&2
-      - export extra_targets="aws_s2n_tls"
-      - echo "# ubuntu-focal - extra_targets '$extra_targets'" >&2
-      - export EXPECTED_DEPS_COUNT=12
-      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - make -j16 for-travis
       - make list-built
       - export ARTIFACT=ubuntu
