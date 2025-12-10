@@ -57,7 +57,6 @@ jobs:
   - stage: build
     name: "ubuntu-focal"
     script:
-      - export EXPECTED_DEPS_COUNT=12
       - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
       - echo "# ubuntu-focal - prefix '$prefix'" >&2
@@ -75,64 +74,9 @@ jobs:
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
-    name: "rocky8"
+    name: "rocky8 static"
     script:
-      - export ARTIFACT="rocky8"
-      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
-      - export extra_targets=""
-      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
-      - install_dir="$HOME/$ARTIFACT/install"
-      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
-      - mkdir -vp "$install_dir"
-      - docker run 
-        --env prefix=/root/install
-        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
-        --volume $install_dir:/root/install 
-        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
-        opendap/rocky8_hyrax_builder:latest 
-        /root/hyrax-dependencies/travis/build-for-rocky8.sh
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
-      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
-      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
-      - mkdir -vp $TRAVIS_BUILD_DIR/package
-      - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
-      - cp -v "$tarball_numbered" "$tarball_latest"
-      - ./travis/check-installed $EXPECTED_DEPS_COUNT
-      - ls -l  $TRAVIS_BUILD_DIR/package/
-
-  - stage: build
-    name: "rocky9"
-    script:
-      - export ARTIFACT="rocky9"
-      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
-      - export extra_targets=""
-      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
-      - install_dir="$HOME/$ARTIFACT/install"
-      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
-      - mkdir -vp $"install_dir"
-      - docker run 
-        --env prefix=/root/install 
-        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
-        --volume $install_dir:/root/install 
-        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
-        opendap/rocky9_hyrax_builder:latest 
-        /root/hyrax-dependencies/travis/build-for-rocky9.sh
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
-      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
-      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
-      - mkdir -vp $TRAVIS_BUILD_DIR/package
-      - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
-      - cp -v "$tarball_numbered" "$tarball_latest"
-      - ./travis/check-installed $EXPECTED_DEPS_COUNT
-      - ls -l  $TRAVIS_BUILD_DIR/package/
-
-    # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
-  - stage: build
-    name: "rocky8 static rpm"
-    script:
-      - export ARTIFACT="rocky8-rpm"
+      - export ARTIFACT="rocky8-static"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
@@ -157,9 +101,9 @@ jobs:
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
-    name: "rocky9 static rpm"
+    name: "rocky9 static"
     script:
-      - export ARTIFACT="rocky9-rpm"
+      - export ARTIFACT="rocky9-static"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
@@ -176,6 +120,62 @@ jobs:
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static.tgz"
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
+      - mkdir -vp $TRAVIS_BUILD_DIR/package
+      - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
+      - cp -v "$tarball_numbered" "$tarball_latest"
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      - ls -l  $TRAVIS_BUILD_DIR/package/
+
+  - stage: build
+    name: "rocky8 dynamic"
+    script:
+      - export ARTIFACT="rocky8"
+      - export EXPECTED_DEPS_COUNT=11
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
+      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
+      - install_dir="$HOME/$ARTIFACT/install"
+      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
+      - mkdir -vp "$install_dir"
+      - docker run 
+        --env prefix=/root/install
+        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
+        --volume $install_dir:/root/install 
+        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
+        opendap/rocky8_hyrax_builder:latest 
+        /root/hyrax-dependencies/travis/build-for-rocky8.sh
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
+      - mkdir -vp $TRAVIS_BUILD_DIR/package
+      - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
+      - cp -v "$tarball_numbered" "$tarball_latest"
+      - ./travis/check-installed $EXPECTED_DEPS_COUNT
+      - ls -l  $TRAVIS_BUILD_DIR/package/
+
+  - stage: build
+    name: "rocky9 dynamic"
+    script:
+      - export ARTIFACT="rocky9"
+      - export EXPECTED_DEPS_COUNT=11
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export extra_targets=""
+      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
+      - install_dir="$HOME/$ARTIFACT/install"
+      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
+      - mkdir -vp $"install_dir"
+      - docker run 
+        --env prefix=/root/install 
+        --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
+        --volume $install_dir:/root/install 
+        --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
+        opendap/rocky9_hyrax_builder:latest 
+        /root/hyrax-dependencies/travis/build-for-rocky9.sh
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
       - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
