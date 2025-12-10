@@ -68,9 +68,9 @@ jobs:
       - make list-built
       - export ARTIFACT=ubuntu
       - mkdir -vp $TRAVIS_BUILD_DIR/package
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-static.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies.tgz"
       - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
       - tar -C "$HOME" -czvf "$tarball_numbered" install
       - cp -v "$tarball_numbered" "$tarball_latest"
@@ -94,9 +94,9 @@ jobs:
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky8_hyrax_builder:latest 
         /root/hyrax-dependencies/travis/build-for-rocky8.sh
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
       - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
@@ -121,9 +121,9 @@ jobs:
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky9_hyrax_builder:latest 
         /root/hyrax-dependencies/travis/build-for-rocky9.sh
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
       - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
@@ -133,9 +133,9 @@ jobs:
 
     # mkdir returns true if the directory already exists. This dir is used in 'before_deploy'.
   - stage: build
-    name: "rocky8 static"
+    name: "rocky8 static rpm"
     script:
-      - export ARTIFACT="rocky8-static"
+      - export ARTIFACT="rocky8-rpm"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
@@ -160,9 +160,9 @@ jobs:
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
-    name: "rocky9 static"
+    name: "rocky9 static rpm"
     script:
-      - export ARTIFACT="rocky9-static"
+      - export ARTIFACT="rocky9-rpm"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
