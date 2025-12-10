@@ -9,10 +9,6 @@
 # build since C++-11 is not part of C6 by default. We're leaving STARE out of the Debian
 # package build for now as well. jhrg 10/28/19
 #
-# I removed CentOS 6 from our packages (10/27/20) since it is going to stop having
-# maintenance releases in November 2020. jhrg
-#
-# I removed the Ubuntu/deb build because we're not using it. jhrg 12/08/20
 
 dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
 
@@ -85,10 +81,12 @@ jobs:
     name: "rocky8"
     script:
       - export ARTIFACT="rocky8"
-      - echo "# $os - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
+      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
       - install_dir="$HOME/$ARTIFACT/install"
-      - mkdir -p "$install_dir"
+      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
+      - mkdir -vp "$install_dir"
       - docker run 
         --env prefix=/root/install
         --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
@@ -97,10 +95,12 @@ jobs:
         opendap/rocky8_hyrax_builder:latest 
         /root/hyrax-dependencies/travis/build-for-rocky8.sh
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static.tgz"
-      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
+      - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
-      - cp "$tarball_numbered" "$tarball_latest"
+      - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
@@ -108,10 +108,12 @@ jobs:
     name: "rocky9"
     script:
       - export ARTIFACT="rocky9"
-      - echo "# rocky9 - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
+      - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
       - install_dir="$HOME/$ARTIFACT/install"
-      - mkdir -p $"install_dir"
+      - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
+      - mkdir -vp $"install_dir"
       - docker run 
         --env prefix=/root/install 
         --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
@@ -120,10 +122,12 @@ jobs:
         opendap/rocky9_hyrax_builder:latest 
         /root/hyrax-dependencies/travis/build-for-rocky9.sh
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-static.tgz"
-      - mkdir -p $TRAVIS_BUILD_DIR/package
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
+      - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
-      - cp "$tarball_numbered" "$tarball_latest"
+      - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
