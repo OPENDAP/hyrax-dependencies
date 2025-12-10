@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Build the hyrax-dependencies binary tar ball for use with libdap and BES 
-# docker builds. Uses the opendap/centos6_hyrax_builder:latest docker container
+# RPM builds. Uses the opendap/centos6_hyrax_builder:latest docker container
 # (or the CentOS7 or CentOS-Stream8 version).
 #
 # Modified to take an optional parameter that denotes the version of the C++
@@ -21,6 +21,11 @@ HR="#########################################################################"
 function loggy(){
     echo  "$@" | awk '{ print "# rocky8 - "$0;}'  >&2
 }
+# This is not needed when the 'for-static-rpm' target is used below. That is
+# a more robust way to build the static packages since some of them might not
+# use configure, but cmake, e.g. jhrg 10/10/25
+#
+# export CONFIGURE_FLAGS="--disable-shared"
 
 # Need to have 64 bit rpc code!
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/tirpc"
@@ -63,10 +68,18 @@ dnf -y update
 cd /root/hyrax-dependencies
 
 loggy "- - - - - - - - - - - - - - - - - - - - -"
-loggy "Running: make for-travis"
-make -j16 for-travis
+loggy "Running: make for-static-rpm"
+make -j16 for-static-rpm
 
 make list-built
 
+# Now clean out the binary images, which are huge for a static build.
+# NB prefix = /root/install, set by the Docker run command
+loggy "- - - - - - - - - - - - - - - - - - - - -"
+loggy "Cleanup..."
+rm -f $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+rm -rf $prefix/deps/proj-6/bin;
+
 loggy "END - $0"
 loggy "$HR"
+

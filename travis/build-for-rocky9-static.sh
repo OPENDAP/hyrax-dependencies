@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Build the hyrax-dependencies binary tar ball for use with libdap and BES 
-# docker builds for RHEL9. Uses the docker container:
+# RPM builds for RHEL9. Uses the docker container:
 #     opendap/rocky9_hyrax_builder:latest
 #
 # To build it, first we set up the directory into which we will put the results:
@@ -59,13 +59,25 @@ loggy "- - - - - - - - - - - - - - - - - - - - -"
 loggy "Running dnf update"
 dnf -y update
 
-
+# Build only the static libraries so that when these are used during the BES
+# RPM build we have packages that others can install. jhrg 2/8/22
+#
 # Assume that the docker container has been started with the cloned repo
 # mounted so it appears within '/root', cd into that spot to run the build...
 cd /root/hyrax-dependencies
 
-loggy "Running: make for-travis"
-make -j16 for-travis
+loggy "Running: make for-static-rpm"
+make -j16 for-static-rpm
 make list-built
 
+
+# Now clean out the binary images, which are huge for a static build.
+# NB prefix = /root/install, set by the Docker run command
+loggy "Cleanup..."
+rm -vf $prefix/deps/bin/{gdal_*,gdal[a-z]*,ogr*,gnm*,nearblack,testepsg}
+rm -vrf $prefix/deps/proj-6/bin
+
 loggy "END - $0"
+
+
+
