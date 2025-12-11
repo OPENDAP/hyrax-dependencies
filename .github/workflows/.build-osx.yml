@@ -64,8 +64,8 @@ jobs:
       - name: Generate tarball
         run: |
           mkdir -vp ${{ github.workspace }}/package
-          echo "# ${{ matrix.runs-on }} - TARBALL_NUMBERED '$TARBALL_NUMBERED'" >&2
-          echo "# ubuntu-focal - TARBALL_LATEST '$TARBALL_LATEST'" >&2
+          echo "# TARBALL_NUMBERED: '$TARBALL_NUMBERED'" >&2
+          echo "# TARBALL_LATEST: '$TARBALL_LATEST'" >&2
           tar -C "$HOME" -czvf "$TARBALL_NUMBERED" install
           cp -v "$TARBALL_NUMBERED" "$TARBALL_LATEST"
         shell: bash
@@ -79,6 +79,6 @@ jobs:
           aws s3 cp ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
         shell: bash
         env:
-          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          access_key_id: ${{ secrets.AWS_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
           aws_options: "${{ github.event_name == 'push' && '' || '--dryrun' }}"
