@@ -76,7 +76,7 @@ jobs:
         # Will be a dryrun except for "push" triggers, which will only occur on
         # main or master branch as defined by the workflow itself
         run: |
-          aws s3 cp ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
+          aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
         shell: bash
         env:
           access_key_id: ${{ secrets.AWS_ID }}
