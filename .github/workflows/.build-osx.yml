@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
-  test:
+  build:
     # Run on pushes or non-draft PRs
     if: (github.event_name == 'push') || (github.event.pull_request.draft == false) || (github.event_name == 'workflow_dispatch')
     name: Build on ${{ matrix.runs-on }}
@@ -50,7 +50,7 @@ jobs:
             export prefix=$HOME/install
             make for-travis -j16
         shell: bash
-        env: 
+        env:
           extra_targets: ""
       - name: List built dependencies
         run: make list-built
@@ -61,3 +61,24 @@ jobs:
         env:
           # GDAL currently doesn't build on m-chip, ref #93
           EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 11 || 12 }}"
+      - name: Generate tarball
+        run: |
+          mkdir -vp ${{ github.workspace }}/package
+          echo "# TARBALL_NUMBERED: '$TARBALL_NUMBERED'" >&2
+          echo "# TARBALL_LATEST: '$TARBALL_LATEST'" >&2
+          tar -C "$HOME" -czvf "$TARBALL_NUMBERED" install
+          cp -v "$TARBALL_NUMBERED" "$TARBALL_LATEST"
+        shell: bash
+        env:
+          TARBALL_NUMBERED: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}-${{ github.run_number }}.tgz"
+          TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
+      - name: Deploy to s3
+        # Will be a dryrun except for "push" triggers, which will only occur on
+        # main or master branch as defined by the workflow itself
+        run: |
+          aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
+        shell: bash
+        env:
+          access_key_id: ${{ secrets.AWS_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
+          aws_options: "${{ github.event_name == 'push' && '' || '--dryrun' }}"
