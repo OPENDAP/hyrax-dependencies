@@ -46,10 +46,11 @@ jobs:
                        libgeotiff
         shell: bash
       - name: Build hyrax-dependencies
-        run: make for-travis -j16
+        run: |
+            export prefix=$HOME/install
+            make for-travis -j16
         shell: bash
-        env: 
-          prefix: $HOME/install
+        env:
           extra_targets: ""
       - name: List built dependencies
         run: make list-built
