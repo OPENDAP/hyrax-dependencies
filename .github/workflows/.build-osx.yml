@@ -38,7 +38,7 @@ jobs:
         shell: bash
       - name: Deploy test file to s3
         run: |
-          aws s3 cp ${{ github.workspace }}/delete-me-test-file-${{ matrix.runs-on }}-${{ github.run_number }}.txt s3://opendap.travis.build
+          aws s3 cp ${{ github.workspace }}/delete-me-test-file-${{ matrix.runs-on }}-${{ github.run_number }}.txt s3://opendap.github.actions.build
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ID }}
