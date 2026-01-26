@@ -73,7 +73,7 @@ jobs:
           TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
       - name: Deploy to s3
         # Only run when triggered by merge to main/test-deploy, as per push trigger definition above
-        # if: (github.event_name == 'push')
+        if: (github.event_name == 'push')
         run: |
           aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.github.actions.build
         shell: bash
