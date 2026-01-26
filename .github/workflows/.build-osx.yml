@@ -30,55 +30,67 @@ jobs:
         runs-on:
           # See https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md for pre-installed software
           - macos-15
-          - macos-15-intel
+          # - macos-15-intel
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install dependencies
+      - name: Make test file
         run: |
-          brew install bison \
-                       openssl \
-                       jpeg \
-                       cppunit \
-                       autoconf \
-                       automake \
-                       libgeotiff
+            touch delete-me-test-file-${{ matrix.runs-on }}-${{ github.run_number }}.txt
         shell: bash
-      - name: Build hyrax-dependencies
+      - name: Deploy test file to s3
         run: |
-            export prefix=$HOME/install
-            make for-travis -j16
-        shell: bash
-        env:
-          extra_targets: ""
-      - name: List built dependencies
-        run: make list-built
-        shell: bash
-      - name: Confirm all dependencies are built
-        run: ./travis/check-installed $EXPECTED_DEPS_COUNT
-        shell: bash
-        env:
-          # GDAL currently doesn't build on m-chip, ref #93
-          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 11 || 12 }}"
-      - name: Generate tarball
-        run: |
-          mkdir -vp ${{ github.workspace }}/package
-          echo "# TARBALL_NUMBERED: '$TARBALL_NUMBERED'" >&2
-          echo "# TARBALL_LATEST: '$TARBALL_LATEST'" >&2
-          tar -C "$HOME" -czvf "$TARBALL_NUMBERED" install
-          cp -v "$TARBALL_NUMBERED" "$TARBALL_LATEST"
-        shell: bash
-        env:
-          TARBALL_NUMBERED: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}-${{ github.run_number }}.tgz"
-          TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
-      - name: Deploy to s3
-        # Will be a dryrun except for "push" triggers, which will only occur on
-        # main or master branch as defined by the workflow itself
-        run: |
-          aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
+          aws s3 cp ${{ github.workspace }}/delete-me-test-file-${{ matrix.runs-on }}-${{ github.run_number }}.txt s3://opendap.travis.build
         shell: bash
         env:
           access_key_id: ${{ secrets.AWS_ID }}
           secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
-          aws_options: "${{ github.event_name == 'push' && '' || '--dryrun' }}"
+
+      # - uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
+      # - name: Install dependencies
+      #   run: |
+      #     brew install bison \
+      #                  openssl \
+      #                  jpeg \
+      #                  cppunit \
+      #                  autoconf \
+      #                  automake \
+      #                  libgeotiff
+      #   shell: bash
+      # - name: Build hyrax-dependencies
+      #   run: |
+      #       export prefix=$HOME/install
+      #       make for-travis -j16
+      #   shell: bash
+      #   env:
+      #     extra_targets: ""
+      # - name: List built dependencies
+      #   run: make list-built
+      #   shell: bash
+      # - name: Confirm all dependencies are built
+      #   run: ./travis/check-installed $EXPECTED_DEPS_COUNT
+      #   shell: bash
+      #   env:
+      #     # GDAL currently doesn't build on m-chip, ref #93
+      #     EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 11 || 12 }}"
+      # - name: Generate tarball
+      #   run: |
+      #     mkdir -vp ${{ github.workspace }}/package
+      #     echo "# TARBALL_NUMBERED: '$TARBALL_NUMBERED'" >&2
+      #     echo "# TARBALL_LATEST: '$TARBALL_LATEST'" >&2
+      #     tar -C "$HOME" -czvf "$TARBALL_NUMBERED" install
+      #     cp -v "$TARBALL_NUMBERED" "$TARBALL_LATEST"
+      #   shell: bash
+      #   env:
+      #     TARBALL_NUMBERED: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}-${{ github.run_number }}.tgz"
+      #     TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
+      # - name: Deploy to s3
+      #   # Will be a dryrun except for "push" triggers, which will only occur on
+      #   # main or master branch as defined by the workflow itself
+      #   run: |
+      #     aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.travis.build $aws_options
+      #   shell: bash
+      #   env:
+      #     access_key_id: ${{ secrets.AWS_ID }}
+      #     secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
+      #     # aws_options: "${{ github.event_name == 'push' && '' || '--dryrun' }}"
