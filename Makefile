@@ -422,7 +422,7 @@ $(proj_src)-stamp:
 proj-configure-stamp: $(proj_src)-stamp
 	mkdir -p $(proj_src)/build
 	(cd $(proj_src)/build \
-	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) $(CMAKE_FLAGS) \
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) \
         -DENABLE_TIFF:bool=OFF -DCMAKE_PREFIX_PATH=$(prefix)/deps ..)
 	echo timestamp > proj-configure-stamp
 
