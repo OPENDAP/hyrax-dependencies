@@ -90,12 +90,34 @@ The repo root currently contains many `*-configure-stamp`, `*-compile-stamp`, an
 The `Makefile` is intentionally the single source of truth. It defines:
 
 - the versions of dependencies to build
+- the dependency bundle version identified by `VERSION`
 - where archives are expected to exist
 - how each dependency is configured
 - how grouped builds are assembled for different environments
 - how build state is cleaned and packaged
 
 The design is imperative rather than declarative: package ordering for full builds is encoded in shell loops over named lists instead of in a rich web of target prerequisites.
+
+### Repository bundle version
+
+At the top of the file, the `Makefile` defines:
+
+```make
+VERSION = 1.64
+```
+
+This `VERSION` is not an upstream library version. It is the version number for the curated Hyrax dependency bundle described by this repository: the set of dependency selections, package versions, build flags, ordering, and compatibility workarounds captured in the `Makefile`.
+
+The same value is consumed by the `dist` target when it creates the repository archive:
+
+```text
+hyrax-dependencies-$(VERSION).tar
+```
+
+So the `VERSION` variable serves two related purposes:
+
+- it labels the overall dependency package set maintained here
+- it names the tarball produced by `make dist`
 
 ### Version and package selection
 

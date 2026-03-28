@@ -1,3 +1,22 @@
+# Version-1.64
+
+  Current VERSION from Makefile: 1.64
+
+  Packages currently built by the Makefile:
+
+  - bison: bison-3.3
+  - jpeg: jpeg-6b
+  - openjpeg: openjpeg-2.5.3
+  - gridfields: gridfields-1.0.5
+  - hdf4: hdf4-hdf4.3.0.e
+  - hdfeos: HDF-EOS2.19v1.00
+  - hdf5: hdf5-1.14.6
+  - netcdf4: netcdf-493-e
+  - proj: proj-9.5.1
+  - gdal: gdal-3.2.1
+  - stare: STARE-1.1.0
+  - aws_cdk: aws-sdk-cpp tag 1.11.665
+
 # Version-1.60, Hyrax-1.17.1
 
   Tagged for Hyrax-1.17.1

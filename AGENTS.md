@@ -90,6 +90,8 @@ make for-docker
 make for-static-rpm
 ```
 
+- Full builds of this repo are expensive (time consuming) so only run them if explicitly told to.
+- If a full build seems warranted but was not requested, ask before doing one.
 - If a full rebuild is too expensive, say exactly which package targets or grouped targets were exercised and which were not.
 
 ## Change Discipline
