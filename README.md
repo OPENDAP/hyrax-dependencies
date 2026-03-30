@@ -13,6 +13,22 @@ The handwritten [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencie
 
 Most dependency sources are expected as archives under [`downloads`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/downloads). One important exception is `aws_cdk`, which is cloned from GitHub during the build unless it is already present under [`src`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/src).
 
+## Updating the dependencies and making a release
+
+When you change dependency versions, package membership, or build behavior, review the top-level `VERSION` in the [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/Makefile) and increment it using the guidance documented there:
+
+- increment `Major` for large architectural shifts in how dependencies are sourced or assembled
+- increment `Minor` when upstream package versions change, or when a package is added or removed
+- increment `Patch` when package versions stay the same but the build rules or compatibility logic change
+
+For formal BES releases, use `make dist` to create a release tarball of this repository after `really-clean` runs. That archive includes the build metadata, the `downloads/` contents tracked in the workspace, and the files needed to rebuild the dependency bundle.
+
+The resulting archive is named from the dependency bundle version:
+
+```text
+hyrax-dependencies-$(VERSION).tar
+```
+
 ## Prerequisite
 
 Before running any build that installs dependencies, set the `prefix` environment variable. It should point at the Hyrax installation prefix you want to use.
@@ -120,7 +136,7 @@ Several of these areas are especially compatibility-sensitive:
 
 - `gdal`
 - `proj`
-- `hdf4`
+- the customized `hdf4` build
 - `hdfeos`
 - the customized `netcdf4` build
 
