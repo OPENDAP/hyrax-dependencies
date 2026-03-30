@@ -14,7 +14,16 @@
 # This was complicating the build on Travis where some parts are present
 # (e.g., cmake).
 
-VERSION = 1.64
+# How to update this version number: The Major version number is incremented when 
+# there is a huge architectural change - like we stop building a bunch of 
+# dependencies and switch to public distributions for the packages. Increment 
+# the Minor number for package versions and maybe removing one package and using 
+# a distro. Patch number changes for no package version changes but changes to 
+# how the packages are built.
+#
+# Major.Minor.Patch
+
+VERSION = 1.64.0
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -99,8 +108,7 @@ deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
 # This targets are used to build and manage the dependencies builds. jhrg 10/10/25
-all: prefix-set
-	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
+all: for-travis
 
 .PHONY: for-travis
 for-travis: prefix-set
