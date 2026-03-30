@@ -9,10 +9,6 @@
 #
 # Note that you can pass in extra flags for the configure scripts 
 # using CONFIGURE_FLAGS=... and CMAKE_FLAGS opts on the command line.
-#
-# Removed the dependencies on the targets for individual libraries.
-# This was complicating the build on Travis where some parts are present
-# (e.g., cmake).
 
 VERSION = 1.64
 
