@@ -9,7 +9,11 @@
 #
 # Note that you can pass in extra flags for the configure scripts 
 # using CONFIGURE_FLAGS=... and CMAKE_FLAGS opts on the command line.
-
+# 
+# Versioning strategy:
+# - Major version incremented when there is a huge architectural change, i.e. if we stop building a bunch of dependencies and switch to public distros. 
+# - Minor version incremented for package versions and maybe removing one package and using a distro. 
+# - Patch number changes for no package version changes but changes to how the packages are built.
 VERSION = 1.64
 
 # If a site.mk file exists in the parent dir, include it. Use this
