@@ -102,15 +102,6 @@ deps_really_clean = $(deps:%=%-really-clean)
 all: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
 
-# Build everything  as static. When the BES is built and
-# linked against these, the resulting modules will not need their
-# dependencies installed since they will be statically linked to them.
-# jhrg 4/7/15
-.PHONY: for-static-rpm
-for-static-rpm: prefix-set
-	for d in $(deps); \
-	    do echo "#### BUILDING: $$d"; CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
-
 .PHONY: for-travis
 for-travis: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
