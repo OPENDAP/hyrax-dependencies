@@ -2,7 +2,7 @@
 # Build the hyrax-dependencies repo and snapshot that build if it works.
 #
 # NB: Since the STARE library is part of our research work, include it in the 'travis'
-# deps build and in the C7 version of the static deps. Don't include it in the C6 deps
+# deps build. Don't include it in the C6 deps
 # build since C++-11 is not part of C6 by default. We're leaving STARE out of the Debian
 # package build for now as well. jhrg 10/28/19
 #

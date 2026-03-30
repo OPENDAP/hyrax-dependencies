@@ -19,7 +19,7 @@
 #        /root/hyrax-dependencies/build-for-rocky9.sh
 #
 # We collect the results like this:
-#    tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9-static.tar.gz install
+#    tar -C $HOME/rocky9/ -czvf $TRAVIS_BUILD_DIR/package/hyrax-dependencies-rocky9.tar.gz install
 #
 
 # -e: Exit immediately if a command, command in a pipeline, etc., fails

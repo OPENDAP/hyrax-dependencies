@@ -36,10 +36,6 @@ hdfeos Makefile.
 
 Other targets in the Makefile besides 'all'
 
-for-static-rpm: Use this to build only static versions of the
-libraries. This is used to build RPM packages for Hyrax that use
-statically linked dependency libraries.
-
 for-travis: This build the dependencies for a CI build on Travis
 (which uses Ubuntu 14 as of 11/30/17).
 
