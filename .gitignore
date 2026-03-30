@@ -3,7 +3,8 @@
 *-stamp
 *.DS_Store
 
-/.project
-/.cproject
-/.settings/
-/.idea/
+.project
+.cproject
+.settings/
+.idea/
+.vscode/*.json
