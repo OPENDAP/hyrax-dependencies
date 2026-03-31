@@ -68,7 +68,6 @@ make all
 Useful grouped targets:
 
 ```sh
-make for-static-rpm
 make for-travis
 make for-docker
 make clean
@@ -80,7 +79,6 @@ make list-built
 What they do:
 
 - `all`: build the full `deps` list into `$prefix/deps`
-- `for-static-rpm`: build the full dependency set with static-library-oriented flags
 - `for-travis`: build the full dependency set for CI-style use
 - `for-docker`: build the reduced `docker_deps` set
 - `clean`: run package clean targets and remove root-level build stamps
@@ -197,7 +195,6 @@ For broader validation after changes to shared flags, grouped targets, cleanup b
 ```sh
 make
 make for-docker
-make for-static-rpm
 ```
 
 ## Repository Layout
