@@ -9,17 +9,15 @@
 #
 # Note that you can pass in extra flags for the configure scripts 
 # using CONFIGURE_FLAGS=... and CMAKE_FLAGS opts on the command line.
-#
-# Removed the dependencies on the targets for individual libraries.
-# This was complicating the build on Travis where some parts are present
-# (e.g., cmake).
 
-# How to update this version number: The Major version number is incremented when 
+# How to update this version number: 
+# - The Major version number is incremented when 
 # there is a huge architectural change - like we stop building a bunch of 
-# dependencies and switch to public distributions for the packages. Increment 
-# the Minor number for package versions and maybe removing one package and using 
-# a distro. Patch number changes for no package version changes but changes to 
-# how the packages are built.
+# dependencies and switch to public distributions for the packages. 
+# - The minor version is incremented for package versions and maybe removing 
+# one package and using a distro. 
+# - The patch number is incremented when no package version is changed 
+# but there are changes to how the packages are built.
 #
 # Major.Minor.Patch
 
