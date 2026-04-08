@@ -1,6 +1,6 @@
 2024-10-22  James Gallagher  <jgallagher@opendap.org>
 
-	On osx/ventura, another option is neeed to build hdfeos. (#65)
+	On osx/ventura, another option is need to build hdfeos. (#65)
 	Need -Wno-implicit-function-declaration
 
 2024-10-15  James Gallagher  <jgallagher@opendap.org>
