@@ -333,23 +333,33 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
-	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib -lpthread -lm "; \
-	export proj_libdir="$(proj_prefix)/lib64" ; \
-	export deps_libdir="$(prefix)/deps/lib64"; \
-	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
-		if [[ "$$OSTYPE" == "darwin"* ]]; then \
-			echo "# Building on OSX, LDFLAGS unchanged"; \
-		else \
-			echo "# Not building on OSX; updating LDFLAGS"; \
-			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
-		fi; \
-	fi ; \
-	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
+	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
+	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
+	export proj_libdir="$(proj_prefix)/lib"; \
+	export deps_libdir="$(prefix)/deps/lib"; \
+	if test -d "$(proj_prefix)/lib64"; then \
+		export proj_libdir="$$proj_libdir $(proj_prefix)/lib64"; \
+	fi; \
+	if test -d "$(prefix)/deps/lib64"; then \
+		export deps_libdir="$$deps_libdir $(prefix)/deps/lib64"; \
+	fi; \
 	if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
 	else \
-		export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+		for dir in $$proj_libdir $$deps_libdir; do \
+			if test -d "$$dir"; then \
+				export LDFLAGS="$$LDFLAGS -L$$dir -Wl,-rpath -Wl,$$dir"; \
+			fi; \
+			if test -d "$$dir/pkgconfig"; then \
+				if test -n "$$PKG_CONFIG_PATH"; then \
+					export PKG_CONFIG_PATH="$$PKG_CONFIG_PATH:$$dir/pkgconfig"; \
+				else \
+					export PKG_CONFIG_PATH="$$dir/pkgconfig"; \
+				fi; \
+			fi; \
+		done; \
+		export LDFLAGS="$$LDFLAGS -lproj"; \
 	fi; \
 	echo "###################################################################"; \
 	echo "#     proj_libdir: '$$proj_libdir'"; \
@@ -360,15 +370,21 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	echo "#          OSTYPE: '$$OSTYPE'"; \
 	echo "#"; \
 	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
-	echo "#"; \
-	echo "# ls -l $$proj_libdir "; \
-	ls -l "$$proj_libdir" ; \
-	echo "#"; \
-	echo "# ls -l $$proj_libdir/pkgconfig: "; \
-	ls -l $$proj_libdir/pkgconfig; \
-	echo "#"; \
-	echo "# awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc: "; \
-	awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc; \
+	for dir in $$proj_libdir; do \
+		echo "#"; \
+		echo "# ls -l $$dir "; \
+		ls -l "$$dir" ; \
+		if test -d "$$dir/pkgconfig"; then \
+			echo "#"; \
+			echo "# ls -l $$dir/pkgconfig: "; \
+			ls -l "$$dir/pkgconfig"; \
+		fi; \
+		if test -f "$$dir/pkgconfig/proj.pc"; then \
+			echo "#"; \
+			echo "# awk '{print "## "$$0;}' $$dir/pkgconfig/proj.pc: "; \
+			awk '{print "## "$$0;}' "$$dir/pkgconfig/proj.pc"; \
+		fi; \
+	done; \
 	echo "#"; \
 	echo "# pkg-config --exists proj"; \
 	pkg-config --exists proj; \
