@@ -9,12 +9,19 @@
 #
 # Note that you can pass in extra flags for the configure scripts 
 # using CONFIGURE_FLAGS=... and CMAKE_FLAGS opts on the command line.
-#
-# Removed the dependencies on the targets for individual libraries.
-# This was complicating the build on Travis where some parts are present
-# (e.g., cmake).
 
-VERSION = 1.64
+# How to update this version number: 
+# - The Major version number is incremented when 
+# there is a huge architectural change - like we stop building a bunch of 
+# dependencies and switch to public distributions for the packages. 
+# - The minor version is incremented for package versions and maybe removing 
+# one package and using a distro. 
+# - The patch number is incremented when no package version is changed 
+# but there are changes to how the packages are built.
+#
+# Major.Minor.Patch
+
+VERSION = 1.64.0
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
@@ -99,17 +106,7 @@ deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
 # This targets are used to build and manage the dependencies builds. jhrg 10/10/25
-all: prefix-set
-	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
-
-# Build everything  as static. When the BES is built and
-# linked against these, the resulting modules will not need their
-# dependencies installed since they will be statically linked to them.
-# jhrg 4/7/15
-.PHONY: for-static-rpm
-for-static-rpm: prefix-set
-	for d in $(deps); \
-	    do echo "#### BUILDING: $$d"; CONFIGURE_FLAGS="--disable-shared" CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF" $(MAKE) $(MFLAGS) $$d; done
+all: for-travis
 
 .PHONY: for-travis
 for-travis: prefix-set
@@ -333,6 +330,7 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
+<<<<<<< jhrg/HYRAX-2012-proj-fPIC
 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
@@ -344,6 +342,22 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	if test -d "$(prefix)/deps/lib64"; then \
 		export deps_libdir="$$deps_libdir $(prefix)/deps/lib64"; \
 	fi; \
+=======
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
+	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
+	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
+	export proj_libdir="$(proj_prefix)/lib64" ; \
+	export deps_libdir="$(prefix)/deps/lib64"; \
+	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
+		if [[ "$$OSTYPE" == "darwin"* ]]; then \
+			echo "# Building on OSX, LDFLAGS unchanged"; \
+		else \
+			echo "# Not building on OSX; updating LDFLAGS"; \
+			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
+		fi; \
+	fi ; \
+	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
+>>>>>>> master
 	if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
 	else \
