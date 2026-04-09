@@ -430,49 +430,6 @@ proj-really-clean: proj-clean
 .PHONY: proj
 proj: proj-install-stamp
 
-# The 3.9.3 cmake build of GDAL did not work on OSX 15.7.1, but did
-# work on a previous version of 15.x jhrg 10/24/25
-# GDAL
-#gdal_src=$(src)/$(gdal)
-#gdal_prefix=$(prefix)/deps
-#
-#$(gdal_src)-stamp:
-#	tar -xzf downloads/$(gdal_dist) -C $(src)
-#	echo timestamp > $(gdal_src)-stamp
-#
-## Set build options here (a few) and (most) in gdal-config.cmake.
-## jhrg 11/30/22
-#gdal-configure-stamp: $(gdal_src)-stamp
-#	mkdir -p $(gdal_src)/build
-#	(cd $(gdal_src)/build \
-#	 && cmake \
-#	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-#	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-#	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-#	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-#	 $(CMAKE_FLAGS) \
-#	 -C ../../../gdal-config.cmake ..)
-#	echo timestamp > gdal-configure-stamp
-#
-#gdal-compile-stamp: gdal-configure-stamp
-#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS))
-#	echo timestamp > gdal-compile-stamp
-#
-#gdal-install-stamp: gdal-compile-stamp
-#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-#	echo timestamp > gdal-install-stamp
-#
-#gdal-clean:
-#	-rm gdal-*-stamp
-#	-(cd  $(gdal_src)/build && $(MAKE) $(MFLAGS) clean)
-#
-#gdal-really-clean: gdal-clean
-#	-rm $(gdal_src)-stamp
-#	-rm -rf $(gdal_src)
-#
-#.PHONY: gdal
-#gdal: gdal-install-stamp
-
 # Gridfields 
 gridfields_src=$(src)/$(gridfields)
 gridfields_prefix=$(prefix)/deps
