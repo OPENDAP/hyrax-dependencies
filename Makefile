@@ -330,7 +330,6 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-<<<<<<< jhrg/HYRAX-2012-proj-fPIC
 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
@@ -342,22 +341,6 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	if test -d "$(prefix)/deps/lib64"; then \
 		export deps_libdir="$$deps_libdir $(prefix)/deps/lib64"; \
 	fi; \
-=======
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
-	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
-	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
-	export proj_libdir="$(proj_prefix)/lib64" ; \
-	export deps_libdir="$(prefix)/deps/lib64"; \
-	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
-		if [[ "$$OSTYPE" == "darwin"* ]]; then \
-			echo "# Building on OSX, LDFLAGS unchanged"; \
-		else \
-			echo "# Not building on OSX; updating LDFLAGS"; \
-			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
-		fi; \
-	fi ; \
-	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
->>>>>>> master
 	if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
 	else \
