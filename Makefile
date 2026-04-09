@@ -21,7 +21,7 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.64.0
+VERSION = 1.65.0
 
 # If a site.mk file exists in the parent dir, include it. Use this
 # to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
