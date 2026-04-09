@@ -105,7 +105,7 @@ jobs:
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
       - install_dir="$HOME/$ARTIFACT/install"
       - echo "# $ARTIFACT - install_dir '$install_dir'" >&2
-      - mkdir -vp $"install_dir"
+      - mkdir -vp "$install_dir"
       - docker run 
         --env prefix=/root/install 
         --env BUILD_NUMBER="$TRAVIS_BUILD_NUMBER"
