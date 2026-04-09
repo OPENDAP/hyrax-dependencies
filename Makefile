@@ -330,49 +330,35 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include";\
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
-	export proj_libdir="$(proj_prefix)/lib64" ; \
-	export deps_libdir="$(prefix)/deps/lib64"; \
-	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; \
-		if [[ "$$OSTYPE" == "darwin"* ]]; then \
-			echo "# Building on OSX, LDFLAGS unchanged"; \
-		else \
-			echo "# Not building on OSX; updating LDFLAGS"; \
-			export LDFLAGS="$$LDFLAGS -L$$proj_libdir -lproj"; \
-		fi; \
-	fi ; \
-	if ! test -d "$$deps_libdir"; then export deps_libdir="$(prefix)/deps/lib"; fi; \
+	export proj_libdir="$(proj_prefix)/lib"; \
+	export deps_libdir="$(prefix)/deps/lib"; \
+	if test -d "$(proj_prefix)/lib64"; then \
+		export proj_libdir="$$proj_libdir $(proj_prefix)/lib64"; \
+	fi; \
+	if test -d "$(prefix)/deps/lib64"; then \
+		export deps_libdir="$$deps_libdir $(prefix)/deps/lib64"; \
+	fi; \
 	if [[ "$$OSTYPE" == "darwin"* ]]; then \
 		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
 	else \
-		export PKG_CONFIG_PATH="$$proj_libdir/pkgconfig:$$deps_libdir/pkgconfig"; \
+		for dir in $$proj_libdir $$deps_libdir; do \
+			if test -d "$$dir"; then \
+				export LDFLAGS="$$LDFLAGS -L$$dir -Wl,-rpath -Wl,$$dir"; \
+			fi; \
+			if test -d "$$dir/pkgconfig"; then \
+				if test -n "$$PKG_CONFIG_PATH"; then \
+					export PKG_CONFIG_PATH="$$PKG_CONFIG_PATH:$$dir/pkgconfig"; \
+				else \
+					export PKG_CONFIG_PATH="$$dir/pkgconfig"; \
+				fi; \
+			fi; \
+		done; \
+		export LDFLAGS="$$LDFLAGS -lproj"; \
 	fi; \
-	echo "###################################################################"; \
-	echo "#     proj_libdir: '$$proj_libdir'"; \
-	echo "#     deps_libdir: '$$deps_libdir'"; \
-	echo "# PKG_CONFIG_PATH: '$$PKG_CONFIG_PATH'"; \
-	echo "#        CPPFLAGS: '$$CPPFLAGS'"; \
-	echo "#         LDFLAGS: '$$LDFLAGS'"; \
-	echo "#          OSTYPE: '$$OSTYPE'"; \
-	echo "#"; \
-	pkg-config --list-all | awk '{print "## "$$0; }' - ; \
-	echo "#"; \
-	echo "# ls -l $$proj_libdir "; \
-	ls -l "$$proj_libdir" ; \
-	echo "#"; \
-	echo "# ls -l $$proj_libdir/pkgconfig: "; \
-	ls -l $$proj_libdir/pkgconfig; \
-	echo "#"; \
-	echo "# awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc: "; \
-	awk '{print "## "$$0;}' $$proj_libdir/pkgconfig/proj.pc; \
-	echo "#"; \
-	echo "# pkg-config --exists proj"; \
-	pkg-config --exists proj; \
-	if test $$? -eq 0 ; then echo "# pkg-config FOUND proj"; else echo "# pkg-config FAILED to find proj"; fi ; \
-	echo "#"; \
-	echo "###################################################################"; \
+	bash ../../travis/debug-proj-pkg-config.sh; \
 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
@@ -420,7 +406,7 @@ $(proj_src)-stamp:
 proj-configure-stamp: $(proj_src)-stamp
 	mkdir -p $(proj_src)/build
 	(cd $(proj_src)/build \
-	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) $(CMAKE_FLAGS) \
+	 && cmake -DCMAKE_INSTALL_PREFIX=$(proj_prefix) -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) \
         -DENABLE_TIFF:bool=OFF -DCMAKE_PREFIX_PATH=$(prefix)/deps ..)
 	echo timestamp > proj-configure-stamp
 
@@ -443,49 +429,6 @@ proj-really-clean: proj-clean
 
 .PHONY: proj
 proj: proj-install-stamp
-
-# The 3.9.3 cmake build of GDAL did not work on OSX 15.7.1, but did
-# work on a previous version of 15.x jhrg 10/24/25
-# GDAL
-#gdal_src=$(src)/$(gdal)
-#gdal_prefix=$(prefix)/deps
-#
-#$(gdal_src)-stamp:
-#	tar -xzf downloads/$(gdal_dist) -C $(src)
-#	echo timestamp > $(gdal_src)-stamp
-#
-## Set build options here (a few) and (most) in gdal-config.cmake.
-## jhrg 11/30/22
-#gdal-configure-stamp: $(gdal_src)-stamp
-#	mkdir -p $(gdal_src)/build
-#	(cd $(gdal_src)/build \
-#	 && cmake \
-#	 -DPROJ_INCLUDE_DIR=$(proj_prefix)/include \
-#	 -DPROJ_LIBRARY_RELEASE=$(proj_prefix)/lib/libproj.a \
-#	 -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-#	 -DCMAKE_C_FLAGS="-fPIC -O2" \
-#	 $(CMAKE_FLAGS) \
-#	 -C ../../../gdal-config.cmake ..)
-#	echo timestamp > gdal-configure-stamp
-#
-#gdal-compile-stamp: gdal-configure-stamp
-#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS))
-#	echo timestamp > gdal-compile-stamp
-#
-#gdal-install-stamp: gdal-compile-stamp
-#	(cd $(gdal_src)/build && $(MAKE) $(MFLAGS) -j1 install)
-#	echo timestamp > gdal-install-stamp
-#
-#gdal-clean:
-#	-rm gdal-*-stamp
-#	-(cd  $(gdal_src)/build && $(MAKE) $(MFLAGS) clean)
-#
-#gdal-really-clean: gdal-clean
-#	-rm $(gdal_src)-stamp
-#	-rm -rf $(gdal_src)
-#
-#.PHONY: gdal
-#gdal: gdal-install-stamp
 
 # Gridfields 
 gridfields_src=$(src)/$(gridfields)
