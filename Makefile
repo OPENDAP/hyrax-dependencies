@@ -21,11 +21,10 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.65.0
+VERSION = 1.65.1
 
-# If a site.mk file exists in the parent dir, include it. Use this
-# to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
-# which are needed to build the proj library in some obscure cases.
+# Uncomment this to include a site-specific set of Makefile lines
+# include site.mk
 
 # The names of the source code distribution files and and the dirs
 # they unpack to.
@@ -171,6 +170,22 @@ list-built-clean:
 
 .PHONY: list-built-really-clean
 list-built-really-clean:
+
+# list-built is nice, but what was not built!
+# I added '|| true' because the grep command return false 
+# with no output. jhrg 4/27/26
+.PHONY: list-not-built
+list-not-built:
+	@echo "*** Missing dependencies ***"
+	@./dependencies-not-built.sh || true
+	@echo "*** ---------------------------- ***"
+
+
+.PHONY: list-not-built-clean
+list-not-built-clean:
+
+.PHONY: list-not-built-really-clean
+list-not-built-really-clean:
 
 
 # AWS C++ SDK
