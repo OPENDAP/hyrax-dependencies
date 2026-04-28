@@ -71,7 +71,7 @@ hdfeos_dist=HDF-EOS2.19v1.00.tar.Z
 # This version of HDF-EOS for HDF4 is broken. jhrg 5/7/23
 # hdfeos_dist=HDF-EOS2.20v1.00.tar.Z
 
-hdf5=hdf5-1.14.6
+hdf5=hdf5-2.1.1
 hdf5_dist=$(hdf5).tar.gz
 
 netcdf4=netcdf-493-e
@@ -572,23 +572,35 @@ $(hdf5_src)-stamp:
 	echo timestamp > $(hdf5_src)-stamp
 
 hdf5-configure-stamp:  $(hdf5_src)-stamp
-	(cd $(hdf5_src) && ./configure $(CONFIGURE_FLAGS) \
-	 $(hdf5_configure_flags) $(defaults) --prefix=$(hdf5_prefix) \
-	 CFLAGS="-fPIC -O2 -w")
+	(cd $(hdf5_src) && cmake -S . -B build \
+	  -DCMAKE_INSTALL_PREFIX=$(hdf5_prefix) \
+	  -DBUILD_SHARED_LIBS=ON \
+          -DHDF5_BUILD_HL_LIB=ON \
+          -DHDF5_ENABLE_ZLIB_SUPPORT=ON \
+          -DZLIB_USE_EXTERNAL=ON\
+          -DZLIB_USE_LOCALCONTENT=OFF\
+          -DZLIB_TGZ_NAME=zlib-1.3.1.tar.gz\
+          -DHDF5_ALLOW_EXTERNAL_SUPPORT=TGZ\
+          -DHDF5_ENABLE_SZIP_SUPPORT=OFF \
+          -DHDF5_BUILD_CPP_LIB=OFF \
+          -DHDF5_BUILD_FORTRAN=OFF \
+          -DHDF5_BUILD_JAVA=OFF \
+          -DHDF5_BUILD_EXAMPLES=OFF \
+          -DBUILD_TESTING=OFF \
+          -DHDF5_ENABLE_PARALLEL=OFF)
 	echo timestamp > hdf5-configure-stamp
 
 hdf5-compile-stamp: hdf5-configure-stamp
-	(cd $(hdf5_src) && $(MAKE) $(MFLAGS))
+	(cd $(hdf5_src) && cmake --build build --parallel)
 	echo timestamp > hdf5-compile-stamp
 
-# Force -j1 for install
 hdf5-install-stamp: hdf5-compile-stamp
-	(cd $(hdf5_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(hdf5_src)/build && cmake --install .)
 	echo timestamp > hdf5-install-stamp
 
 hdf5-clean:
 	-rm hdf5-*-stamp
-	-(cd  $(hdf5_src) && $(MAKE) $(MFLAGS) clean)
+	-(cd  $(hdf5_src)/build && cmake --build . --target clean)
 
 hdf5-really-clean: hdf5-clean
 	-rm $(hdf5_src)-stamp
