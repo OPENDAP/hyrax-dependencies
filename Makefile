@@ -563,7 +563,7 @@ hdfeos-really-clean: hdfeos-clean
 hdfeos:
 	$(MAKE) $(MFLAGS) hdfeos-install-stamp
 
-# HDF5 
+# HDF5 use CMake starting from 2.0 
 hdf5_src=$(src)/$(hdf5)
 hdf5_prefix=$(prefix)/deps
 
