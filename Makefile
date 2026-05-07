@@ -203,8 +203,11 @@ aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
 aws_cdk_prefix=$(prefix)/deps
 
 $(aws_cdk_src)-stamp:
-	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
-	git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	@if test -d $(aws_cdk_src); then \
+	    echo "Using existing AWS SDK git clone"; \
+	else \
+	    git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src); \
+	fi
 	echo timestamp > $(aws_cdk_src)-stamp
 
 aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
