@@ -21,7 +21,7 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.65.1
+VERSION = 1.65.2
 
 # Uncomment this to include a site-specific set of Makefile lines
 # include site.mk
@@ -230,7 +230,7 @@ aws_cdk-clean:
 
 aws_cdk-really-clean: aws_cdk-clean
 	-rm $(src)/$(aws_cdk)-*-stamp
-	-rm -rf $(aws_cdk_src)
+	-rm -rf $(aws_cdk_src)/build
 
 .PHONY: aws_cdk
 aws_cdk: aws_cdk-install-stamp
@@ -338,7 +338,7 @@ openjpeg-clean:
 
 openjpeg-really-clean: openjpeg-clean
 	-rm $(src)/openjpeg-*-stamp	
-	-rm -rf $(openjpeg_src)
+	-rm -rf $(openjpeg_src)/build
 
 .PHONY: openjpeg
 openjpeg: openjpeg-install-stamp
@@ -450,7 +450,7 @@ proj-clean:
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp
-	-rm -rf $(proj_src)
+	-rm -rf $(proj_src)/build
 
 .PHONY: proj
 proj: proj-install-stamp
@@ -683,11 +683,10 @@ stare-install-stamp: stare-compile-stamp
 stare-clean:
 	-rm stare-*-stamp
 	-(cd  $(stare_src)/build && $(MAKE) $(MFLAGS) clean)
-	-rm -rf $(stare_src)/build
 
 stare-really-clean: stare-clean
 	-rm $(src)/$(stare)-stamp
-	-rm -rf $(src)/$(stare)
+	-rm -rf $(src)/$(stare)/build
 
 .PHONY: stare
 stare: stare-install-stamp
