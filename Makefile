@@ -101,6 +101,16 @@ docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list
 # NB The environment variable $prefix is assumed to be set.
 src = src
 defaults = --disable-dependency-tracking --enable-silent-rules
+
+# On newer Xcode toolchains, CMake defaults to the host macOS point release.
+# If MACOSX_DEPLOYMENT_TARGET is supplied on Darwin, pass it through so the
+# CMake-built dependencies can match BES/libdap. Leave Linux and unset cases alone.
+CMAKE_OSX_FLAGS =
+ifeq ($(shell uname -s),Darwin)
+ifneq ($(strip $(MACOSX_DEPLOYMENT_TARGET)),)
+CMAKE_OSX_FLAGS = -DCMAKE_OSX_DEPLOYMENT_TARGET=$(MACOSX_DEPLOYMENT_TARGET)
+endif
+endif
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
@@ -201,7 +211,7 @@ aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
 	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+	 	$(CMAKE_OSX_FLAGS) -DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . "--config Debug"
@@ -311,7 +321,7 @@ openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	mkdir -p $(openjpeg_src)/build
 	(cd $(openjpeg_src)/build \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) ..)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_OSX_FLAGS) $(CMAKE_FLAGS) ..)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
@@ -658,6 +668,7 @@ stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
 		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		$(CMAKE_OSX_FLAGS) \
 		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
