@@ -6,5 +6,6 @@
 .project
 .cproject
 .settings/
+.agents/
 .idea/
 .vscode/*.json
