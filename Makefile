@@ -21,7 +21,7 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.65.1
+VERSION = 1.65.2
 
 # Uncomment this to include a site-specific set of Makefile lines
 # include site.mk
@@ -101,6 +101,16 @@ docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list
 # NB The environment variable $prefix is assumed to be set.
 src = src
 defaults = --disable-dependency-tracking --enable-silent-rules
+
+# On newer Xcode toolchains, CMake defaults to the host macOS point release.
+# If MACOSX_DEPLOYMENT_TARGET is supplied on Darwin, pass it through so the
+# CMake-built dependencies can match BES/libdap. Leave Linux and unset cases alone.
+CMAKE_OSX_FLAGS =
+ifeq ($(shell uname -s),Darwin)
+ifneq ($(strip $(MACOSX_DEPLOYMENT_TARGET)),)
+CMAKE_OSX_FLAGS = -DCMAKE_OSX_DEPLOYMENT_TARGET=$(MACOSX_DEPLOYMENT_TARGET)
+endif
+endif
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
@@ -193,15 +203,18 @@ aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
 aws_cdk_prefix=$(prefix)/deps
 
 $(aws_cdk_src)-stamp:
-	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
-	git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	@if test -d $(aws_cdk_src); then \
+	    echo "Using existing AWS SDK git clone"; \
+	else \
+	    git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src); \
+	fi
 	echo timestamp > $(aws_cdk_src)-stamp
 
 aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
 	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+	 	$(CMAKE_OSX_FLAGS) -DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . "--config Debug"
@@ -220,7 +233,7 @@ aws_cdk-clean:
 
 aws_cdk-really-clean: aws_cdk-clean
 	-rm $(src)/$(aws_cdk)-*-stamp
-	-rm -rf $(aws_cdk_src)
+	-rm -rf $(aws_cdk_src)/build
 
 .PHONY: aws_cdk
 aws_cdk: aws_cdk-install-stamp
@@ -311,7 +324,7 @@ openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	mkdir -p $(openjpeg_src)/build
 	(cd $(openjpeg_src)/build \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) ..)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_OSX_FLAGS) $(CMAKE_FLAGS) ..)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
@@ -328,7 +341,7 @@ openjpeg-clean:
 
 openjpeg-really-clean: openjpeg-clean
 	-rm $(src)/openjpeg-*-stamp	
-	-rm -rf $(openjpeg_src)
+	-rm -rf $(openjpeg_src)/build
 
 .PHONY: openjpeg
 openjpeg: openjpeg-install-stamp
@@ -440,7 +453,7 @@ proj-clean:
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp
-	-rm -rf $(proj_src)
+	-rm -rf $(proj_src)/build
 
 .PHONY: proj
 proj: proj-install-stamp
@@ -658,6 +671,7 @@ stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
 		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		$(CMAKE_OSX_FLAGS) \
 		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
@@ -672,11 +686,10 @@ stare-install-stamp: stare-compile-stamp
 stare-clean:
 	-rm stare-*-stamp
 	-(cd  $(stare_src)/build && $(MAKE) $(MFLAGS) clean)
-	-rm -rf $(stare_src)/build
 
 stare-really-clean: stare-clean
 	-rm $(src)/$(stare)-stamp
-	-rm -rf $(src)/$(stare)
+	-rm -rf $(src)/$(stare)/build
 
 .PHONY: stare
 stare: stare-install-stamp

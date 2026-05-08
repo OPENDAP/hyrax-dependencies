@@ -2,7 +2,7 @@
 
 `hyrax-dependencies` is the dependency build workspace for Hyrax/BES. It is not a monorepo for the third-party packages it builds. The repository's main job is to assemble, build, and install the native dependency stack used by Hyrax into `$prefix/deps`.
 
-The handwritten [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/Makefile) is the operational source of truth for:
+The handwritten [`Makefile`](Makefile) is the operational source of truth for:
 
 - dependency versions
 - build order
@@ -11,11 +11,11 @@ The handwritten [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencie
 - platform workarounds
 - install layout
 
-Most dependency sources are expected as archives under [`downloads`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/downloads). One important exception is `aws_cdk`, which is cloned from GitHub during the build unless it is already present under [`src`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/src).
+Most dependency sources are expected as archives under [`downloads`](downloads). One important exception is `aws_cdk`, which is cloned from GitHub during the build unless it is already present under [`src`](src).
 
 ## Updating the dependencies and making a release
 
-When you change dependency versions, package membership, or build behavior, review the top-level `VERSION` in the [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/Makefile) and increment it using the guidance documented there:
+When you change dependency versions, package membership, or build behavior, review the top-level `VERSION` in the [`Makefile`](Makefile) and increment it using the guidance documented there:
 
 - increment `Major` for large architectural shifts in how dependencies are sourced or assembled
 - increment `Minor` when upstream package versions change, or when a package is added or removed
@@ -74,6 +74,7 @@ make clean
 make really-clean
 make uninstall
 make list-built
+make list-not-built
 ```
 
 What they do:
@@ -82,9 +83,12 @@ What they do:
 - `for-travis`: build the full dependency set for CI-style use
 - `for-docker`: build the reduced `docker_deps` set
 - `clean`: run package clean targets and remove root-level build stamps
-- `really-clean`: remove extracted or cloned source trees and source-level build state
+- `really-clean`: remove extracted or cloned source trees and source-level build state; for CMake builds, only the build directories are removed
 - `uninstall`: remove installed files from `$prefix/deps`
 - `list-built`: list root-level `*-install-stamp` files
+- `list-not-built`: compare installed stamp files with `all-dependencies.txt` and list missing dependencies
+
+The default `make` target is `all`, and `all` delegates to `for-travis`. Both `deps` and `docker_deps` include `list-built` and `list-not-built` at the end so grouped builds finish by showing what was installed and what is still missing.
 
 At the repo level, `install` and `check` are intentional no-ops.
 
@@ -104,7 +108,7 @@ In other words, `VERSION` names both the overall dependency build bundle and the
 
 Builds follow a staged stamp-file workflow. For each dependency, the `Makefile` typically:
 
-1. extracts or clones sources into [`src`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/src)
+1. extracts or clones sources into [`src`](src)
 2. configures the package
 3. compiles it
 4. installs it
@@ -152,6 +156,7 @@ The `Makefile` accepts operator-provided build flags, including:
 
 - `CONFIGURE_FLAGS`
 - `CMAKE_FLAGS`
+- `MACOSX_DEPLOYMENT_TARGET`
 - `CPPFLAGS`
 - `LDFLAGS`
 - `LIBPNG`
@@ -165,7 +170,18 @@ make CONFIGURE_FLAGS="--disable-shared"
 make CMAKE_FLAGS="-DBUILD_SHARED_LIBS:bool=OFF"
 ```
 
+On Darwin, when `MACOSX_DEPLOYMENT_TARGET` is set, the `Makefile` converts it to `-DCMAKE_OSX_DEPLOYMENT_TARGET=...` for CMake-based dependencies that use the shared `CMAKE_OSX_FLAGS` setting. This lets those dependency builds match the deployment target used by BES/libdap while leaving Linux and unset macOS builds unchanged.
+
+```sh
+export MACOSX_DEPLOYMENT_TARGET=13.0
+make
+```
+
 ## Platform Notes
+
+### macOS deployment target
+
+Newer Xcode toolchains may default CMake projects to the host macOS point release. If you need dependency binaries that are compatible with an older macOS target, set `MACOSX_DEPLOYMENT_TARGET` before building. The `Makefile` currently passes that value through to the CMake configure steps that opt into `CMAKE_OSX_FLAGS`.
 
 ### RHEL 8 and 9
 
@@ -199,13 +215,13 @@ make for-docker
 
 ## Repository Layout
 
-- [`Makefile`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/Makefile): canonical build logic
-- [`README`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/README): older operator notes retained in the repository
-- [`deep-dive.md`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/deep-dive.md): repository architecture and implementation notes
-- [`downloads`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/downloads): expected source archives for most packages
-- [`extra_downloads`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/extra_downloads): supplemental archives not wired into the main build lists
-- [`src`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/src): extracted or cloned working trees plus source-level build state
-- [`travis`](/Users/jimg/src/opendap/hyrax_git/hyrax-dependencies/travis): CI helper scripts
+- [`Makefile`](Makefile): canonical build logic
+- [`README`](README): older operator notes retained in the repository
+- [`deep-dive.md`](deep-dive.md): repository architecture and implementation notes
+- [`downloads`](downloads): expected source archives for most packages
+- [`extra_downloads`](extra_downloads): supplemental archives not wired into the main build lists
+- [`src`](src): extracted or cloned working trees plus source-level build state
+- [`travis`](travis): CI helper scripts
 
 ## Notes On Network Access
 
