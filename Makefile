@@ -591,7 +591,7 @@ hdfeos-really-clean: hdfeos-clean
 hdfeos:
 	$(MAKE) $(MFLAGS) hdfeos-install-stamp
 
-# HDF5 
+# HDF5 use CMake starting from 2.0
 hdf5_src=$(src)/$(hdf5)
 hdf5_prefix=$(prefix)/deps
 
@@ -648,7 +648,7 @@ $(netcdf4_src)-stamp:
 netcdf4-configure-stamp:  $(netcdf4_src)-stamp
 	(cd $(netcdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
 	--prefix=$(netcdf4_prefix) CPPFLAGS=-I$(hdf5_prefix)/include	\
-	CFLAGS="-fPIC -O2" LDFLAGS=-L$(hdf5_prefix)/lib)
+	CFLAGS="-fPIC -O2" LDFLAGS="$(LDFLAGS) -L$(hdf5_prefix)/lib -Wl,-rpath,$(hdf5_prefix)/lib")
 	echo timestamp > netcdf4-configure-stamp
 
 netcdf4-compile-stamp: netcdf4-configure-stamp
