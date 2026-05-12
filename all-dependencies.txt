@@ -1,0 +1,15 @@
+
+*** Packages built and installed ***
+aws_cdk-install-stamp
+bison-install-stamp
+gdal-install-stamp
+gridfields-install-stamp
+hdf4-install-stamp
+hdf5-install-stamp
+hdfeos-install-stamp
+jpeg-install-stamp
+netcdf4-install-stamp
+openjpeg-install-stamp
+proj-install-stamp
+stare-install-stamp
+*** ---------------------------- ***

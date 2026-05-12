@@ -21,11 +21,10 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.65.0
+VERSION = 1.65.2
 
-# If a site.mk file exists in the parent dir, include it. Use this
-# to add site-specific info like values for SQLITE3_LIBS and SQLITE3_CFLAGS,
-# which are needed to build the proj library in some obscure cases.
+# Uncomment this to include a site-specific set of Makefile lines
+# include site.mk
 
 # The names of the source code distribution files and and the dirs
 # they unpack to.
@@ -87,7 +86,7 @@ stare_dist=$(stare).tar.bz2
 # Removed sqlite3 since it's part of OSX and Linux. jhrg 10/20/25
 .PHONY: $(deps)
 deps = bison jpeg openjpeg gridfields hdf4 \
-hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
+hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built list-not-built
 
 # Removed lots of stuff because for Docker builds, we can use any decent
 # yum/rpm repo (e.g. EPEL). jhrg 8/18/21
@@ -97,11 +96,21 @@ hdfeos hdf5 netcdf4 proj gdal stare aws_cdk $(extra_targets) list-built
 # netCDF4 library does not. So, we added public calls for Direct I/O writes.
 # jhrg 1/5/24
 .PHONY: $(docker_deps)
-docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built
+docker_deps = gridfields stare hdf4 hdfeos netcdf4 aws_cdk $(extra_targets) list-built list-not-built
 
 # NB The environment variable $prefix is assumed to be set.
 src = src
 defaults = --disable-dependency-tracking --enable-silent-rules
+
+# On newer Xcode toolchains, CMake defaults to the host macOS point release.
+# If MACOSX_DEPLOYMENT_TARGET is supplied on Darwin, pass it through so the
+# CMake-built dependencies can match BES/libdap. Leave Linux and unset cases alone.
+CMAKE_OSX_FLAGS =
+ifeq ($(shell uname -s),Darwin)
+ifneq ($(strip $(MACOSX_DEPLOYMENT_TARGET)),)
+CMAKE_OSX_FLAGS = -DCMAKE_OSX_DEPLOYMENT_TARGET=$(MACOSX_DEPLOYMENT_TARGET)
+endif
+endif
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
@@ -172,21 +181,40 @@ list-built-clean:
 .PHONY: list-built-really-clean
 list-built-really-clean:
 
+# list-built is nice, but what was not built!
+# I added '|| true' because the grep command return false 
+# with no output. jhrg 4/27/26
+.PHONY: list-not-built
+list-not-built:
+	@echo "*** Missing dependencies ***"
+	@./dependencies-not-built.sh || true
+	@echo "*** ---------------------------- ***"
+
+
+.PHONY: list-not-built-clean
+list-not-built-clean:
+
+.PHONY: list-not-built-really-clean
+list-not-built-really-clean:
+
 
 # AWS C++ SDK
 aws_cdk_src=$(src)/$(aws_cdk)-$(aws_cdk_tag)
 aws_cdk_prefix=$(prefix)/deps
 
 $(aws_cdk_src)-stamp:
-	# tar -xzf downloads/$(aws_cdk_dist) -C $(src)
-	git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src)
+	@if test -d $(aws_cdk_src); then \
+	    echo "Using existing AWS SDK git clone"; \
+	else \
+	    git clone --depth 1 --shallow-submodules --branch $(aws_cdk_tag) --recurse-submodules https://github.com/aws/aws-sdk-cpp $(aws_cdk_src); \
+	fi
 	echo timestamp > $(aws_cdk_src)-stamp
 
 aws_cdk-configure-stamp:  $(aws_cdk_src)-stamp
 	mkdir -p $(aws_cdk_src)/build
 	(cd $(aws_cdk_src)/build \
 	 && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(prefix)/deps -DBUILD_ONLY="s3" \
-	 	-DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
+	 	$(CMAKE_OSX_FLAGS) -DAUTORUN_UNIT_TESTS=OFF $(CMAKE_FLAGS))
 	echo timestamp > aws_cdk-configure-stamp
 
 # We might want to use for development cmake --build . "--config Debug"
@@ -205,7 +233,7 @@ aws_cdk-clean:
 
 aws_cdk-really-clean: aws_cdk-clean
 	-rm $(src)/$(aws_cdk)-*-stamp
-	-rm -rf $(aws_cdk_src)
+	-rm -rf $(aws_cdk_src)/build
 
 .PHONY: aws_cdk
 aws_cdk: aws_cdk-install-stamp
@@ -296,7 +324,7 @@ openjpeg-configure-stamp:  $(openjpeg_src)-stamp
 	mkdir -p $(openjpeg_src)/build
 	(cd $(openjpeg_src)/build \
 	 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=$(prefix)/deps \
-	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_FLAGS) ..)
+	 -DCMAKE_C_FLAGS="-fPIC -O2" $(CMAKE_OSX_FLAGS) $(CMAKE_FLAGS) ..)
 	echo timestamp > openjpeg-configure-stamp
 
 openjpeg-compile-stamp: openjpeg-configure-stamp
@@ -313,7 +341,7 @@ openjpeg-clean:
 
 openjpeg-really-clean: openjpeg-clean
 	-rm $(src)/openjpeg-*-stamp	
-	-rm -rf $(openjpeg_src)
+	-rm -rf $(openjpeg_src)/build
 
 .PHONY: openjpeg
 openjpeg: openjpeg-install-stamp
@@ -425,7 +453,7 @@ proj-clean:
 
 proj-really-clean: proj-clean
 	-rm $(src)/proj-*-stamp
-	-rm -rf $(proj_src)
+	-rm -rf $(proj_src)/build
 
 .PHONY: proj
 proj: proj-install-stamp
@@ -620,7 +648,7 @@ $(netcdf4_src)-stamp:
 netcdf4-configure-stamp:  $(netcdf4_src)-stamp
 	(cd $(netcdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
 	--prefix=$(netcdf4_prefix) CPPFLAGS=-I$(hdf5_prefix)/include	\
-	CFLAGS="-fPIC -O2" LDFLAGS=-L$(hdf5_prefix)/lib)
+	CFLAGS="-fPIC -O2" LDFLAGS="$(LDFLAGS) -L$(hdf5_prefix)/lib -Wl,-rpath,$(hdf5_prefix)/lib")
 	echo timestamp > netcdf4-configure-stamp
 
 netcdf4-compile-stamp: netcdf4-configure-stamp
@@ -655,6 +683,7 @@ stare-configure-stamp: $(src)/$(stare)-stamp
 	mkdir -p $(stare_src)/build
 	(cd $(stare_src)/build && cmake .. \
 		-DCMAKE_INSTALL_PREFIX:PATH=$(stare_prefix) \
+		$(CMAKE_OSX_FLAGS) \
 		-DCMAKE_POLICY_VERSION_MINIMUM=3.5) 
 	echo timestamp > stare-configure-stamp
 
@@ -669,11 +698,10 @@ stare-install-stamp: stare-compile-stamp
 stare-clean:
 	-rm stare-*-stamp
 	-(cd  $(stare_src)/build && $(MAKE) $(MFLAGS) clean)
-	-rm -rf $(stare_src)/build
 
 stare-really-clean: stare-clean
 	-rm $(src)/$(stare)-stamp
-	-rm -rf $(src)/$(stare)
+	-rm -rf $(src)/$(stare)/build
 
 .PHONY: stare
 stare: stare-install-stamp
