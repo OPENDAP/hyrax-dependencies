@@ -10,7 +10,8 @@ on:
     branches:
       - master
       - main
-      - /^(.*-test-deploy)$/
+      # Do not use a regex here but use a glob pattern instead. jhrg 5/15/26
+      - '*-test-deploy'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     
@@ -73,8 +74,21 @@ jobs:
           TARBALL_NUMBERED: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}-${{ github.run_number }}.tgz"
           TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
       - name: Deploy to s3
-        # Only run when triggered by merge to main/test-deploy, as per push trigger definition above
-        if: (github.event_name == 'push')
+        # Upload release builds from main/master and test builds from branches
+        # whose names end in "-test-deploy". For pull_request events, the
+        # source branch is github.head_ref; for push/workflow_dispatch, it is
+        # github.ref_name. It's key to get the event_name and ref_name right here. jhrg 5/15/26
+        if: >-
+          ${{
+            (github.event_name == 'push' &&
+              (github.ref_name == 'master' ||
+               github.ref_name == 'main' ||
+               endsWith(github.ref_name, '-test-deploy'))) ||
+            (github.event_name == 'pull_request' &&
+              endsWith(github.head_ref, '-test-deploy')) ||
+            (github.event_name == 'workflow_dispatch' &&
+              endsWith(github.ref_name, '-test-deploy'))
+          }}
         run: |
           aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.github.actions.build
         shell: bash
