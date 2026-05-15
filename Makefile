@@ -21,7 +21,7 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.65.2
+VERSION = 1.66.0
 
 # Uncomment this to include a site-specific set of Makefile lines
 # include site.mk
