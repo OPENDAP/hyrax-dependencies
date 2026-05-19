@@ -647,7 +647,7 @@ $(netcdf4_src)-stamp:
 
 netcdf4-configure-stamp:  $(netcdf4_src)-stamp
 	(cd $(netcdf4_src) && ./configure $(CONFIGURE_FLAGS) $(defaults) \
-	--prefix=$(netcdf4_prefix) CPPFLAGS=-I$(hdf5_prefix)/include	\
+	--prefix=$(netcdf4_prefix) CPPFLAGS="$(CPPFLAGS) -I$(hdf5_prefix)/include" \
 	CFLAGS="-fPIC -O2" LDFLAGS="$(LDFLAGS) -L$(hdf5_prefix)/lib -Wl,-rpath,$(hdf5_prefix)/lib")
 	echo timestamp > netcdf4-configure-stamp
 
