@@ -31,6 +31,7 @@ jobs:
       matrix:
         runs-on:
           - macos-15
+          - macos-26
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,7 +60,7 @@ jobs:
         shell: bash
         env:
           # GDAL currently doesn't build on m-chip, ref #93
-          EXPECTED_DEPS_COUNT: "${{ matrix.runs-on == 'macos-15' && 11 || 12 }}"
+          EXPECTED_DEPS_COUNT: 11 # 12 when we get GDAL building here
       - name: Generate tarball
         run: |
           mkdir -vp ${{ github.workspace }}/package
