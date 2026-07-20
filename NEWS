@@ -1,3 +1,31 @@
+# Version-1.67, Hyrax-1.18.0
+
+  Tagged for Hyrax-1.18.0
+
+- Added GitHub Actions for macOS 15 builds, then disabled automatic OSX GHA runs.
+- Fixed GDAL build failures on OSX M4 and Apple Silicon.
+- Added a Travis test checking the expected number of built dependencies per OS.
+- Fixed the S3 push on merge to master.
+- Renamed .build-osx.yml to build-osx.yml and dropped the Mac Intel build.
+- Added macOS 26 CI/CD support.
+- Stopped producing static dependency builds, switching to non-static tarballs for Rocky 8/9 and OSX.
+- Added numbered dependency build tarballs alongside "latest".
+- Various tarball naming fixes.
+- Added RHEL 9 support.
+- Moved to the customized netCDF-4.9.3.
+- Updated PROJ to 9.5.1 and added -fPIC to its build flags.
+- Added and later removed AWS's s2n-tls.
+- Continued AWS SDK build work.
+- Allowed lower CMake versions for STARE and jpeg.
+- Fixed HDFEOS build when a dev build of libproj is present.
+- Added -rpath to LDFLAGS and fixed gdalinfo library lookup on OSX for GDAL.
+- Fixed a malformed CMake --config flag.
+- Added CPPFLAGS to custom netCDF4 build flags.
+- Added a new API for faster offset/length retrieval in chunking storage.
+- Added a not-built make target and bumped the patch version.
+- Added a pull request template prompting for version bumps.
+- Improved documentation.
+
 # Version-1.64
 
   Current VERSION from Makefile: 1.64
