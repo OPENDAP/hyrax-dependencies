@@ -1,3 +1,172 @@
+
+2026-06-02 James Gallagher  <jgallagher@opendap.org>
+
+	Adds Macos 26 to CICD (#116)
+
+2026-06-01 James Gallagher  <jgallagher@opendap.org>
+
+	Renamed .build-osx.yml to build-osx.yml; removed mac 
+	intel build (#115)
+
+2026-05-21 Hannah Robertson <hrobertson@opendap.org>
+
+	Add CPPFLAGS to custom netcdf4 cppflags to fix
+	otherwise broken netcdf4 build on macos m4 (#114).
+
+2026-05-18 James Gallagher  <jgallagher@opendap.org>
+
+	Address HDF5 CVE and update the HDF5 library to use newer, faster, 
+	API calls. Updating the hyrax-deps version to 1.66.0 an adds fixes to 
+	the MacOS Github CICD so that binary tarballs used later by the 
+	MacOS BES CICD builds are updated (#113).
+
+2026-05-07 James Gallagher  <jgallagher@opendap.org>
+
+	Reduce warnings in our OSX builds and to pave the 
+	way for the HDF5 2.1 build (#111)
+
+2026-05-05 James Gallagher  <jgallagher@opendap.org>
+
+	Bump up the patch number; Added a 'not-built' target
+	(#110)
+
+2026-04-09 James Gallagher  <jgallagher@opendap.org>
+
+	Add -fPIC to the build flags for proj (#104)
+
+2026-03-31 Hannah Robertson <hrobertson@opendap.org>
+
+	Add Pull Request Template with prompt for bumping version
+	(#107)
+
+2026-03-31 Hannah Robertson <hrobertson@opendap.org>
+
+	Stops making static dependency builds (#109)
+
+2026-03-30 James Gallagher  <jgallagher@opendap.org>
+
+	Adds/Update documentation (#105)
+
+2026-01-26 Hannah Robertson <hrobertson@opendap.org>
+
+	Fix Github Actions push to s3 on merge to master
+	(#101)
+
+2026-01-26 James Gallagher  <jgallagher@opendap.org>
+
+	Minor fix so that gdalinfo can find the gdal lib on 
+	OSX (#102)
+
+2026-01-12 James Gallagher  <jgallagher@opendap.org>
+
+	Added -rpath to LDFLAGS in the gdal build (#100)
+
+2025-12-11 Hannah Robertson <hrobertson@opendap.org>
+
+	Package osx tarballs (#99)
+
+2025-12-10 Hannah Robertson <hrobertson@opendap.org>
+
+	Make non-static tarballs for rocky8 and rocky9
+	(#97)
+
+2025-12-10 Nathan Potter <ndp@opendap.org>
+
+	Fixes the (incorrect) build names on travis (#98)
+
+2025-12-10 Hannah Robertson <hrobertson@opendap.org>
+
+	Reverts adding AWS's s2n-tls, no longer necessary
+	(#96)
+
+2025-12-10 Nathan Potter <ndp@opendap.org>
+
+	Adds a numbered dependencies build tarball in addition
+	to the 'latest' (#95)
+
+2025-12-03 Hannah Robertson <hrobertson@opendap.org>
+
+	Fix OSX dependency test to show that gdal is not 
+	currently building (#91)
+
+2025-12-02 Nathan Potter <ndp@opendap.org>
+
+	Fixed cmake flags --config that were breaking builds 
+	on ubuntu (#92)
+
+2025-12-01 Nathan Potter  <ndp@opendap.org>
+
+	Added RHEL9 support, and a fix to a gdal issue
+	during proj install for ubuntu, rhel8, and
+	rhel9 platforms (#81)
+
+2025-12-01 Hannah Robertson <hrobertson@opendap.org>
+
+	Added AWS's s2n-tls (#88)
+
+2025-11-26 Hannah Robertson <hrobertson@opendap.org>
+
+	Add travis test for expected number of built 
+	dependencies per OS (#87)
+
+2025-11-25 Hannah Robertson <hrobertson@opendap.org>
+
+	Fix GDAL build failure on OSX M4 (#86)
+
+2025-11-21 Hannah Robertson <hrobertson@opendap.org>
+
+	Disable automatic GHA for OSX builds (#85)
+
+2025-11-21 Hannah Robertson <hrobertson@opendap.org>
+
+	Added Github Actions that builds dependencies 
+	on MacOS15 (#82)
+
+2025-11-10 Kent Yang <myang6@hdfgroup.org>
+
+	Bump to use hdf5-1.14.6.tar.gz (#79)
+
+2025-10-27 James Gallagher  <jgallagher@opendap.org>
+
+	Bumped to proj-9.5.1 and also updated openjpeg. 
+	See #78
+
+2025-10-21 James Gallagher  <jgallagher@opendap.org>
+
+	Fix for hdfeos when the dev build of libproj is present,
+	and explicitly removed sqlite3 since already present 
+	in most OS (Fixed #76 via #77).
+
+2025-10-14 James Gallagher  <jgallagher@opendap.org>
+
+	Added support for AWS C++ SDK (#74)
+
+2025-10-14 Kent Yang <myang6@hdfgroup.org>
+
+	Use the customized netCDF-4.9.3. (#75)
+
+2025-09-17 Hannah Robertson  <hrobertson@opendap.org>
+
+	Added lower cmake versions for stare and jpeg 
+	to support building locally (#71)
+
+2025-09-17 James Gallagher  <jgallagher@opendap.org>
+
+	Formatting issues on Makefile and README (#71)
+
+2025-03-06 Kent Yang <myang6@hdfgroup.org>
+
+	Updated hdf4 tar.gz for new API that retrieves 
+	offsets/length for chunk storage (#68)
+
+2025-03-07 Kent Yang <myang6@hdfgroup.org>
+
+	Correct hdf4 tar.gz (#69)
+
+2025-01-14 Miguel A. Jimenez-Urias <mjimenez@opendap.org>
+
+	Updated ChangeLog, NEWS and Makefile for release 1.50
+
 2024-10-22  James Gallagher  <jgallagher@opendap.org>
 
 	On osx/ventura, another option is need to build hdfeos. (#65)
