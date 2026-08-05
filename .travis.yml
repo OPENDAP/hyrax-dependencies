@@ -7,7 +7,7 @@
 # package build for now as well. jhrg 10/28/19
 #
 
-dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
+dist: jammy             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
   size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
@@ -52,19 +52,20 @@ env:
 jobs:
   include:
   - stage: build
-    name: "ubuntu-focal"
+    name: "ubuntu"
     script:
-      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export ARTIFACT=ubuntu
+      - echo "# $ARTIFACT - Using '$(lsb_release -c)'" >&2
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
-      - echo "# ubuntu-focal - prefix '$prefix'" >&2
+      - echo "# $ARTIFACT - prefix '$prefix'" >&2
       - make -j16 for-travis
       - make list-built
-      - export ARTIFACT=ubuntu
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build-$TRAVIS_BUILD_NUMBER.tgz"
-      - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
       - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tgz"
-      - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - tar -C "$HOME" -czvf "$tarball_numbered" install
       - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
