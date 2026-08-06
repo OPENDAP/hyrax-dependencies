@@ -7,7 +7,7 @@
 # package build for now as well. jhrg 10/28/19
 #
 
-dist: focal             # or bionic | xenial | trusty | precise | focal with xenial as default
+dist: jammy             # or bionic | xenial | trusty | precise | focal with xenial as default
 
 vm:
   size: 2x-large       # options: large, x-large, 2x-large. These are EC2 instances. Default is 'medium'
@@ -52,27 +52,28 @@ env:
 jobs:
   include:
   - stage: build
-    name: "ubuntu-focal"
+    name: "ubuntu"
     script:
-      - echo "# ubuntu-focal - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
+      - export ARTIFACT="ubuntu"
+      - echo "# $ARTIFACT - $(lsb_release -c)" >&2
+      - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export prefix=$HOME/install
-      - echo "# ubuntu-focal - prefix '$prefix'" >&2
+      - echo "# $ARTIFACT - prefix '$prefix'" >&2
       - make -j16 for-travis
       - make list-built
-      - export ARTIFACT=ubuntu
       - mkdir -vp $TRAVIS_BUILD_DIR/package
-      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build-$TRAVIS_BUILD_NUMBER.tgz"
-      - echo "# ubuntu-focal - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-build.tgz"
-      - echo "# ubuntu-focal - tarball_latest '$tarball_latest'" >&2
+      - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-ubuntu-$TRAVIS_BUILD_NUMBER.tgz"
+      - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-ubuntu-snapshot.tgz"
+      - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - tar -C "$HOME" -czvf "$tarball_numbered" install
       - cp -v "$tarball_numbered" "$tarball_latest"
       - ./travis/check-installed $EXPECTED_DEPS_COUNT
 
   - stage: build
-    name: "rocky8 dynamic"
+    name: "el8 dynamic"
     script:
-      - export ARTIFACT="rocky8"
+      - export ARTIFACT="el8"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
@@ -85,10 +86,10 @@ jobs:
         --volume $install_dir:/root/install 
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky8_hyrax_builder:latest 
-        /root/hyrax-dependencies/travis/build-for-rocky8.sh
+        /root/hyrax-dependencies/travis/build-for-el8.sh
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-snapshot.tgz"
       - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
@@ -97,9 +98,9 @@ jobs:
       - ls -l  $TRAVIS_BUILD_DIR/package/
 
   - stage: build
-    name: "rocky9 dynamic"
+    name: "el9 dynamic"
     script:
-      - export ARTIFACT="rocky9"
+      - export ARTIFACT="el9"
       - echo "# $ARTIFACT - Expecting to build and install $EXPECTED_DEPS_COUNT dependencies." >&2
       - export extra_targets=""
       - echo "# $ARTIFACT - extra_targets '$extra_targets'" >&2
@@ -112,10 +113,10 @@ jobs:
         --volume $install_dir:/root/install 
         --volume $TRAVIS_BUILD_DIR:/root/hyrax-dependencies 
         opendap/rocky9_hyrax_builder:latest 
-        /root/hyrax-dependencies/travis/build-for-rocky9.sh
+        /root/hyrax-dependencies/travis/build-for-el9.sh
       - export tarball_numbered="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-$TRAVIS_BUILD_NUMBER.tgz"
       - echo "# $ARTIFACT - tarball_numbered '$tarball_numbered'" >&2
-      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT.tgz"
+      - export tarball_latest="$TRAVIS_BUILD_DIR/package/hyrax-dependencies-$ARTIFACT-snapshot.tgz"
       - echo "# $ARTIFACT - tarball_latest '$tarball_latest'" >&2
       - mkdir -vp $TRAVIS_BUILD_DIR/package
       - tar -C "$HOME/$ARTIFACT/" -czvf "$tarball_numbered" install
@@ -135,4 +136,4 @@ deploy:
       all_branches: true
       # Was "branch: master". Now supports the *-test-deploy feature and also
       # using 'main' as the branch name. jhrg 1/5/24
-      condition: $ARTIFACT =~ ^ubuntu|rocky8|rocky9$
+      condition: $ARTIFACT =~ ^ubuntu|el8|el9$
