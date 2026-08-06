@@ -29,6 +29,7 @@ export LDFLAGS="${LDFLAGS:-""} -ltirpc"
 # Why no libcurl already? No one knows...
 export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include/curl"
 export LDFLAGS="${LDFLAGS:-""} -lcurl"
+export CXXFLAGS="${CXXFLAGS:-""}"
 
 # Why no sqlite already? Installed from yum! No one knows...
 #export CPPFLAGS="${CPPFLAGS:-""} -I/usr/include"
