@@ -114,9 +114,6 @@ endif
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
-# This targets are used to build and manage the dependencies builds. jhrg 10/10/25
-all: for-travis
-
 .PHONY: for-travis
 for-travis: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
@@ -358,7 +355,7 @@ $(gdal_src)-stamp:
 
 gdal-configure-stamp: $(gdal_src)-stamp
 	(cd $(gdal_src) && \
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
 	export proj_libdir="$(proj_prefix)/lib"; \
@@ -393,8 +390,6 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
 	--without-sqlite3 --without-pg --without-cfitsio; \
-	status=$$?; \
-	if test $$status -ne 0 ; then  awk '{ print "## "$$0;}' ./config.log ; fi \
 	)
 	echo timestamp > gdal-configure-stamp
 
