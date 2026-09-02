@@ -119,9 +119,6 @@ endif
 deps_clean = $(deps:%=%-clean)
 deps_really_clean = $(deps:%=%-really-clean)
 
-# This targets are used to build and manage the dependencies builds. jhrg 10/10/25
-all: for-travis
-
 .PHONY: for-travis
 for-travis: prefix-set
 	for d in $(deps); do $(MAKE) $(MFLAGS) $$d; done
@@ -403,7 +400,7 @@ gdal-configure-stamp: $(gdal_src)-stamp
 	mkdir -p $(CURDIR)/$(gdal_src)/build/jpeg-include
 	ln -sf $(jpeg_prefix)/include/j*.h $(CURDIR)/$(gdal_src)/build/jpeg-include/
 	(cd $(gdal_src) && \
-	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/Cellar/libgeotiff/1.7.4/include"; \
+	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
 	export proj_libdir="$(proj_prefix)/lib"; \
