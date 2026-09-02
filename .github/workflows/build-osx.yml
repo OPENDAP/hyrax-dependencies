@@ -30,7 +30,6 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - macos-15
           - macos-26
     steps:
       - uses: actions/checkout@v4
