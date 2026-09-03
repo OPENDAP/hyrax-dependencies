@@ -59,7 +59,7 @@ jobs:
         shell: bash
         env:
           # GDAL currently doesn't build on m-chip, ref #93
-          EXPECTED_DEPS_COUNT: 11 # 12 when we get GDAL building here
+          EXPECTED_DEPS_COUNT: 12
       - name: Generate tarball
         run: |
           mkdir -vp ${{ github.workspace }}/package
