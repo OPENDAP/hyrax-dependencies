@@ -50,18 +50,20 @@ openjpeg_dist=$(openjpeg).tar.gz
 proj=proj-9.5.1
 proj_dist=$(proj).tar.gz
 
+# This version of GDAL buildsi using autotools. jhrg 9/3/26
 # gdal=gdal-3.2.1
-# gdal_dist=$(gdal).tar.gz
+
+# This (3.9.3) is the last version of gdal that does not require c++-17. jhrg 9/17/25
+gdal=gdal-3.9.3
 
 # GDAL dropped autoconf/automake in favor of CMake starting around 3.5, so
 # gdal-configure-stamp (below) now drives cmake instead of ./configure. jhrg 9/2/26
-gdal=gdal-3.13.3
+# NOT YET - with Rocky 9 we get a default compiler with C++17 support, which 
+# gdal > 3.9 requires. jhrg 9/3/26
+# gdal=gdal-3.13.3
 gdal_dist=$(gdal).tar.gz
 
-# This (3.9.3) is the last version of gdal that does not require c++-17. jhrg 9/17/25
-# gdal=gdal-3.11.4 - requires C++-17. jhrg 9/19/25
-# gdal=gdal-3.9.3
-# gdal_dist=$(gdal).tar.gz
+
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -468,64 +470,6 @@ gdal-really-clean: gdal-clean
 	-rm $(gdal_src)-stamp
 	-rm -rf $(gdal_src)/build
 	-rm -rf $(gdal_src)
-
-# --- Old autoconf/automake recipe, kept for gdal-3.2.1 (and earlier) reference. ---
-# gdal-configure-stamp: $(gdal_src)-stamp
-# 	(cd $(gdal_src) && \
-# 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/include"; \
-# 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
-# 	    -L$$prefix/deps/proj/lib -Wl,-rpath -Wl,$$prefix/deps/proj/lib -lpthread -lm "; \
-# 	export proj_libdir="$(proj_prefix)/lib"; \
-# 	export deps_libdir="$(prefix)/deps/lib"; \
-# 	if test -d "$(proj_prefix)/lib64"; then \
-# 		export proj_libdir="$$proj_libdir $(proj_prefix)/lib64"; \
-# 	fi; \
-# 	if test -d "$(prefix)/deps/lib64"; then \
-# 		export deps_libdir="$$deps_libdir $(prefix)/deps/lib64"; \
-# 	fi; \
-# 	if [[ "$$OSTYPE" == "darwin"* ]]; then \
-# 		export PKG_CONFIG_PATH=$(prefix)/deps/lib/pkgconfig; \
-# 	else \
-# 		for dir in $$proj_libdir $$deps_libdir; do \
-# 			if test -d "$$dir"; then \
-# 				export LDFLAGS="$$LDFLAGS -L$$dir -Wl,-rpath -Wl,$$dir"; \
-# 			fi; \
-# 			if test -d "$$dir/pkgconfig"; then \
-# 				if test -n "$$PKG_CONFIG_PATH"; then \
-# 					export PKG_CONFIG_PATH="$$PKG_CONFIG_PATH:$$dir/pkgconfig"; \
-# 				else \
-# 					export PKG_CONFIG_PATH="$$dir/pkgconfig"; \
-# 				fi; \
-# 			fi; \
-# 		done; \
-# 		export LDFLAGS="$$LDFLAGS -lproj"; \
-# 	fi; \
-# 	bash ../../travis/debug-proj-pkg-config.sh; \
-# 	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
-# 	--with-openjpeg --without-jasper --disable-all-optional-drivers \
-# 	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
-# 	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
-# 	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-# 	--without-sqlite3 --without-pg --without-cfitsio; \
-# 	)
-# 	echo timestamp > gdal-configure-stamp
-#
-# gdal-compile-stamp: gdal-configure-stamp
-# 	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
-# 	echo timestamp > gdal-compile-stamp
-#
-# # Force -j1 for install
-# gdal-install-stamp: gdal-compile-stamp
-# 	(cd $(gdal_src) && $(MAKE) $(MFLAGS) -j1 install)
-# 	echo timestamp > gdal-install-stamp
-#
-# gdal-clean:
-# 	-rm gdal-*-stamp
-# 	-(cd  $(gdal_src) && $(MAKE) $(MFLAGS) clean)
-#
-# gdal-really-clean: gdal-clean
-# 	-rm $(gdal_src)-stamp
-# 	-rm -rf $(gdal_src)
 
 .PHONY: gdal
 gdal: gdal-install-stamp
