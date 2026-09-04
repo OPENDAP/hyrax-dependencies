@@ -21,7 +21,7 @@
 #
 # Major.Minor.Patch
 
-VERSION = 1.67.0
+VERSION = 1.68.0
 
 # Uncomment this to include a site-specific set of Makefile lines
 # include site.mk
@@ -50,13 +50,20 @@ openjpeg_dist=$(openjpeg).tar.gz
 proj=proj-9.5.1
 proj_dist=$(proj).tar.gz
 
-gdal=gdal-3.2.1
-gdal_dist=$(gdal).tar.gz
+# This version of GDAL buildsi using autotools. jhrg 9/3/26
+# gdal=gdal-3.2.1
 
 # This (3.9.3) is the last version of gdal that does not require c++-17. jhrg 9/17/25
-# gdal=gdal-3.11.4 - requires C++-17. jhrg 9/19/25
-# gdal=gdal-3.9.3
-# gdal_dist=$(gdal).tar.gz
+gdal=gdal-3.9.3
+
+# GDAL dropped autoconf/automake in favor of CMake starting around 3.5, so
+# gdal-configure-stamp (below) now drives cmake instead of ./configure. jhrg 9/2/26
+# NOT YET - with Rocky 9 we get a default compiler with C++17 support, which 
+# gdal > 3.9 requires. jhrg 9/3/26
+# gdal=gdal-3.13.3
+gdal_dist=$(gdal).tar.gz
+
+
 
 gridfields=gridfields-1.0.5
 gridfields_dist=$(gridfields).tar.gz
@@ -353,7 +360,47 @@ $(gdal_src)-stamp:
 #	if ! test -d "$$proj_libdir"; then proj_libdir="$(proj_prefix)/lib"; export LDFLAGS="$$LDFLAGS -lproj"; fi ; \
 #	export LDFLAGS="$$LDFLAGS -lpthread -lm -L$$proj_libdir"; \
 
+# GDAL >= ~3.5 configures/builds with CMake instead of autoconf/automake. The
+# CMake option names below were chosen to reproduce, as closely as possible,
+# the effect of the old ./configure flags used for gdal-3.2.1:
+#
+#   --prefix=...                -> -DCMAKE_INSTALL_PREFIX=...
+#   --with-pic                  -> implied: CMake's GDAL_OBJECT_LIBRARIES_POSITION_INDEPENDENT_CODE
+#                                   defaults to the value of BUILD_SHARED_LIBS (ON by default)
+#   --with-openjpeg             -> -DGDAL_USE_OPENJPEG=ON
+#   --without-jasper            -> n/a: the JasPer JPEG2000 driver was removed from GDAL's
+#                                   CMake build entirely; OpenJPEG is the only JPEG2000 backend now
+#   --disable-all-optional-drivers -> -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF -DOGR_BUILD_OPTIONAL_DRIVERS=OFF
+#   --enable-driver-grib        -> -DGDAL_ENABLE_DRIVER_GRIB=ON
+#   --with-proj=...             -> -DCMAKE_PREFIX_PATH="...;..." so find_package(PROJ) locates it
+#                                   (there's no more autotools-style link test to work around, so
+#                                   --with-proj-extra-lib-for-test and debug-proj-pkg-config.sh are gone)
+#   --without-python            -> -DBUILD_PYTHON_BINDINGS=OFF
+#   --without-netcdf            -> -DGDAL_USE_NETCDF=OFF
+#   --without-hdf5              -> -DGDAL_USE_HDF5=OFF
+#   --without-hdf4              -> -DGDAL_USE_HDF4=OFF
+#   --without-sqlite3           -> -DGDAL_USE_SQLITE3=OFF
+#   --without-pg                -> -DGDAL_USE_POSTGRESQL=OFF
+#   --without-cfitsio           -> -DGDAL_USE_CFITSIO=OFF
+#
+# Also added -DBUILD_TESTING=OFF: CMake's GDAL defaults BUILD_TESTING to ON,
+# which autotools' GDAL never did for this build (and pulls in autotest/perftest
+# tooling we don't want here).
+#
+# jpeg-include shim: $(jpeg_prefix)/include (== $(prefix)/deps/include) is a
+# shared dumping ground for many packages' headers, and hdfeos's
+# --enable-install-include (see hdfeos-configure-stamp) copies its own private
+# gctp/include/proj.h in there too. CMake's find_package(JPEG) resolves
+# jpeglib.h to that same shared directory, which then puts hdfeos's bogus
+# proj.h ahead of the real one (from $(proj_prefix)/include) on GDAL's include
+# path and breaks the build with errors like "unknown type name 'PJ_CONTEXT'".
+# autotools' GDAL never hit this because it was never told to look in
+# $(prefix)/deps/include for jpeg.h in the first place. Sidestep it by giving
+# CMake a private directory that only symlinks the jpeg-6b headers (all named
+# j*.h, so this can't accidentally pick up hdfeos's proj.h/cproj.h).
 gdal-configure-stamp: $(gdal_src)-stamp
+	mkdir -p $(CURDIR)/$(gdal_src)/build/jpeg-include
+	ln -sf $(jpeg_prefix)/include/j*.h $(CURDIR)/$(gdal_src)/build/jpeg-include/
 	(cd $(gdal_src) && \
 	export CPPFLAGS="$(CPPFLAGS) -I$(proj_prefix)/include -I/opt/homebrew/include"; \
 	export LDFLAGS="$$LDFLAGS -L$$prefix/deps/lib -Wl,-rpath -Wl,$$prefix/deps/lib \
@@ -383,31 +430,45 @@ gdal-configure-stamp: $(gdal_src)-stamp
 		done; \
 		export LDFLAGS="$$LDFLAGS -lproj"; \
 	fi; \
-	bash ../../travis/debug-proj-pkg-config.sh; \
-	./configure $(CONFIGURE_FLAGS) --prefix=$(gdal_prefix) --with-pic \
-	--with-openjpeg --without-jasper --disable-all-optional-drivers \
-	--enable-driver-grib $(LIBPNG) --with-proj=$(proj_prefix) \
-	--with-proj-extra-lib-for-test="-L$(prefix)/deps/lib -lsqlite3 -lstdc++" \
-	--without-python --without-netcdf --without-hdf5 --without-hdf4 \
-	--without-sqlite3 --without-pg --without-cfitsio; \
+	cmake -S . -B build \
+	  -DCMAKE_BUILD_TYPE=Release \
+	  -DCMAKE_INSTALL_PREFIX=$(gdal_prefix) \
+	  -DCMAKE_PREFIX_PATH="$(proj_prefix);$(prefix)/deps" \
+	  -DCMAKE_INSTALL_RPATH="$(prefix)/deps/lib;$(proj_prefix)/lib" \
+	  -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+	  -DJPEG_INCLUDE_DIR=$(CURDIR)/$(gdal_src)/build/jpeg-include \
+	  $(CMAKE_OSX_FLAGS) \
+	  -DBUILD_TESTING=OFF \
+	  -DBUILD_PYTHON_BINDINGS=OFF \
+	  -DGDAL_USE_OPENJPEG=ON \
+	  -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF \
+	  -DOGR_BUILD_OPTIONAL_DRIVERS=OFF \
+	  -DGDAL_ENABLE_DRIVER_GRIB=ON \
+	  -DGDAL_USE_NETCDF=OFF \
+	  -DGDAL_USE_HDF5=OFF \
+	  -DGDAL_USE_HDF4=OFF \
+	  -DGDAL_USE_SQLITE3=OFF \
+	  -DGDAL_USE_POSTGRESQL=OFF \
+	  -DGDAL_USE_CFITSIO=OFF \
+	  $(CMAKE_FLAGS); \
 	)
 	echo timestamp > gdal-configure-stamp
 
 gdal-compile-stamp: gdal-configure-stamp
-	(cd $(gdal_src) && $(MAKE) $(MFLAGS))
+	(cd $(gdal_src) && cmake --build build --parallel 20)
 	echo timestamp > gdal-compile-stamp
 
-# Force -j1 for install
 gdal-install-stamp: gdal-compile-stamp
-	(cd $(gdal_src) && $(MAKE) $(MFLAGS) -j1 install)
+	(cd $(gdal_src) && cmake --install build)
 	echo timestamp > gdal-install-stamp
 
 gdal-clean:
 	-rm gdal-*-stamp
-	-(cd  $(gdal_src) && $(MAKE) $(MFLAGS) clean)
+	-(cd  $(gdal_src) && cmake --build build --target clean)
 
 gdal-really-clean: gdal-clean
 	-rm $(gdal_src)-stamp
+	-rm -rf $(gdal_src)/build
 	-rm -rf $(gdal_src)
 
 .PHONY: gdal

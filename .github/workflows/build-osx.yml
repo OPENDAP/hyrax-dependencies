@@ -59,7 +59,7 @@ jobs:
         shell: bash
         env:
           # GDAL currently doesn't build on m-chip, ref #93
-          EXPECTED_DEPS_COUNT: 11 # 12 when we get GDAL building here
+          EXPECTED_DEPS_COUNT: 12
       - name: Generate tarball
         run: |
           mkdir -vp ${{ github.workspace }}/package
@@ -70,7 +70,14 @@ jobs:
         shell: bash
         env:
           TARBALL_NUMBERED: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}-${{ github.run_number }}.tgz"
-          TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}.tgz"
+          # Suffix the "latest" tarball with '-test-deploy' on *-test-deploy branches/PRs so it
+          # doesn't overwrite the real deploy artifact of the same name. Mirrors the branch/PR
+          # check used by the "Deploy to s3" step below. jhrg 9/4/26
+          TARBALL_LATEST: "${{ github.workspace }}/package/hyrax-dependencies-${{ matrix.runs-on }}${{ 
+            ((github.event_name == 'push' && endsWith(github.ref_name, '-test-deploy')) || 
+             (github.event_name == 'pull_request' && endsWith(github.head_ref, '-test-deploy')) || 
+             (github.event_name == 'workflow_dispatch' && endsWith(github.ref_name, '-test-deploy'))) 
+            && '-test-deploy' || '' }}.tgz"
       - name: Deploy to s3
         # Upload release builds from main/master and test builds from branches
         # whose names end in "-test-deploy". For pull_request events, the
@@ -79,14 +86,9 @@ jobs:
         if: >-
           ${{
             (github.event_name == 'push' &&
-              (github.ref_name == 'master' ||
-               github.ref_name == 'main' ||
-               endsWith(github.ref_name, '-test-deploy'))) ||
-            (github.event_name == 'pull_request' &&
-              endsWith(github.head_ref, '-test-deploy')) ||
-            (github.event_name == 'workflow_dispatch' &&
-              endsWith(github.ref_name, '-test-deploy'))
-          }}
+              (github.ref_name == 'master' || github.ref_name == 'main' || endsWith(github.ref_name, '-test-deploy'))) ||
+            (github.event_name == 'pull_request' && endsWith(github.head_ref, '-test-deploy')) ||
+            (github.event_name == 'workflow_dispatch' && endsWith(github.ref_name, '-test-deploy')) }}
         run: |
           aws s3 cp --recursive ${{ github.workspace }}/package s3://opendap.github.actions.build
         shell: bash
