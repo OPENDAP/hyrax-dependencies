@@ -19,6 +19,9 @@ language: cpp
 
 compiler: gcc
 
+git:
+  depth: 1
+  
 branches:
   only:
     - master
