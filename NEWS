@@ -1,3 +1,9 @@
+# Version-1.67, Hyrax-1.18.1
+  Tagged for Hyrax-1.18.1
+
+- Makefile cleanup.
+- Update to gdal-3.9 (3.13 has to wait until we sunset el8)
+
 # Version-1.67, Hyrax-1.18.0
 
   Tagged for Hyrax-1.18.0

@@ -1,3 +1,33 @@
+##############################################################################
+# Hyrax-1.18.1 Oct 29, 2026
+#
+
+2026-09-04  James Gallagher  <jgallagher@opendap.org>
+
+	HYRAX-2229 gdal update to 3.9 (#123)
+	* Build gdal-3.13 using cmake
+	* Drop back to gdal 3.9 for C++11 (rocky8 compat)
+	* We need to stick with C++11 (gcc 8 does not support C++17) if we
+	are going to support rocky/redhat 8.
+	* Make the -test-deploy system appropriately name the uploaded output.
+	* Adopt a shallow-clone for this repo.
+
+2026-09-02  James Gallagher  <jgallagher@opendap.org>
+
+	HYRAX-2075 Simplify the Makefile by removing redundant target names (#121)
+	* Simplify the Makefile by removing redundant target names
+	* Removed the MacOS 15 build
+	
+##############################################################################
+# Hyrax-1.18.0 July 29, 2026
+#
+
+2026-07-21  Miguel Jimenez  <mjimenez@opendap.org>
+
+	[release process] Bump version number (#117)
+	* bump version number
+	* update changelog
+	* updated NEWS file
 
 2026-06-02 James Gallagher  <jgallagher@opendap.org>
 
